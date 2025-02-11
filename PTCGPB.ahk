@@ -66,7 +66,7 @@ global FriendID
 Gui, Show, w500 h640, Arturo's PTCGPB Bot Setup ;' Ensure the GUI size is appropriate
 
 Gui, Color, White  ; Set the background color to white
-Gui, Font, s10 Bold , Segoe UI 
+Gui, Font, s10 Bold , Segoe UI
 ; Add the button image on top of the GUI
 ;Gui, Add, Picture, gStart x196 y196 w108 h108 vImageButton  +BackgroundTrans, %normalImage%
 Gui, Add, Button, gArrangeWindows x215 y208 w70 h32, Arrange Windows
@@ -81,18 +81,18 @@ Gui, Add, Picture, x0 y0 w500 h640, %A_ScriptDir%\Scripts\GUI\GUI.png
 
 ; Add input controls
 if(FriendID = "ERROR")
-    FriendID = 
+    FriendID =
 
 if(FriendID = )
     Gui, Add, Edit, vFriendID x80 y95 w145 h30 Center
 else
     Gui, Add, Edit, vFriendID x80 y95 w145 h30 Center, %FriendID%
-    
+
 if(runMain)
     Gui, Add, CheckBox, Checked vrunMain x2 y95 Center, Main
 else
     Gui, Add, CheckBox, vrunMain x2 y95 Center, Main
-    
+
 Gui, Add, Edit, vInstances x275 y95 w72 Center, %Instances%
 Gui, Add, Edit, vColumns x348 y95 w72 Center, %Columns%
 
@@ -103,7 +103,7 @@ if (openPack = "Palkia") {
     defaultPack := 2
 } else if (openPack = "Mew") {
     defaultPack := 3
-} 
+}
 
 Gui, Add, DropDownList, x80 y166 w145 vopenPack choose%defaultPack% Center, Palkia|Dialga|Mew
 global scaleParam
@@ -114,7 +114,7 @@ if (defaultLanguage = "Scale125") {
 } else if (defaultLanguage = "Scale100") {
     defaultLang := 2
     scaleParam := 287
-} 
+}
 
 Gui, Add, DropDownList, x80 y245 w145 vdefaultLanguage choose%defaultLang%, Scale125
 
@@ -126,7 +126,7 @@ Loop, %MonitorCount%
     SysGet, MonitorName, MonitorName, %A_Index%
     SysGet, Monitor, Monitor, %A_Index%
     MonitorOptions .= (A_Index > 1 ? "|" : "") "" A_Index ": (" MonitorRight - MonitorLeft "x" MonitorBottom - MonitorTop ")"
-    
+
 }
 SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
 Gui, Add, DropDownList, x275 y245 w145 vSelectedMonitorIndex Choose%SelectedMonitorIndex%, %MonitorOptions%
@@ -160,8 +160,8 @@ Gui, Add, Edit, vswipeSpeed x348 y404 w72 Center, %swipeSpeed%
 ; Gui, Add, DropDownList, x275 y166 w145 vgodPack choose%defaultgodPack% Center, Close|Pause|Continue
 
 if (!CardCheck)
-    CardCheck = "Only God Packs" 
-defaultCardCheck := 1 
+    CardCheck = "Only God Packs"
+defaultCardCheck := 1
 if (TrainerCheck = "Yes" && FullArtCheck = "Yes" && RainbowCheck = "Yes")
     defaultCardCheck := 2      ; All
 else if (TrainerCheck = "Yes" && FullArtCheck = "Yes")
@@ -203,7 +203,7 @@ if (deleteMethod = "3 Pack") {
 
 Gui, Add, DropDownList, x80 y546 w145 vdeleteMethod choose%defaultDelete% Center gdeleteSettings, 3 Pack|1 Pack|Inject 1 Pack|Inject 2 Pack
 
-Gui, Font, s10 Bold, Segoe UI 
+Gui, Font, s10 Bold, Segoe UI
 if (InStr(deleteMethod, "Inject"))
     if(nukeAccount)
         Gui, Add, CheckBox, Checked vnukeAccount x2 y546 Center Hidden, Menu `nDelete
@@ -222,17 +222,17 @@ if(StrLen(discordUserID) > 2)
     Gui, Add, Edit, vdiscordUserId x273 y476 w72 h35 Center, %discordUserId%
 else
     Gui, Add, Edit, vdiscordUserId x273 y476 w72 h35 Center
-    
+
 if(StrLen(discordWebhookURL) > 2)
     Gui, Add, Edit, vdiscordWebhookURL x348 y476 w72 h35 Center, %discordWebhookURL%
 else
     Gui, Add, Edit, vdiscordWebhookURL x348 y476 w72 h35 Center
-    
+
 if(StrLen(heartBeatName) < 3)
-    heartBeatName = 
-    
+    heartBeatName =
+
 if(StrLen(heartBeatWebhookURL) < 3)
-    heartBeatWebhookURL = 
+    heartBeatWebhookURL =
 
 if(heartBeat) {
     Gui, Add, CheckBox, Checked vheartBeat x273 y512 Center gdiscordSettings, Discord Heartbeat
@@ -292,7 +292,7 @@ return
 deleteSettings:
     Gui, Submit, NoHide
     ;GuiControlGet, deleteMethod,, deleteMethod
-    
+
     if(InStr(deleteMethod, "Inject")) {
         GuiControl, Hide, nukeAccount
         nukeAccount = false
@@ -346,7 +346,7 @@ ShowMsgSpeed:
 return
 
 ShowMsgSwipeSpeed:
-    MsgBox, Input the swipe speed in milliseconds. `nAnything from 100 to 1000 can probably work. `nPlay around with the speed to get the best speed for your system. Lower number = faster speed. 
+    MsgBox, Input the swipe speed in milliseconds. `nAnything from 100 to 1000 can probably work. `nPlay around with the speed to get the best speed for your system. Lower number = faster speed.
 return
 
 ShowMsgdiscordID:
@@ -463,10 +463,10 @@ Loop, %Instances%
         if (ErrorLevel)
             MsgBox, Failed to create %TargetFile%. Ensure permissions and paths are correct.
     }
-    
+
     FileName := "Scripts\" . A_Index . ".ahk"
     Command := FileName
-    
+
     Run, %Command%
 }
 if(runMain) {
@@ -523,7 +523,7 @@ Loop {
                 offlineAHK := "Offline: none."
             if(onlineAHK = "Online: ")
                 onlineAHK := "Online: none."
-            
+
             discMessage := "\n" . onlineAHK . "\n" . offlineAHK . "\n" . packStatus
             if(heartBeatName)
                 discordUserID := heartBeatName
@@ -556,7 +556,7 @@ LogToDiscord(message, screenshotFile := "", ping := false, xmlFile := "") {
     discordPing := discordUserId
     if(heartBeatWebhookURL)
         discordWebhookURL := heartBeatWebhookURL
-        
+
     if (discordWebhookURL != "") {
         MaxRetries := 10
         RetryCount := 0
@@ -620,7 +620,7 @@ resetWindows(Title, SelectedMonitorIndex){
 
                     rowHeight := 533  ; Adjust the height of each row
                     currentRow := Floor((Title - 1) / Columns)
-                    y := currentRow * rowHeight    
+                    y := currentRow * rowHeight
                     x := Mod((Title - 1), Columns) * scaleParam
                     Title := "Main"
                     WinMove, %Title%, , % (MonitorLeft + x), % (MonitorTop + y), scaleParam, 537
@@ -645,7 +645,7 @@ resetWindows(Title, SelectedMonitorIndex){
                 Title := Title + 1
             rowHeight := 533  ; Adjust the height of each row
             currentRow := Floor((Title - 1) / Columns)
-            y := currentRow * rowHeight    
+            y := currentRow * rowHeight
             x := Mod((Title - 1), Columns) * scaleParam
             if(runMain)
                 Title := Title - 1
@@ -678,7 +678,7 @@ CreateStatusMessage(Message, X := 0, Y := 80) {
             if(!OwnerWND)
                 Gui, %GuiName%:New, +ToolWindow -Caption
             else
-                Gui, %GuiName%:New, +Owner%OwnerWND% +ToolWindow -Caption 
+                Gui, %GuiName%:New, +Owner%OwnerWND% +ToolWindow -Caption
             Gui, %GuiName%:Margin, 2, 2  ; Set margin for the GUI
             Gui, %GuiName%:Font, s8  ; Set the font size to 8 (adjust as needed)
             Gui, %GuiName%:Add, Text, vPacksText, %Message%
@@ -756,7 +756,7 @@ SumVariablesInJsonFile() {
     }
 
     ; Write the total sum to a file called "total.json"
-    
+
     if(sum > 0) {
         totalFile := A_ScriptDir . "\json\total.json"
         totalContent := "{""total_sum"": " sum "}"
