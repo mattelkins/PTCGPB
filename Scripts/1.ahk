@@ -1070,216 +1070,40 @@ CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 80) {
     }
 }
 
-checkCards() {
-    global winTitle, discordUserId, scriptName, packs, username, TrainerCheck, FullArtCheck, RainbowCheck
-    Sleep, 1000
+checkSpecific() {
+    global winTitle, discordUserId, scriptName, packs, username
+    Sleep, 200
 
-    trainerCoords := [[38, 184, 59, 187]
-                     ,[121, 184, 142, 187]
-                     ,[204, 184, 225, 187]
-                     ,[78, 299, 99, 302]
-                     ,[163, 299, 184, 302]]
+    Path := A_ScriptDir . "\Specific\"
+    pBitmap := from_window(WinExist(winTitle))
 
-    borderCoords := [[20, 284, 90, 286]
-                    ,[103, 284, 173, 286]
-                    ,[186, 284, 256, 286]
-                    ,[60, 399, 130, 401]
-                    ,[145, 399, 215, 401]]
+    coords := [[20, 130, 270, 400]]
 
-    twostarCoords := [[20, 285, 60, 286]
-                     ,[103, 285, 143, 286]
-                     ,[186, 285, 226, 286]
-                     ,[60, 400, 100, 401]
-                     ,[145, 400, 185, 401]]
+    Loop, Files, %Path%\*.png, F
+    {
+        pNeedle := GetNeedle(A_LoopFileFullPath)
 
-    rainbowCoords := [[30, 284, 90, 286]
-                     ,[113, 284, 173, 286]
-                     ,[196, 284, 256, 286]
-                     ,[70, 399, 130, 401]
-                     ,[155, 399, 215, 401]]
+        Loop, % coords.MaxIndex() s{
+            coord := coords[A_Index]
 
-    rBitmap := from_window(WinExist(winTitle))
-
-    if (TrainerCheck = 1) {
-        pTrainerNeedle := GetNeedle(A_ScriptDir . "\" . defaultLanguage . "\Trainer.png")
-        pBorderNeedle := GetNeedle(A_ScriptDir . "\" . defaultLanguage . "\Trainer2.png")
-
-        Loop % trainerCoords.Length() {
-            currentCard := A_Index
-            trainerCoord := trainerCoords[currentCard]
-            borderCoord := borderCoords[currentCard]
-
-            isTrainer := Gdip_ImageSearch(rBitmap, pTrainerNeedle, vPosXY, trainerCoord[1], trainerCoord[2], trainerCoord[3], trainerCoord[4], 57)
-            isNormal := Gdip_ImageSearch(rBitmap, pBorderNeedle, vPosXY, borderCoord[1], borderCoord[2], borderCoord[3], borderCoord[4], 17)
-
-            if (isTrainer = 1 && isNormal = 0) {
-                screenShot := Screenshot("Trainer")
-                accountFile := saveAccount("Trainer")
-                friendCode := getFriendCode()
-                logMessage := "2-Star Trainer found for " . username . "(" . friendCode . ") in instance: " . scriptName . " (" . packs . " packs)\nFile name: " . accountFile . "\nBacking up to the Accounts folder and continuing..."
+            if (Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, coord[1], coord[2], coord[3], coord[4], 140) = 1) {
+                Gdip_DisposeImage(pBitmap)
+                logMessage := "Specific card found for " . username . " in instance: " . scriptName . " (" . packs . " packs)"
                 CreateStatusMessage(logMessage)
                 LogToFile(logMessage, "GPlog.txt")
-                LogToDiscord(logMessage, screenShot, discordUserId)
-                Gdip_DisposeImage(rBitmap)
-                return true
-            }
-        }
-        CreateStatusMessage("No Rare Trainer")
-    }
 
-    if (FullArtCheck = 1) {
-        pTwostarNeedle := GetNeedle(A_ScriptDir . "\" . defaultLanguage . "\Twostar.png")
+                CreateStatusMessage("Sending Discord message...")
+                LogToDiscord(logMessage, Screenshot(), discordUserId)
 
-        Loop % twostarCoords.Length() {
-            coord := twostarCoords[A_Index]
-            if (Gdip_ImageSearch(rBitmap, pTwostarNeedle, vPosXY, coord[1], coord[2], coord[3], coord[4], 132) = 1) {
-                screenShot := Screenshot("2Star")
-                accountFile := saveAccount("2Star")
-                friendCode := getFriendCode()
-                logMessage := "2-Star Full Art found for " . username . "(" . friendCode . ") in instance: " . scriptName . " (" . packs . " packs)\nFile name: " . accountFile . "\nBacking up to the Accounts folder and continuing..."
-                CreateStatusMessage(logMessage)
-                LogToFile(logMessage, "GPlog.txt")
-                LogToDiscord(logMessage, screenShot, discordUserId)
-                Gdip_DisposeImage(rBitmap)
-                return true
-            }
-        }
-        CreateStatusMessage("No Rare 2-Star")
-    }
-
-    if (RainbowCheck = 1) {
-        pRainbowNeedle := GetNeedle(A_ScriptDir . "\" . defaultLanguage . "\Rainbow.png")
-
-        Loop % rainbowCoords.Length() {
-            coord := rainbowCoords[A_Index]
-            if (Gdip_ImageSearch(rBitmap, pRainbowNeedle, vPosXY, coord[1], coord[2], coord[3], coord[4], 137) = 1) {
-                screenShot := Screenshot("Rainbow")
-                accountFile := saveAccount("Rainbow")
-                friendCode := getFriendCode()
-                logMessage := "2-Star Rainbow found for " . username . "(" . friendCode . ") in instance: " . scriptName . " (" . packs . " packs)\nFile name: " . accountFile . "\nBacking up to the Accounts folder and continuing..."
-                CreateStatusMessage(logMessage)
-                LogToFile(logMessage, "GPlog.txt")
-                LogToDiscord(logMessage, screenShot, discordUserId)
-                Gdip_DisposeImage(rBitmap)
-                return true
-            }
-        }
-        CreateStatusMessage("No Rare Rainbow")
-    }
-
-    Gdip_DisposeImage(rBitmap)
-    return false
-}
-
-checkBorder() {
-    global winTitle, discordUserId, skipInvalidGP, Delay, username
-    gpFound := false
-    invalidGP := false
-    searchVariation := 5
-    confirm := false
-    Sleep, 250 ; give time for cards to render
-    Loop {
-        pBitmap := from_window(WinExist(winTitle))
-        Path = %A_ScriptDir%\%defaultLanguage%\Border.png
-        pNeedle := GetNeedle(Path)
-        ; ImageSearch within the region
-        if (scaleParam = 277) { ; 125% scale
-            vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 20, 284, 90, 286, searchVariation)
-        } else {
-            vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 20, 284-6, 90, 286-6, searchVariation)
-            ;bboxAndPause(20, 284-6, 90, 286-6)
-        }
-        Gdip_DisposeImage(pBitmap)
-        if (vRet = 1) {
-            CreateStatusMessage("Not a God Pack ")
-            packs += 1
-            break
-        }
-        else {
-            ;pause (should pause if first card is not 1 or 2 diamonds)
-            pBitmap := from_window(WinExist(winTitle))
-            Path = %A_ScriptDir%\%defaultLanguage%\Border.png
-            pNeedle := GetNeedle(Path)
-            ; ImageSearch within the region
-            if (scaleParam = 277) { ; 125% scale
-                vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 103, 284, 173, 286, searchVariation)
-            } else {
-                vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 103, 284-6, 173, 286-6, searchVariation)
-                ;bboxAndPause(103, 284-6, 173, 286-6)
-            }
-            Gdip_DisposeImage(pBitmap)
-            if (vRet = 1) {
-                CreateStatusMessage("Not a God Pack ")
-                LogToFile("Second card checked. Not a God Pack ")
-                packs += 1
-                break
-            }
-            else if (confirm) {
-                packs += 1
-                if(skipInvalidGP = 2) {
-                    Loop 8 {
-                        pBitmap := from_window(WinExist(winTitle))
-                        if (scaleParam = 277) { ; 125% scale
-                            Path = %A_ScriptDir%\Skip\%A_Index%.png
-                        } else {
-                            Path = %A_ScriptDir%\Skip\100\%A_Index%.png
-                        }
-                        pNeedle := GetNeedle(Path)
-                        vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 5, 165, 265, 405, searchVariation)
-                        ;bboxAndPause(5, 165, 265, 405, True)
-                        Gdip_DisposeImage(pBitmap)
-                        if (vRet = 1) {
-                            invalidGP := true
-                        }
-                    }
-                }
-                if(deleteMethod = "1 Pack")
-                    packs := 1
-                if(invalidGP) {
-                    Condemn := ["Uh-oh!", "Oops!", "Not quite!", "Better luck next time!", "Yikes!", "That didn’t go as planned.", "Try again!", "Almost had it!", "Not your best effort.", "Keep practicing!", "Oh no!", "Close, but no cigar.", "You missed it!", "Needs work!", "Back to the drawing board!", "Whoops!", "That’s rough!", "Don’t give up!", "Ouch!", "Swing and a miss!", "Room for improvement!", "Could be better.", "Not this time.", "Try harder!", "Missed the mark.", "Keep at it!", "Bummer!", "That’s unfortunate.", "So close!", "Gotta do better!"]
-                    Randmax := Condemn.Length()
-                    Random, rand, 1, Randmax
-                    Interjection := Condemn[rand]
-                    screenShot := Screenshot("Invalid")
-                    accountFile := saveAccount("Invalid")
-                    friendCode := getFriendCode()
-                    logMessage := Interjection . "\n" . username . "(" . friendCode . ")\nFound an invalid pack in instance: " . scriptName . " (" . packs . " packs)\nFile name: " . accountFile . "\nBacking up to the Accounts folder and continuing..."
-                    CreateStatusMessage(logMessage)
-                    godPackLog = GPlog.txt
-                    LogToFile(logMessage, godPackLog)
-                    LogToDiscord(logMessage, screenShot, discordUserId)
-                    break
-                }
-                else {
-                    Praise := ["Congrats!", "Congratulations!", "GG!", "Whoa!", "Praise Helix! ༼ つ ◕_◕ ༽つ", "Way to go!", "You did it!", "Awesome!", "Nice!", "Cool!", "You deserve it!", "Keep going!", "This one has to be live!", "No duds, no duds, no duds!", "Fantastic!", "Bravo!", "Excellent work!", "Impressive!", "You're amazing!", "Well done!", "You're crushing it!", "Keep up the great work!", "You're unstoppable!", "Exceptional!", "You nailed it!", "Hats off to you!", "Sweet!", "Kudos!", "Phenomenal!", "Boom! Nailed it!", "Marvelous!", "Outstanding!", "Legendary!", "Youre a rock star!", "Unbelievable!", "Keep shining!", "Way to crush it!", "You're on fire!", "Killing it!", "Top-notch!", "Superb!", "Epic!", "Cheers to you!", "Thats the spirit!", "Magnificent!", "Youre a natural!", "Gold star for you!", "You crushed it!", "Incredible!", "Shazam!", "You're a genius!", "Top-tier effort!", "This is your moment!", "Powerful stuff!", "Wicked awesome!", "Props to you!", "Big win!", "Yesss!", "Champion vibes!", "Spectacular!"]
-
-                    Randmax := Praise.Length()
-                    Random, rand, 1, Randmax
-                    Interjection := Praise[rand]
-                    screenShot := Screenshot()
-                    accountFile := saveAccount()
-                    friendCode := getFriendCode()
-                    if(godPack < 3)
-                        logMessage := Interjection . "\n" . username . "(" . friendCode . ")\nFound a God pack found in instance: " . scriptName . " (" . packs . " packs)\nFile name: " . accountFile . "\nInstance is stopping."
-                    else if(godPack = 3)
-                        logMessage := Interjection . "\n" . username . "(" . friendCode . ")\nFound a God Pack found in instance: " . scriptName . " (" . packs . " packs)\nFile name: " . accountFile . "\nBacking up to the Accounts folder and continuing..."
-                    CreateStatusMessage(logMessage)
-                    godPackLog = GPlog.txt
-                    LogToFile(logMessage, godPackLog)
-                    ;Run, http://google.com, , Hide ;Remove the ; at the start of the line and replace your url if you want to trigger a link when finding a god pack.
-                    LogToDiscord(logMessage, screenShot, discordUserId)
-                    gpFound := true
-                    break
-                }
-            }
-            else {
-                fpSleep := Delay * 5
-                Sleep, %fpSleep% ; delay to make sure cards rendered after not detecting common borders to eliminate false positives
-                confirm := true
+                saveAccount()
+                restartGameInstance("Specific card found. Continuing...", "GodPack")
+                return
             }
         }
     }
-    return gpFound
+
+    Gdip_DisposeImage(pBitmap)
+    CreateStatusMessage("No specific card found")
 }
 
 loadAccount() {
@@ -2413,19 +2237,12 @@ PackOpening() {
 
     FindImageAndClick(0, 98, 116, 125, 5, "Opening", 239, 497) ;skip through cards until results opening screen
 
-    foundGP := checkBorder() ;check card border to find godpacks
-    if(foundGP) {
-        if(godPack < 3)
-            killGodPackInstance()
-        else if(godPack = 3)
-            restartGameInstance("God Pack found. Continuing...", "GodPack") ; restarts to backup and delete xml file with account info.
-    }
-    foundTS := checkCards()
+    foundTS := checkSpecific()
     if(foundTS) {
         if(godPack < 3)
             killGodPackInstance()
         else if(godPack = 3)
-            restartGameInstance("TwoStar found. Continuing...", "GodPack") ; restarts to backup and delete xml file with account info.
+            restartGameInstance("Specific card found. Continuing...", "GodPack") ; restarts to backup and delete xml file with account info.
     }
 
     FindImageAndClick(233, 486, 272, 519, , "Skip", 146, 494) ;click on next until skip button appears
@@ -2522,19 +2339,12 @@ HourglassOpening() {
 
     FindImageAndClick(0, 98, 116, 125, 5, "Opening", 239, 497) ;skip through cards until results opening screen
 
-    foundGP := checkBorder() ;check card border to find godpacks
-    if(foundGP) {
-        if(godPack < 3)
-            killGodPackInstance()
-        else if(godPack = 3)
-            restartGameInstance("God Pack found. Continuing...", "GodPack") ; restarts to backup and delete xml file with account info.
-    }
-    foundTS := checkCards()
+    foundTS := checkSpecific()
     if(foundTS) {
         if(godPack < 3)
             killGodPackInstance()
         else if(godPack = 3)
-            restartGameInstance("TwoStar found. Continuing...", "GodPack") ; restarts to backup and delete xml file with account info.
+            restartGameInstance("specific found. Continuing...", "GodPack") ; restarts to backup and delete xml file with account info.
     }
 
     FindImageAndClick(233, 486, 272, 519, , "Skip", 146, 494) ;click on next until skip button appears
