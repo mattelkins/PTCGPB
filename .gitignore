@@ -6,5 +6,4 @@ Scripts/*.ahk
 Scripts/Specific
 !Scripts/1.ahk
 !Scripts/Main.ahk
-HeartBeat.ini
 Settings.ini
