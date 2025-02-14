@@ -25,37 +25,95 @@ FilePacksInit()
 Settings := SettingsRead()
 
 ; Main GUI setup.
-Gui, Show, w500 h640, Arturo's PTCGPB Bot
+Gui, Show, w500 h698, Arturo's PTCGP Bot
 Gui, Color, White
-Gui, Font, s10 Bold, Segoe UI
-
-Gui, Add, Button, gWindowsArrange x215 y208 w70 h32, Arrange Windows
-Gui, Add, Text, x227 y258 w46 h32 BackgroundGreen
-Gui, Add, Button, gStart x227 y258 w46 h32, Start
-
-Gui, Add, Text, x0 y604 w640 h30 gOpenLink cBlue Center +BackgroundTrans
-Gui, Add, Text, x265 y558 w167 h50 gOpenDiscord cBlue Center +BackgroundTrans
-
-; Add the background image to the GUI.
-Gui, Add, Picture, x0 y0 w500 h640, %A_ScriptDir%\Scripts\GUI\GUI.png
-
-Gui, Font, s15 Bold , Segoe UI
+Gui, Font, s10, Segoe UI
 
 ; Add input controls.
+guiControlWidth := 140
+guiControlMaxHeight := 26
+
+; - Header, Column 1
+guiControlMarginX := 95
+guiControlMarginY := 58
+
+; FriendID
 if (Settings["FriendID"] = "ERROR")
-    Gui, Add, Edit, vFriendID x80 y95 w145 h30 Center
+    Gui, Add, Edit, vFriendID x%guiControlMarginX% y%guiControlMarginY% w%guiControlWidth% h%guiControlMaxHeight% BackgroundTrans
 else
-    Gui, Add, Edit, vFriendID x80 y95 w145 h30 Center, % Settings["FriendID"]
+    Gui, Add, Edit, vFriendID x%guiControlMarginX% y%guiControlMarginY% w%guiControlWidth% h%guiControlMaxHeight% BackgroundTrans, % Settings["FriendID"]
 
+; - Header, Column 2
+guiControlMarginX := 330
+guiControlMarginY := 58
+
+if (Settings["discordUserID"] = "ERROR")
+    Gui, Add, Edit, vdiscordUserId x%guiControlMarginX% y%guiControlMarginY% w%guiControlWidth% h%guiControlMaxHeight% BackgroundTrans
+else
+    Gui, Add, Edit, vdiscordUserId x%guiControlMarginX% y%guiControlMarginY% w%guiControlWidth% h%guiControlMaxHeight% BackgroundTrans, % Settings["discordUserId"]
+
+; - Top, Column 1
+guiControlWidth := 150
+guiControlMaxWidth := 360
+guiControlMarginX := 70
+guiControlMarginY := 107
+
+; runMain
 if (Settings["runMain"])
-    Gui, Add, CheckBox, Checked vrunMain x2 y95 Center, Main
+    Gui, Add, CheckBox, Checked vrunMain x%guiControlMarginX% y%guiControlMarginY%, % "Run Main instance?"
 else
-    Gui, Add, CheckBox, vrunMain x2 y95 Center, Main
+    Gui, Add, CheckBox, vrunMain x%guiControlMarginX% y%guiControlMarginY%, % "Run Main instance?"
 
-Gui, Add, Edit, vInstances x275 y95 w72 Center, % Settings["Instances"]
-Gui, Add, Edit, vColumns x348 y95 w72 Center, % Settings["Columns"]
+; Instances
+Gui, Add, Text, x%guiControlMarginX% y+7 BackgroundTrans, % "Reroll Instances:"
+Gui, Add, Edit, vInstances x%guiControlMarginX% y+5 w%guiControlWidth% h%guiControlMaxHeight% BackgroundTrans, % Settings["Instances"]
 
-; Pack selection.
+; Columns
+Gui, Add, Text, x%guiControlMarginX% y+7 BackgroundTrans, % "Columns:"
+Gui, Add, Edit, vColumns x%guiControlMarginX% y+5 w%guiControlWidth% h%guiControlMaxHeight% BackgroundTrans, % Settings["Columns"]
+
+; folderPath
+Gui, Add, Text, x%guiControlMarginX% y+7 BackgroundTrans, % "MuMu Folder:"
+Gui, Add, Edit, vfolderPath x%guiControlMarginX% y+5 w%guiControlWidth% h%guiControlMaxHeight%, % Settings["folderPath"]
+
+; SelectedMonitorIndex
+SysGet, MonitorCount, MonitorCount
+MonitorOptions := ""
+Loop, %MonitorCount% {
+    SysGet, MonitorName, MonitorName, %A_Index%
+    SysGet, Monitor, Monitor, %A_Index%
+    MonitorOptions .= (A_Index > 1 ? "|" : "") "" A_Index ": (" MonitorRight - MonitorLeft "x" MonitorBottom - MonitorTop ")"
+}
+SelectedMonitorIndex := RegExReplace(Settings["SelectedMonitorIndex"], ":.*$")
+
+Gui, Add, Text, x%guiControlMarginX% y+7 BackgroundTrans, % "Monitor:"
+Gui, Add, DropDownList, x%guiControlMarginX% y+5 w%guiControlWidth% vSelectedMonitorIndex choose%SelectedMonitorIndex%, %MonitorOptions%
+
+; - Top, Column 2
+guiControlMarginX := 280
+guiControlMarginY := 133
+
+; Delay
+Gui, Add, Text, x%guiControlMarginX% y%guiControlMarginY% BackgroundTrans, % "Delay:"
+Gui, Add, Edit, vDelay x%guiControlMarginX% y+5 w%guiControlWidth% h%guiControlMaxHeight%, %Delay%
+
+; ChangeDate
+Gui, Add, Text, x%guiControlMarginX% y+7 BackgroundTrans, % "Refresh Time (HHMM):"
+Gui, Add, Edit, vChangeDate x%guiControlMarginX% y+5 w%guiControlWidth% h%guiControlMaxHeight%, % Settings["ChangeDate"]
+
+; swipeSpeed
+Gui, Add, Text, x%guiControlMarginX% y+7 BackgroundTrans, % "Swipe Speed:"
+Gui, Add, Edit, vswipeSpeed x%guiControlMarginX% y+5 w%guiControlWidth% h%guiControlMaxHeight%, % Settings["swipeSpeed"]
+
+; waitTime
+Gui, Add, Text, x%guiControlMarginX% y+7 BackgroundTrans, % "Friend Add Wait Time (s):"
+Gui, Add, Edit, vwaitTime x%guiControlMarginX% y+5 w%guiControlWidth% h%guiControlMaxHeight%, % Settings["waitTime"]
+
+; - Middle, Column 1
+guiControlMarginX := 70
+guiControlMarginY := 375
+
+; openPack
 if (Settings["openPack"] = "Palkia") {
     defaultPack := 1
 } else if (Settings["openPack"] = "Dialga") {
@@ -64,61 +122,54 @@ if (Settings["openPack"] = "Palkia") {
     defaultPack := 3
 }
 
-Gui, Add, DropDownList, x80 y166 w145 vopenPack choose%defaultPack% Center, Palkia|Dialga|Mew|Mewtwo|Charizard|Pikachu
+Gui, Add, Text, x%guiControlMarginX% y%guiControlMarginY% BackgroundTrans, % "Open Pack:"
+Gui, Add, DropDownList, vopenPack x%guiControlMarginX% y+5 w%guiControlWidth% choose%defaultPack%, Palkia|Dialga|Mew
 
-
-; Monitor selection
-SysGet, MonitorCount, MonitorCount
-MonitorOptions := ""
-Loop, %MonitorCount% {
-    SysGet, MonitorName, MonitorName, %A_Index%
-    SysGet, Monitor, Monitor, %A_Index%
-    MonitorOptions .= (A_Index > 1 ? "|" : "") "" A_Index ": (" MonitorRight - MonitorLeft "x" MonitorBottom - MonitorTop ")"
-
-}
-SelectedMonitorIndex := RegExReplace(Settings["SelectedMonitorIndex"], ":.*$")
-Gui, Add, DropDownList, x275 y245 w145 vSelectedMonitorIndex choose%SelectedMonitorIndex%, %MonitorOptions%
-
-Gui, Add, Edit, vDelay x80 y332 w145 Center, %Delay%
-Gui, Add, Edit, vChangeDate x275 y332 w145 Center, % Settings["ChangeDate"]
-Gui, Add, Edit, vswipeSpeed x348 y404 w72 Center, % Settings["swipeSpeed"]
-Gui, Add, Edit, x275 y404 w72 vwaitTime Center, % Settings["waitTime"]
-
-; Pack selection logic
+; skipInvalid
 if (Settings["skipInvalidGP"] = "No") {
     defaultskipGP := 1
 } else if (Settings["skipInvalidGP"] = "Yes") {
     defaultskipGP := 2
 }
 
-Gui, Add, DropDownList, x80 y476 w145 vskipInvalidGP choose%defaultskipGP% Center, No|Yes
+Gui, Add, Text, x%guiControlMarginX% y+7 BackgroundTrans, % "Skip Immersive/Crown Packs:"
+Gui, Add, DropDownList, vskipInvalidGP x%guiControlMarginX% y+5 w%guiControlWidth% choose%defaultskipGP%, No|Yes
 
-; Pack selection logic
+; deleteMethod
 if (Settings["deleteMethod"] = "3 Pack") {
-    defaultDelete := 1
+    defaultDeleteMethod := 1
 } else if (Settings["deleteMethod"] = "1 Pack") {
-    defaultDelete := 2
+    defaultDeleteMethod := 2
 } else if (Settings["deleteMethod"] = "Inject 1 Pack") {
-    defaultDelete := 3
+    defaultDeleteMethod := 3
 } else if (Settings["deleteMethod"] = "Inject 2 Pack") {
-    defaultDelete := 4
+    defaultDeleteMethod := 4
 }
 
-Gui, Add, DropDownList, x80 y546 w145 vdeleteMethod choose%defaultDelete% Center, 3 Pack|1 Pack|Inject 1 Pack|Inject 2 Pack
+Gui, Add, Text, x%guiControlMarginX% y+7 BackgroundTrans, % "Method:"
+Gui, Add, DropDownList, vdeleteMethod x%guiControlMarginX% y+5 w%guiControlWidth% choose%defaultDeleteMethod%, 3 Pack|1 Pack|Inject 1 Pack|Inject 2 Pack
 
-Gui, Font, s10 Bold, Segoe UI
-
-Gui, Add, Edit, vfolderPath x80 y404 w145 h35 Center, % Settings["folderPath"]
-
-if (Settings["discordUserID"] = "ERROR")
-    Gui, Add, Edit, vdiscordUserId x273 y476 w72 h35 Center
-else
-    Gui, Add, Edit, vdiscordUserId x273 y476 w72 h35 Center, % Settings["discordUserId"]
-
+; discordWebhookURL
+Gui, Add, Text, x%guiControlMarginX% y+7 BackgroundTrans, % "Discord Webhook URL:"
 if (Settings["discordWebhookURL"] = "ERROR")
-    Gui, Add, Edit, vdiscordWebhookURL x348 y476 w72 h35 Center
+    Gui, Add, Edit, vdiscordWebhookURL x%guiControlMarginX% y+5 w%guiControlMaxWidth% h%guiControlMaxHeight%
 else
-    Gui, Add, Edit, vdiscordWebhookURL x348 y476 w72 h35 Center, % Settings["discordWebhookURL"]
+    Gui, Add, Edit, vdiscordWebhookURL x%guiControlMarginX% y+5 w%guiControlMaxWidth% h%guiControlMaxHeight%, % Settings["discordWebhookURL"]
+
+; - Middle, Column 2
+guiControlMarginX := 280
+guiControlMarginY := 375
+
+Gui, Add, Text, x%guiControlMarginX% y%guiControlMarginY% BackgroundTrans, % "Find Pokemon:"
+Gui, Add, ListBox, vfindPokemon x%guiControlMarginX% y+5 w%guiControlWidth% r8 multi, Golem|Marshadow|Mew|Raichu|Serperior|Tauros|Vaporeon|Volcarona|---|Aerodactyl ex|Celebi ex|Gyarados ex|Mew ex|Pidgeot ex
+
+; - Bottom (Buttons)
+
+Gui, Add, Text, gWindowsArrange x175 y627 w153 h27 BackgroundTrans
+Gui, Add, Text, gStart x360 y627 w100 h27 BackgroundTrans
+
+; Add background picture.
+Gui, Add, Picture, x0 y0 w500 h698, %A_ScriptDir%\Assets\GUI\Background.png
 
 ; Show the GUI and return.
 Gui, Show

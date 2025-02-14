@@ -14,11 +14,3 @@ MonthToDays(year, month) {
 IsLeapYear(year) {
     return (Mod(year, 4) = 0 && Mod(year, 100) != 0) || Mod(year, 400) = 0
 }
-
-OpenLink() {
-    Run, https://buymeacoffee.com/aarturoo
-}
-
-OpenDiscord() {
-    Run, https://discord.gg/C9Nyf7P4sT
-}
