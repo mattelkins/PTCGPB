@@ -61,51 +61,76 @@ global FriendID
 	IniRead, RainbowCheck, Settings.ini, UserSettings, RainbowCheck, No
 
 ; Main GUI setup
-; Add the link text at the bottom of the GUI
+Gui, Show, w500 h698, Arturo's PTCGP Bot
+Gui, Color, White
+Gui, Font, s10, Segoe UI
 
-Gui, Show, w500 h640, Arturo's PTCGPB Bot Setup ;' Ensure the GUI size is appropriate
+; Add input controls.
+guiControlWidth := 140
+guiControlHalfWidth := 65
+guiControlMaxHeight := 26
 
-Gui, Color, White  ; Set the background color to white
-Gui, Font, s10 Bold , Segoe UI 
-; Add the button image on top of the GUI
-;Gui, Add, Picture, gStart x196 y196 w108 h108 vImageButton  +BackgroundTrans, %normalImage%
-Gui, Add, Button, gArrangeWindows x215 y208 w70 h32, Arrange Windows
-Gui, Add, Text, x227 y258 w46 h32 BackgroundGreen
-Gui, Add, Button, gStart x227 y258 w46 h32 vArrangeWindows, Start
+; - Header, Column 1
+guiControlMarginX := 95
+guiControlMarginY := 58
 
-Gui, Add, Text, x0 y604 w640 h30 gOpenLink cBlue Center +BackgroundTrans
-Gui, Add, Text, x265 y558 w167 h50 gOpenDiscord cBlue Center +BackgroundTrans
-Gui, Font, s15 Bold , Segoe UI
-; Add the background image to the GUI
-Gui, Add, Picture, x0 y0 w500 h640, %A_ScriptDir%\Scripts\GUI\GUI.png
-
-; Add input controls
+; FriendID
 if(FriendID = "ERROR")
-	FriendID = 
+	FriendID =
 
 if(FriendID = )
-	Gui, Add, Edit, vFriendID x80 y95 w145 h30 Center
+	Gui, Add, Edit, vFriendID x%guiControlMarginX% y%guiControlMarginY% w%guiControlWidth% h%guiControlMaxHeight% BackgroundTrans
 else
-	Gui, Add, Edit, vFriendID x80 y95 w145 h30 Center, %FriendID%
-	
+	Gui, Add, Edit, vFriendID x%guiControlMarginX% y%guiControlMarginY% w%guiControlWidth% h%guiControlMaxHeight% BackgroundTrans, %FriendID%
+
+; - Header, Column 2
+guiControlMarginX := 330
+guiControlMarginY := 58
+
+; discordUserID
+if(StrLen(discordUserID) > 2)
+	Gui, Add, Edit, vdiscordUserId x%guiControlMarginX% y%guiControlMarginY% w%guiControlWidth% h%guiControlMaxHeight% BackgroundTrans, %discordUserId%
+else
+	Gui, Add, Edit, vdiscordUserId x%guiControlMarginX% y%guiControlMarginY% w%guiControlWidth% h%guiControlMaxHeight% BackgroundTrans
+
+; - Top, Column 1
+guiControlWidth := 150
+guiControlMaxWidth := 360
+guiControlMarginX := 70
+guiControlMarginY := 107
+
+; runMain
 if(runMain)
-	Gui, Add, CheckBox, Checked vrunMain x2 y95 Center, Main
+	Gui, Add, CheckBox, Checked vrunMain x%guiControlMarginX% y%guiControlMarginY%, Main
 else
-	Gui, Add, CheckBox, vrunMain x2 y95 Center, Main
-	
-Gui, Add, Edit, vInstances x275 y95 w72 Center, %Instances%
-Gui, Add, Edit, vColumns x348 y95 w72 Center, %Columns%
+	Gui, Add, CheckBox, vrunMain x%guiControlMarginX% y%guiControlMarginY%, Main
 
-; Pack selection logic
-if (openPack = "Palkia") {
-	defaultPack := 1
-} else if (openPack = "Dialga") {
-	defaultPack := 2
-} else if (openPack = "Mew") {
-	defaultPack := 3
-} 
+; Instances | Columns
+Gui, Add, Text, x%guiControlMarginX% y+7 BackgroundTrans, Instances
+Gui, Add, Text, x+28 BackgroundTrans, Columns
 
-Gui, Add, DropDownList, x80 y166 w145 vopenPack choose%defaultPack% Center, Palkia|Dialga|Mew
+Gui, Add, Edit, vInstances x%guiControlMarginX% y+5 w%guiControlHalfWidth% h%guiControlMaxHeight% Center BackgroundTrans, %Instances%
+Gui, Add, Edit, vColumns x+20 w%guiControlHalfWidth% h%guiControlMaxHeight% Center BackgroundTrans, %Columns%
+
+; folderPath
+Gui, Add, Text, x%guiControlMarginX% y+7 BackgroundTrans, Folder
+Gui, Add, Edit, vfolderPath x%guiControlMarginX% y+5 w%guiControlWidth% h%guiControlMaxHeight%, %folderPath%
+
+; SelectedMonitorIndex
+SysGet, MonitorCount, MonitorCount
+MonitorOptions := ""
+Loop, %MonitorCount%
+{
+	SysGet, MonitorName, MonitorName, %A_Index%
+	SysGet, Monitor, Monitor, %A_Index%
+	MonitorOptions .= (A_Index > 1 ? "|" : "") "" A_Index ": (" MonitorRight - MonitorLeft "x" MonitorBottom - MonitorTop ")"
+
+}
+SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
+Gui, Add, Text, x%guiControlMarginX% y+7 BackgroundTrans, Monitor
+Gui, Add, DropDownList, x%guiControlMarginX% y+5 w%guiControlWidth% vSelectedMonitorIndex Choose%SelectedMonitorIndex%, %MonitorOptions%
+
+; defaultLanguage
 global scaleParam
 
 if (defaultLanguage = "Scale125") {
@@ -114,54 +139,30 @@ if (defaultLanguage = "Scale125") {
 } else if (defaultLanguage = "Scale100") {
 	defaultLang := 2
 	scaleParam := 287
-} 
-
-Gui, Add, DropDownList, x80 y245 w145 vdefaultLanguage choose%defaultLang%, Scale125
-
-; Initialize monitor dropdown options
-SysGet, MonitorCount, MonitorCount
-MonitorOptions := ""
-Loop, %MonitorCount%
-{
-	SysGet, MonitorName, MonitorName, %A_Index%
-	SysGet, Monitor, Monitor, %A_Index%
-	MonitorOptions .= (A_Index > 1 ? "|" : "") "" A_Index ": (" MonitorRight - MonitorLeft "x" MonitorBottom - MonitorTop ")"
-	
 }
-SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
-Gui, Add, DropDownList, x275 y245 w145 vSelectedMonitorIndex Choose%SelectedMonitorIndex%, %MonitorOptions%
 
-Gui, Add, Edit, vDelay x80 y332 w145 Center, %Delay%
-Gui, Add, Edit, vChangeDate x275 y332 w145 Center, %ChangeDate%
+Gui, Add, Text, x%guiControlMarginX% y+7 BackgroundTrans, Scale
+Gui, Add, DropDownList, x%guiControlMarginX% y+5 w%guiControlWidth% vdefaultLanguage choose%defaultLang%, Scale125
 
-; Speed selection logic
-; if (setSpeed = "2x") {
-	; defaultSpeed := 1
-; } else if (setSpeed = "1x/2x") {
-	; defaultSpeed := 2
-; } else if (setSpeed = "1x/3x") {
-	; defaultSpeed := 3
-; }
-; Gui, Add, DropDownList, x275 y404 w72 vsetSpeed choose%defaultSpeed% Center, 2x|1x/2x|1x/3x
-
-
-Gui, Add, Edit, vswipeSpeed x348 y404 w72 Center, %swipeSpeed%
-
+; - Top, Column 2
+guiControlMarginX := 280
 
 ; Pack selection logic
-; if (godPack = "Close") {
-	; defaultgodPack := 1
-; } else if (godPack = "Pause") {
-	; defaultgodPack := 2
-; } else if (godPack = "Continue") {
-	; defaultgodPack := 3
-; }
+if (openPack = "Palkia") {
+	defaultPack := 1
+} else if (openPack = "Dialga") {
+	defaultPack := 2
+} else if (openPack = "Mew") {
+	defaultPack := 3
+}
 
-; Gui, Add, DropDownList, x275 y166 w145 vgodPack choose%defaultgodPack% Center, Close|Pause|Continue
+; openPack
+Gui, Add, Text, x%guiControlMarginX% y%guiControlMarginY% BackgroundTrans, Pack
+Gui, Add, DropDownList, x%guiControlMarginX% y+5 w%guiControlWidth% vopenPack choose%defaultPack%, Palkia|Dialga|Mew
 
 if (!CardCheck)
-    CardCheck = "Only God Packs" 
-defaultCardCheck := 1 
+    CardCheck = "Only God Packs"
+defaultCardCheck := 1
 if (TrainerCheck = "Yes" && FullArtCheck = "Yes" && RainbowCheck = "Yes")
     defaultCardCheck := 2      ; All
 else if (TrainerCheck = "Yes" && FullArtCheck = "Yes")
@@ -177,9 +178,9 @@ else if (FullArtCheck = "Yes")
 else if (RainbowCheck = "Yes")
     defaultCardCheck := 8      ; Rainbow
 
-Gui, Add, DropDownList, x275 y166 w145 vCardCheck choose%defaultCardCheck% Center, Only God Packs|All|Trainer+Full Art|Trainer+Rainbow|Full Art+Rainbow|Trainer|Full Arts|Rainbow
-
-Gui, Add, Edit, x275 y404 w72 vwaitTime Center, %waitTime%
+; CardCheck
+Gui, Add, Text, x%guiControlMarginX% y+7 BackgroundTrans, Find 2 Stars
+Gui, Add, DropDownList, x%guiControlMarginX% y+5 w%guiControlWidth% vCardCheck choose%defaultCardCheck%, Only God Packs|All|Trainer+Full Art|Trainer+Rainbow|Full Art+Rainbow|Trainer|Full Arts|Rainbow
 
 ; Pack selection logic
 if (skipInvalidGP = "No") {
@@ -188,7 +189,9 @@ if (skipInvalidGP = "No") {
 	defaultskipGP := 2
 }
 
-Gui, Add, DropDownList, x80 y476 w145 vskipInvalidGP choose%defaultskipGP% Center, No|Yes
+; skipInvalid
+Gui, Add, Text, x%guiControlMarginX% y+7 BackgroundTrans, % "Skip Crowns/Immersives"
+Gui, Add, DropDownList, vskipInvalidGP x%guiControlMarginX% y+5 w%guiControlWidth% choose%defaultskipGP%, No|Yes
 
 ; Pack selection logic
 if (deleteMethod = "3 Pack") {
@@ -201,104 +204,96 @@ if (deleteMethod = "3 Pack") {
 	defaultDelete := 4
 }
 
-Gui, Add, DropDownList, x80 y546 w145 vdeleteMethod choose%defaultDelete% Center gdeleteSettings, 3 Pack|1 Pack|Inject 1 Pack|Inject 2 Pack
+; deleteMethod
+Gui, Add, Text, x%guiControlMarginX% y+7 BackgroundTrans, Method
+Gui, Add, DropDownList, x%guiControlMarginX% y+5 w%guiControlWidth% vdeleteMethod choose%defaultDelete% gdeleteSettings, 3 Pack|1 Pack|Inject 1 Pack|Inject 2 Pack
 
-Gui, Font, s10 Bold, Segoe UI 
-if (InStr(deleteMethod, "Inject"))
-	if(nukeAccount)
-		Gui, Add, CheckBox, Checked vnukeAccount x2 y546 Center Hidden, Menu `nDelete
-	else
-		Gui, Add, CheckBox, vnukeAccount x2 y546 Center Hidden, Menu `nDelete
+; nukeAccount
+if (nukeAccount)
+	Gui, Add, CheckBox, Checked vnukeAccount x%guiControlMarginX% y+10, % "Menu Delete"
 else
-	if(nukeAccount)
-		Gui, Add, CheckBox, Checked vnukeAccount x2 y546 Center, Menu `nDelete
-	else
-		Gui, Add, CheckBox, vnukeAccount x2 y546 Center, Menu `nDelete
+	Gui, Add, CheckBox, vnukeAccount x%guiControlMarginX% y+10, % "Menu Delete"
 
+if (InStr(deleteMethod, "Inject")) {
+	GuiControl, Hide, nukeAccount
+}
 
-Gui, Add, Edit, vfolderPath x80 y404 w145 h35 Center, %folderPath%
+; - Middle, Column 1
+guiControlMarginX := 70
+guiControlMarginY := 375
 
-if(StrLen(discordUserID) > 2)
-	Gui, Add, Edit, vdiscordUserId x273 y476 w72 h35 Center, %discordUserId%
-else
-	Gui, Add, Edit, vdiscordUserId x273 y476 w72 h35 Center
-	
+; Delay | waitTime
+Gui, Add, Text, x%guiControlMarginX% y%guiControlMarginY% BackgroundTrans, Delay
+Gui, Add, Text, x+51 BackgroundTrans, % "Wait Time"
+
+Gui, Add, Edit, vDelay x%guiControlMarginX% y+5 w%guiControlHalfWidth% h%guiControlMaxHeight% Center, %Delay%
+Gui, Add, Edit, vwaitTime x+20 w%guiControlHalfWidth% h%guiControlMaxHeight% Center, %waitTime%
+
+; discordWebhookURL
+Gui, Add, Text, x%guiControlMarginX% y+7 BackgroundTrans, Discord Webhook URL
 if(StrLen(discordWebhookURL) > 2)
-	Gui, Add, Edit, vdiscordWebhookURL x348 y476 w72 h35 Center, %discordWebhookURL%
+	Gui, Add, Edit, vdiscordWebhookURL x%guiControlMarginX% y+5 w%guiControlMaxWidth% h%guiControlMaxHeight%, %discordWebhookURL%
 else
-	Gui, Add, Edit, vdiscordWebhookURL x348 y476 w72 h35 Center
-	
+	Gui, Add, Edit, vdiscordWebhookURL x%guiControlMarginX% y+5 w%guiControlMaxWidth% h%guiControlMaxHeight%
+
+; heartBeat
+if (heartBeat)
+	Gui, Add, CheckBox, Checked vheartBeat x%guiControlMarginX% y+7, Discord Heartbeat
+else
+	Gui, Add, CheckBox, vheartBeat x%guiControlMarginX% y+7, Discord Heartbeat
+
+
+; - Middle, Column 2
+guiControlMarginX := 280
+guiControlMarginY := 375
+
+; ChangeDate | swipeSpeed
+Gui, Add, Text, x%guiControlMarginX% y%guiControlMarginY% BackgroundTrans, Swipe Speed
+Gui, Add, Text, x+7 BackgroundTrans, % "Time Zone"
+
+Gui, Add, Edit, vswipeSpeed x%guiControlMarginX% y+5 w%guiControlHalfWidth% h%guiControlMaxHeight% Center, %swipeSpeed%
+Gui, Add, Edit, vChangeDate x+20 w%guiControlHalfWidth% h%guiControlMaxHeight% Center, %ChangeDate%
+
+; heartBeatName
 if(StrLen(heartBeatName) < 3)
-	heartBeatName = 
-	
+    heartBeatName =
+
+Gui, Add, Text, x%guiControlMarginX% y+63 BackgroundTrans, Heartbeat Name
+Gui, Add, Edit, vheartBeatName x%guiControlMarginX% y+5 w%guiControlWidth% h%guiControlMaxHeight%, %heartBeatName%
+
+; heartBeatWebhookURL
 if(StrLen(heartBeatWebhookURL) < 3)
-	heartBeatWebhookURL = 
+    heartBeatWebhookURL =
 
-if(heartBeat) {
-	Gui, Add, CheckBox, Checked vheartBeat x273 y512 Center gdiscordSettings, Discord Heartbeat
-	Gui, Add, Edit, vheartBeatName x273 y532 w72 h20 Center, %heartBeatName%
-	Gui, Add, Edit, vheartBeatWebhookURL x348 y532 w72 h20 Center, %heartBeatWebhookURL%
-}
-else {
-	Gui, Add, CheckBox, vheartBeat x273 y512 Center gdiscordSettings, Discord Heart Beat
-	Gui, Add, Edit, vheartBeatName x273 y532 w72 h20 Center Hidden, %heartBeatName%
-	Gui, Add, Edit, vheartBeatWebhookURL x348 y532 w72 h20 Center Hidden, %heartBeatWebhookURL%
-}
+Gui, Add, Text, x%guiControlMarginX% y+7 BackgroundTrans, Heartbeat Webhook URL
+Gui, Add, Edit, vheartBeatWebhookURL x%guiControlMarginX% y+5 w%guiControlWidth% h%guiControlMaxHeight%, %heartBeatWebhookURL%
 
+; - Bottom (Links & Buttons)
 
+Gui, Add, Text, gOpenDiscord x68 y535 w153 h27 BackgroundTrans
+Gui, Add, Text, gOpenLink x68 y566 w153 h27 BackgroundTrans
 
-; Gui, Font, s10 cGray Norm Bold, Segoe UI  ; Normal font for input labels
-; Gui Add, Button, x190 y72 w17 h19 gShowMsgName, ? ;Questionmark box for Name Field
-; Gui Add, Button, x342 y77 w17 h19 gShowMsgInstances, ? ;Questionmark box for Instance Field
-; Gui Add, Button, x415 y77 w17 h19 gShowMsgColumns, ? ;Questionmark box for Instance Per Row Field
+Gui, Add, Text, gArrangeWindows x175 y627 w153 h27 BackgroundTrans
+Gui, Add, Text, gStart x360 y627 w100 h27 BackgroundTrans
 
-; Gui Add, Button, x190 y145 w17 h19 gShowMsgPacks, ? ;Questionmark box for Pack to Open Field
-; Gui Add, Button, x423 y145 w17 h19 gShowMsgGodPacks, ? ;Questionmark box for God Pack to Open Field
-
-; Gui Add, Button, x78 y219 w17 h19 gShowMsgLanguage, ? ;Questionmark box for God Pack to Open Field
-; Gui Add, Button, x400 y219 w17 h19 gShowMsgMonitor, ? ;Questionmark box for God Pack to Open Field
-
-; Gui Add, Button, x192 y307 w17 h19 gShowMsgDelay, ? ;Questionmark box for Delay in ms Field
-; Gui Add, Button, x411 y307 w17 h19 gShowMsgTimeZone, ? ;Questionmark box for Timezone Field
-
-; Gui Add, Button, x193 y378 w17 h19 gShowMsgFolder, ? ;Questionmark box for SwipeSpeed Field
-; Gui Add, Button, x343 y378 w17 h19 gShowMsgSpeed, ? ;Questionmark box for Speed Field
-; Gui Add, Button, x408 y378 w17 h19 gShowMsgSwipeSpeed, ? ;Questionmark box for SwipeSpeed Field
-
-; Gui Add, Button, x428 y448 w17 h19 gShowMsgdiscordwebHook, ? ;Questionmark box for discord id Field
-; Gui Add, Button, x330 y448 w17 h19 gShowMsgdiscordID, ? ;Questionmark box for discord web hook Field
-
-; Gui Add, Button, x230 y518 w17 h19 gShowMsgAccountDeletion, ? ;Questionmark box for Account Deletion to Open Field
-; Gui Add, Button, x235 y448 w17 h19 gShowMsgSkipGP, ? ;Questionmark box for Account Deletion to Open Field
+; Add background picture.
+Gui, Add, Picture, x0 y0 w500 h698, %A_ScriptDir%\Scripts\GUI\Background.png
 
 ; Show the GUI
 Gui, Show
 return
 
-
-discordSettings:
-    Gui, Submit, NoHide
-
-    if (heartBeat) {
-		GuiControl, Show, heartBeatName
-        GuiControl, Show, heartBeatWebhookURL
-    }
-    else {
-        GuiControl, Hide, heartBeatName
-        GuiControl, Hide, heartBeatWebhookURL
-    }
-return
-
 deleteSettings:
     Gui, Submit, NoHide
-	;GuiControlGet, deleteMethod,, deleteMethod
-	
-	if(InStr(deleteMethod, "Inject")) {
+	GuiControlGet, deleteMethod
+
+	if (InStr(deleteMethod, "Inject")) {
 		GuiControl, Hide, nukeAccount
 		nukeAccount = false
 	}
-	else
+	else {
 		GuiControl, Show, nukeAccount
+	}
 return
 
 ShowMsgName:
@@ -346,7 +341,7 @@ ShowMsgSpeed:
 return
 
 ShowMsgSwipeSpeed:
-	MsgBox, Input the swipe speed in milliseconds. `nAnything from 100 to 1000 can probably work. `nPlay around with the speed to get the best speed for your system. Lower number = faster speed. 
+	MsgBox, Input the swipe speed in milliseconds. `nAnything from 100 to 1000 can probably work. `nPlay around with the speed to get the best speed for your system. Lower number = faster speed.
 return
 
 ShowMsgdiscordID:
@@ -463,10 +458,10 @@ Loop, %Instances%
 		if (ErrorLevel)
 			MsgBox, Failed to create %TargetFile%. Ensure permissions and paths are correct.
 	}
-	
+
 	FileName := "Scripts\" . A_Index . ".ahk"
 	Command := FileName
-	
+
 	Run, %Command%
 }
 if(runMain) {
@@ -523,7 +518,7 @@ Loop {
 				offlineAHK := "Offline: none."
 			if(onlineAHK = "Online: ")
 				onlineAHK := "Online: none."
-			
+
 			discMessage := "\n" . onlineAHK . "\n" . offlineAHK . "\n" . packStatus
 			if(heartBeatName)
 				discordUserID := heartBeatName
@@ -556,7 +551,7 @@ LogToDiscord(message, screenshotFile := "", ping := false, xmlFile := "") {
 	discordPing := discordUserId
 	if(heartBeatWebhookURL)
 		discordWebhookURL := heartBeatWebhookURL
-		
+
 	if (discordWebhookURL != "") {
 		MaxRetries := 10
 		RetryCount := 0
@@ -620,7 +615,7 @@ resetWindows(Title, SelectedMonitorIndex){
 
 					rowHeight := 533  ; Adjust the height of each row
 					currentRow := Floor((Title - 1) / Columns)
-					y := currentRow * rowHeight	
+					y := currentRow * rowHeight
 					x := Mod((Title - 1), Columns) * scaleParam
 					Title := "Main"
 					WinMove, %Title%, , % (MonitorLeft + x), % (MonitorTop + y), scaleParam, 537
@@ -645,7 +640,7 @@ resetWindows(Title, SelectedMonitorIndex){
 				Title := Title + 1
 			rowHeight := 533  ; Adjust the height of each row
 			currentRow := Floor((Title - 1) / Columns)
-			y := currentRow * rowHeight	
+			y := currentRow * rowHeight
 			x := Mod((Title - 1), Columns) * scaleParam
 			if(runMain)
 				Title := Title - 1
@@ -678,7 +673,7 @@ CreateStatusMessage(Message, X := 0, Y := 80) {
 			if(!OwnerWND)
 				Gui, %GuiName%:New, +ToolWindow -Caption
 			else
-				Gui, %GuiName%:New, +Owner%OwnerWND% +ToolWindow -Caption 
+				Gui, %GuiName%:New, +Owner%OwnerWND% +ToolWindow -Caption
 			Gui, %GuiName%:Margin, 2, 2  ; Set margin for the GUI
 			Gui, %GuiName%:Font, s8  ; Set the font size to 8 (adjust as needed)
 			Gui, %GuiName%:Add, Text, vPacksText, %Message%
@@ -756,7 +751,7 @@ SumVariablesInJsonFile() {
 	}
 
 	; Write the total sum to a file called "total.json"
-	
+
 	if(sum > 0) {
 		totalFile := A_ScriptDir . "\json\total.json"
 		totalContent := "{""total_sum"": " sum "}"
