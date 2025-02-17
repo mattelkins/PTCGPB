@@ -1,0 +1,14 @@
+Accounts/*
+!Accounts/Saved/.gitkeep
+!Accounts/*.ahk
+json/*
+!json/.gitkeep
+Logs/*
+!Logs/.gitkeep
+Screenshots/*
+!Screenshots/.gitkeep
+Scripts/*.ahk
+!Scripts/1.ahk
+!Scripts/Main.ahk
+HeartBeat.ini
+Settings.ini
