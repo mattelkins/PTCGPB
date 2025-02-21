@@ -12,7 +12,7 @@ CoordMode, Pixel, Screen
 DllCall("AllocConsole")
 WinHide % "ahk_id " DllCall("GetConsoleWindow", "ptr")
 
-global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, discordUserId, discordWebhookURL, deleteMethod, packs, FriendID, friendIDs, Instances, username, friendCode, stopToggle, friended, runMain, showStatus, injectMethod, packMethod, loadDir, loadedAccount, nukeAccount, TrainerCheck, FullArtCheck, RainbowCheck, dateChange, foundGP, foundTS, friendsAdded, minStars, PseudoGodPack, Palkia, Dialga, Mew, Pikachu, Charizard, Mewtwo, packArray, CrownCheck, ImmersiveCheck, slowMotion, screenShot, accountFile, invalid, starCount, gpFound, foundTS
+global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, discordUserId, discordWebhookURL, deleteMethod, packs, FriendID, friendIDs, Instances, username, friendCode, stopToggle, friended, runMain, showStatus, injectMethod, packMethod, loadDir, loadedAccount, nukeAccount, ExCheck, TrainerCheck, FullArtCheck, RainbowCheck, dateChange, foundGP, foundTS, friendsAdded, minStars, PseudoGodPack, Palkia, Dialga, Mew, Pikachu, Charizard, Mewtwo, packArray, CrownCheck, ImmersiveCheck, slowMotion, screenShot, accountFile, invalid, starCount, gpFound
 scriptName := StrReplace(A_ScriptName, ".ahk")
 winTitle := scriptName
 foundGP := false
@@ -41,6 +41,7 @@ IniRead, heartBeatWebhookURL, %A_ScriptDir%\..\Settings.ini, UserSettings, heart
 IniRead, heartBeatName, %A_ScriptDir%\..\Settings.ini, UserSettings, heartBeatName, ""
 IniRead, nukeAccount, %A_ScriptDir%\..\Settings.ini, UserSettings, nukeAccount, 0
 IniRead, packMethod, %A_ScriptDir%\..\Settings.ini, UserSettings, packMethod, 0
+IniRead, ExCheck, %A_ScriptDir%\..\Settings.ini, UserSettings, ExCheck, 0
 IniRead, TrainerCheck, %A_ScriptDir%\..\Settings.ini, UserSettings, TrainerCheck, 0
 IniRead, FullArtCheck, %A_ScriptDir%\..\Settings.ini, UserSettings, FullArtCheck, 0
 IniRead, RainbowCheck, %A_ScriptDir%\..\Settings.ini, UserSettings, RainbowCheck, 0
@@ -693,7 +694,7 @@ FindOrLoseImage(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", E
 
 FindImageAndClick(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", clickx := 0, clicky := 0, sleepTime := "", skip := false, safeTime := 0) {
 	global winTitle, failSafe, confirmed, slowMotion
-	
+
 	if(slowMotion) {
 		if(imageName = "Platin" || imageName = "One" || imageName = "Two" || imageName = "Three")
 			return true
@@ -1134,52 +1135,58 @@ CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 80) {
 
 CheckPack() {
 	foundGP := false ;check card border to find godpacks
-	foundTrainer := false
-	foundRainbow := false
 	foundFullArt := false
-	foundCrown := false
+	foundRainbow := false
+	found2starCount := 0
+	foundEx := false
+	foundTrainer := false
 	foundImmersive := false
-	foundTS := false
+	foundCrown := false
+	foundLabel := ""
 	foundGP := FindGodPack()
-	;msgbox 1 foundGP:%foundGP%, TC:%TrainerCheck%, RC:%RainbowCheck%, FAC:%FullArtCheck%, FTS:%foundTS%
-	if(TrainerCheck && !foundTS) {
-		foundTrainer := FindBorders("trainer")
-		if(foundTrainer)
-			foundTS := "Trainer"
-	}
-	if(RainbowCheck && !foundTS) {
-		foundRainbow := FindBorders("rainbow")
-		if(foundRainbow)
-			foundTS := "Rainbow"
-	}
-	if(FullArtCheck && !foundTS) {
+	if (FullArtCheck && !foundTS) {
 		foundFullArt := FindBorders("fullart")
-		if(foundFullArt)
-			foundTS := "Full Art"
+		if (foundFullArt)
+			foundLabel := "Full Art"
 	}
-	if(ImmersiveCheck && !foundTS) {
+	if (RainbowCheck && !foundTS) {
+		foundRainbow := FindBorders("rainbow")
+		if (foundRainbow)
+			foundLabel := "Rainbow"
+	}
+	if (PseudoGodPack && !foundTS) {
+		found2starCount := FindBorders("trainer") + FindBorders("rainbow") + FindBorders("fullart")
+		if (found2starCount > 1)
+			foundLabel := "Double two star"
+	}
+	if (ExCheck && !foundTS) {
+		foundEx := FindExRule()
+		if (foundEx)
+			foundLabel := "Ex"
+	}
+	if (TrainerCheck && !foundTS) {
+		foundTrainer := FindBorders("trainer")
+		if (foundTrainer)
+			foundLabel := "Trainer"
+	}
+	if (ImmersiveCheck && !foundTS) {
 		foundImmersive := FindBorders("immersive")
-		if(foundImmersive)
-			foundTS := "Immersive"
+		if (foundImmersive)
+			foundLabel := "Immersive"
 	}
-	If(CrownCheck && !foundTS) {
+	if (CrownCheck && !foundTS) {
 		foundCrown := FindBorders("crown")
-		if(foundCrown)
-			foundTS := "Crown"
+		if (foundCrown)
+			foundLabel := "Crown"
 	}
-	If(PseudoGodPack && !foundTS) {
-		2starCount := FindBorders("trainer") + FindBorders("rainbow") + FindBorders("fullart")
-		if(2starCount > 1)
-			foundTS := "Double two star"
-	}
-	if(foundGP || foundTrainer || foundRainbow || foundFullArt || foundImmersive || foundCrown || 2starCount > 1) {
-		if(loadedAccount)
+	if (foundGP || foundLabel) {
+		if (loadedAccount)
 			FileDelete, %loadedAccount% ;delete xml file from folder if using inject method
-		if(foundGP)
+		if (foundGP)
 			restartGameInstance("God Pack found. Continuing...", "GodPack") ; restarts to backup and delete xml file with account info.
 		else {
-			FoundStars(foundTS)
-			restartGameInstance(foundTS . " found. Continuing...", "GodPack") ; restarts to backup and delete xml file with account info.
+			FoundStars(foundLabel)
+			restartGameInstance(foundLabel . " found. Continuing...", "GodPack") ; restarts to backup and delete xml file with account info.
 		}
 	}
 }
@@ -1210,6 +1217,28 @@ FindBorders(prefix) {
 	for index, value in borderCoords {
 		coords := borderCoords[A_Index]
 		Path = %A_ScriptDir%\%defaultLanguage%\%prefix%%A_Index%.png
+		pNeedle := GetNeedle(Path)
+		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, coords[1], coords[2], coords[3], coords[4], searchVariation)
+		if (vRet = 1) {
+			count += 1
+		}
+	}
+	Gdip_DisposeImage(pBitmap)
+	return count
+}
+
+FindExRule() {
+	count := 0
+	searchVariation := 40
+	ruleCoords := [[45, 277, 88, 279]
+		,[128, 277, 171, 279]
+		,[211, 277, 254, 279]
+		,[85, 392, 128, 394]
+		,[170, 392, 213, 394]]
+	pBitmap := from_window(WinExist(winTitle))
+	for index, value in ruleCoords {
+		coords := borderCoords[A_Index]
+		Path = %A_ScriptDir%\%defaultLanguage%\4diamond%A_Index%.png
 		pNeedle := GetNeedle(Path)
 		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, coords[1], coords[2], coords[3], coords[4], searchVariation)
 		if (vRet = 1) {
@@ -1451,7 +1480,7 @@ adbClick(X, Y) {
     static clickCommands := Object()
     static convX := 540/277, convY := 960/489, offset := -44
 
-    key := X << 16 | Y 
+    key := X << 16 | Y
 
     if (!clickCommands.HasKey(key)) {
         clickCommands[key] := Format("input tap {} {}"
