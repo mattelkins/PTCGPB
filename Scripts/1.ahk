@@ -1238,7 +1238,8 @@ FindExRule() {
 	pBitmap := from_window(WinExist(winTitle))
 	for index, value in ruleCoords {
 		coords := borderCoords[A_Index]
-		Path = %A_ScriptDir%\%defaultLanguage%\4diamond%A_Index%.png
+		; @TODO Add support for other languages. Needles for each supported language required.
+		Path = %A_ScriptDir%\%defaultLanguage%\ENG\4diamond%A_Index%.png
 		pNeedle := GetNeedle(Path)
 		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, coords[1], coords[2], coords[3], coords[4], searchVariation)
 		if (vRet = 1) {
