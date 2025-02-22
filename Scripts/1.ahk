@@ -1237,7 +1237,7 @@ FindExRule() {
 		,[170, 392, 213, 394]]
 	pBitmap := from_window(WinExist(winTitle))
 	for index, value in ruleCoords {
-		coords := borderCoords[A_Index]
+		coords := ruleCoords[A_Index]
 		; @TODO Add support for other languages. Needles for each supported language required.
 		Path = %A_ScriptDir%\%defaultLanguage%\ENG\4diamond%A_Index%.png
 		pNeedle := GetNeedle(Path)
