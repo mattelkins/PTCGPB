@@ -65,6 +65,7 @@ IniRead, heartBeatWebhookURL, Settings.ini, UserSettings, heartBeatWebhookURL, "
 IniRead, heartBeatName, Settings.ini, UserSettings, heartBeatName, ""
 IniRead, nukeAccount, Settings.ini, UserSettings, nukeAccount, 0
 IniRead, packMethod, Settings.ini, UserSettings, packMethod, 0
+IniRead, ExCheck, Settings.ini, UserSettings, ExCheck, 0
 IniRead, TrainerCheck, Settings.ini, UserSettings, TrainerCheck, 0
 IniRead, FullArtCheck, Settings.ini, UserSettings, FullArtCheck, 0
 IniRead, RainbowCheck, Settings.ini, UserSettings, RainbowCheck, 0
@@ -215,30 +216,35 @@ else
 	Gui, Add, Checkbox, vRainbowCheck x295 y150, Single Rainbow
 
 if(PseudoGodPack)
-	Gui, Add, Checkbox, Checked vPseudoGodPack x392 y110, Double 2 Star
+	Gui, Add, Checkbox, Checked vPseudoGodPack y+7, Double 2 Star
 else
-	Gui, Add, Checkbox, vPseudoGodPack x392 y110, Double 2 Star
+	Gui, Add, Checkbox, vPseudoGodPack y+7, Double 2 Star
+
+if(ExCheck)
+	Gui, Add, Checkbox, Checked vExCheck x392 y110, Single EX (inc. 4 Diamond)
+else
+	Gui, Add, Checkbox, vExCheck x392 y110, Single EX (inc. 4 Diamond)
 
 if(CrownCheck)
-	Gui, Add, Checkbox, Checked vCrownCheck x392 y130, Save Crowns
+	Gui, Add, Checkbox, Checked vCrownCheck x392 y150, Save Crowns
 else
-	Gui, Add, Checkbox, vCrownCheck x392 y130, Save Crowns
+	Gui, Add, Checkbox, vCrownCheck x392 y150, Save Crowns
 
 if(ImmersiveCheck)
-	Gui, Add, Checkbox, Checked vImmersiveCheck x392 y150, Save Immersives
+	Gui, Add, Checkbox, Checked vImmersiveCheck y+7, Save Immersives
 else
-	Gui, Add, Checkbox, vImmersiveCheck x392 y150, Save Immersives
+	Gui, Add, Checkbox, vImmersiveCheck y+7, Save Immersives
 
-Gui, Add, Text, x275 y170, Time Settings:
-Gui, Add, Text, x295 y190, Delay:
-Gui, Add, Edit, vDelay w35 x330 y190 h18, %Delay%
-Gui, Add, Text, x295 y210, Wait Time:
-Gui, Add, Edit, vwaitTime w25 x350 y210 h18, %waitTime%
-Gui, Add, Text, x295 y230, Swipe Speed:
-Gui, Add, Edit, vswipeSpeed w35 x365 y230 h18, %swipeSpeed%
+Gui, Add, Text, x275 y190, Time Settings:
+Gui, Add, Text, x295 y210, Delay:
+Gui, Add, Edit, vDelay w35 x330 y210 h18, %Delay%
+Gui, Add, Text, x295 y230, Wait Time:
+Gui, Add, Edit, vwaitTime w25 x350 y230 h18, %waitTime%
+Gui, Add, Text, x295 y250, Swipe Speed:
+Gui, Add, Edit, vswipeSpeed w35 x365 y250 h18, %swipeSpeed%
 
-Gui, Add, Text, x275 y250, Other Settings:
-Gui, Add, Text, x295 y270, Monitor:
+Gui, Add, Text, x275 y270, Other Settings:
+Gui, Add, Text, x295 y290, Monitor:
 ; Initialize monitor dropdown options
 SysGet, MonitorCount, MonitorCount
 MonitorOptions := ""
@@ -250,19 +256,19 @@ Loop, %MonitorCount%
 
 }
 SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
-Gui, Add, DropDownList, x335 y268 w90 vSelectedMonitorIndex Choose%SelectedMonitorIndex%, %MonitorOptions%
-Gui, Add, Text, x295 y290, Folder Path:
-Gui, Add, Edit, vfolderPath w100 x355 y290 h18, %folderPath%
+Gui, Add, DropDownList, x335 y288 w90 vSelectedMonitorIndex Choose%SelectedMonitorIndex%, %MonitorOptions%
+Gui, Add, Text, x295 y310, Folder Path:
+Gui, Add, Edit, vfolderPath w100 x355 y310 h18, %folderPath%
 if(slowMotion)
-	Gui, Add, Checkbox, Checked vslowMotion x295 y310, Base Game Compatibility
+	Gui, Add, Checkbox, Checked vslowMotion x295 y330, Base Game Compatibility
 else
-	Gui, Add, Checkbox, vslowMotion x295 y310, Base Game Compatibility
+	Gui, Add, Checkbox, vslowMotion x295 y330, Base Game Compatibility
 
-Gui, Add, Button, gOpenLink x15 y380 w120, Buy Me a Coffee <3
-Gui, Add, Button, gOpenDiscord x145 y380 w120, Join our Discord!
-Gui, Add, Button, gCheckForUpdates x275 y360 w120, Check for updates
-Gui, Add, Button, gArrangeWindows x275 y380 w120, Arrange Windows
-Gui, Add, Button, gStart x405 y380 w120, Start
+Gui, Add, Button, gOpenLink x15 y400 w120, Buy Me a Coffee <3
+Gui, Add, Button, gOpenDiscord x145 y400 w120, Join our Discord!
+Gui, Add, Button, gCheckForUpdates x275 y380 w120, Check for updates
+Gui, Add, Button, gArrangeWindows x275 y400 w120, Arrange Windows
+Gui, Add, Button, gStart x405 y400 w120, Start
 
 if (defaultLanguage = "Scale125") {
 	defaultLang := 1
@@ -363,6 +369,7 @@ Start:
 	IniWrite, %heartBeatName%, Settings.ini, UserSettings, heartBeatName
 	IniWrite, %nukeAccount%, Settings.ini, UserSettings, nukeAccount
 	IniWrite, %packMethod%, Settings.ini, UserSettings, packMethod
+	IniWrite, %ExCheck%, Settings.ini, UserSettings, ExCheck
 	IniWrite, %TrainerCheck%, Settings.ini, UserSettings, TrainerCheck
 	IniWrite, %FullArtCheck%, Settings.ini, UserSettings, FullArtCheck
 	IniWrite, %RainbowCheck%, Settings.ini, UserSettings, RainbowCheck
