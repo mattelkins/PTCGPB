@@ -66,6 +66,7 @@ IniRead, heartBeatName, Settings.ini, UserSettings, heartBeatName, ""
 IniRead, nukeAccount, Settings.ini, UserSettings, nukeAccount, 0
 IniRead, packMethod, Settings.ini, UserSettings, packMethod, 0
 IniRead, ExCheck, Settings.ini, UserSettings, ExCheck, 0
+IniRead, OneStarCheck, Settings.ini, UserSettings, OneStarCheck, 0
 IniRead, TrainerCheck, Settings.ini, UserSettings, TrainerCheck, 0
 IniRead, FullArtCheck, Settings.ini, UserSettings, FullArtCheck, 0
 IniRead, RainbowCheck, Settings.ini, UserSettings, RainbowCheck, 0
@@ -225,6 +226,11 @@ if(ExCheck)
 else
 	Gui, Add, Checkbox, vExCheck x392 y110, Single EX (inc. 4 Diamond)
 
+if(OneStarCheck)
+	Gui, Add, Checkbox, Checked vOneStarCheck y+7, Double 1 Star
+else
+	Gui, Add, Checkbox, vOneStarCheck y+7, Double 1 Star
+
 if(CrownCheck)
 	Gui, Add, Checkbox, Checked vCrownCheck x392 y150, Save Crowns
 else
@@ -370,6 +376,7 @@ Start:
 	IniWrite, %nukeAccount%, Settings.ini, UserSettings, nukeAccount
 	IniWrite, %packMethod%, Settings.ini, UserSettings, packMethod
 	IniWrite, %ExCheck%, Settings.ini, UserSettings, ExCheck
+	IniWrite, %OneStarCheck%, Settings.ini, UserSettings, OneStarCheck
 	IniWrite, %TrainerCheck%, Settings.ini, UserSettings, TrainerCheck
 	IniWrite, %FullArtCheck%, Settings.ini, UserSettings, FullArtCheck
 	IniWrite, %RainbowCheck%, Settings.ini, UserSettings, RainbowCheck
