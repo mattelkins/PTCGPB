@@ -12,7 +12,7 @@ CoordMode, Pixel, Screen
 DllCall("AllocConsole")
 WinHide % "ahk_id " DllCall("GetConsoleWindow", "ptr")
 
-global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, discordUserId, discordWebhookURL, deleteMethod, packs, FriendID, friendIDs, Instances, username, friendCode, stopToggle, friended, runMain, showStatus, injectMethod, packMethod, loadDir, loadedAccount, nukeAccount, ExCheck, TrainerCheck, FullArtCheck, RainbowCheck, dateChange, foundGP, foundTS, friendsAdded, minStars, PseudoGodPack, Palkia, Dialga, Mew, Pikachu, Charizard, Mewtwo, packArray, CrownCheck, ImmersiveCheck, slowMotion, screenShot, accountFile, invalid, starCount, gpFound
+global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, discordUserId, discordWebhookURL, deleteMethod, packs, FriendID, friendIDs, Instances, username, friendCode, stopToggle, friended, runMain, showStatus, injectMethod, packMethod, loadDir, loadedAccount, nukeAccount, ExCheck, OneStarCheck, TrainerCheck, FullArtCheck, RainbowCheck, dateChange, foundGP, foundLabel, friendsAdded, minStars, PseudoGodPack, Palkia, Dialga, Mew, Pikachu, Charizard, Mewtwo, packArray, CrownCheck, ImmersiveCheck, slowMotion, screenShot, accountFile, invalid, starCount, gpFound
 scriptName := StrReplace(A_ScriptName, ".ahk")
 winTitle := scriptName
 foundGP := false
@@ -42,6 +42,7 @@ IniRead, heartBeatName, %A_ScriptDir%\..\Settings.ini, UserSettings, heartBeatNa
 IniRead, nukeAccount, %A_ScriptDir%\..\Settings.ini, UserSettings, nukeAccount, 0
 IniRead, packMethod, %A_ScriptDir%\..\Settings.ini, UserSettings, packMethod, 0
 IniRead, ExCheck, %A_ScriptDir%\..\Settings.ini, UserSettings, ExCheck, 0
+IniRead, OneStarCheck, %A_ScriptDir%\..\Settings.ini, UserSettings, OneStarCheck, 0
 IniRead, TrainerCheck, %A_ScriptDir%\..\Settings.ini, UserSettings, TrainerCheck, 0
 IniRead, FullArtCheck, %A_ScriptDir%\..\Settings.ini, UserSettings, FullArtCheck, 0
 IniRead, RainbowCheck, %A_ScriptDir%\..\Settings.ini, UserSettings, RainbowCheck, 0
@@ -1140,6 +1141,7 @@ CheckPack() {
 	found2starCount := 0
 	foundEx := false
 	foundTrainer := false
+	found1starCount := 0
 	foundImmersive := false
 	foundCrown := false
 	foundLabel := ""
@@ -1168,6 +1170,11 @@ CheckPack() {
 		foundTrainer := FindBorders("trainer")
 		if (foundTrainer)
 			foundLabel := "Trainer"
+	}
+	if (OneStarCheck && !foundLabel) {
+		found1starCount := FindBorders("1star")
+		if (found1starCount > 1)
+			foundLabel := "Double one star"
 	}
 	if (ImmersiveCheck && !foundLabel) {
 		foundImmersive := FindBorders("immersive")
