@@ -1144,37 +1144,37 @@ CheckPack() {
 	foundCrown := false
 	foundLabel := ""
 	foundGP := FindGodPack()
-	if (FullArtCheck && !foundTS) {
+	if (FullArtCheck && !foundLabel) {
 		foundFullArt := FindBorders("fullart")
 		if (foundFullArt)
 			foundLabel := "Full Art"
 	}
-	if (RainbowCheck && !foundTS) {
+	if (RainbowCheck && !foundLabel) {
 		foundRainbow := FindBorders("rainbow")
 		if (foundRainbow)
 			foundLabel := "Rainbow"
 	}
-	if (PseudoGodPack && !foundTS) {
+	if (PseudoGodPack && !foundLabel) {
 		found2starCount := FindBorders("trainer") + FindBorders("rainbow") + FindBorders("fullart")
 		if (found2starCount > 1)
 			foundLabel := "Double two star"
 	}
-	if (ExCheck && !foundTS) {
+	if (ExCheck && !foundLabel) {
 		foundEx := FindExRule()
 		if (foundEx)
 			foundLabel := "Ex"
 	}
-	if (TrainerCheck && !foundTS) {
+	if (TrainerCheck && !foundLabel) {
 		foundTrainer := FindBorders("trainer")
 		if (foundTrainer)
 			foundLabel := "Trainer"
 	}
-	if (ImmersiveCheck && !foundTS) {
+	if (ImmersiveCheck && !foundLabel) {
 		foundImmersive := FindBorders("immersive")
 		if (foundImmersive)
 			foundLabel := "Immersive"
 	}
-	if (CrownCheck && !foundTS) {
+	if (CrownCheck && !foundLabel) {
 		foundCrown := FindBorders("crown")
 		if (foundCrown)
 			foundLabel := "Crown"
