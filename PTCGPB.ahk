@@ -225,7 +225,7 @@ else
 	Gui, Add, Checkbox, vPseudoGodPack y+7, Double 2 Star
 
 if(ExCheck)
-	Gui, Add, Checkbox, Checked vExCheck x392 y110, Single EX (inc. 4 Diamond)
+	Gui, Add, Checkbox, Checked vExCheck x392 y110, Single EX
 else
 	Gui, Add, Checkbox, vExCheck x392 y110, Single EX (inc. 4 Diamond)
 
