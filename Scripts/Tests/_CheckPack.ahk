@@ -12,7 +12,7 @@ if not A_IsAdmin {
     ExitApp
 }
 
-global scriptName, screenshotFilePath, ExCheck, OneStarCheck, TrainerCheck, FullArtCheck, RainbowCheck, CrownCheck, ImmersiveCheck, PseudoGodPack, minStars
+global scriptName, screenshotFilePath, ExCheck, OneStarCheck, ThreeDiamondCheck, ExCount, OneStarCount, ThreeDiamondCount, TrainerCheck, FullArtCheck, RainbowCheck, CrownCheck, ImmersiveCheck, PseudoGodPack, minStars
 
 scriptName := StrReplace(A_ScriptName, ".ahk")
 screenshotFilePath := A_ScriptDir . "\_CheckPack\screenshot.png"
@@ -24,6 +24,10 @@ if (!FileExist(screenshotFilePath)) {
 
 IniRead, ExCheck, %A_ScriptDir%\..\..\Settings.ini, UserSettings, ExCheck, 0
 IniRead, OneStarCheck, %A_ScriptDir%\..\..\Settings.ini, UserSettings, OneStarCheck, 0
+IniRead, ThreeDiamondCheck, %A_ScriptDir%\..\..\Settings.ini, UserSettings, ThreeDiamondCheck, 0
+IniRead, ExCount, %A_ScriptDir%\..\..\Settings.ini, UserSettings, ExCount, 1
+IniRead, OneStarCount, %A_ScriptDir%\..\..\Settings.ini, UserSettings, OneStarCount, 1
+IniRead, ThreeDiamondCount, %A_ScriptDir%\..\..\Settings.ini, UserSettings, ThreeDiamondCount, 1
 IniRead, TrainerCheck, %A_ScriptDir%\..\..\Settings.ini, UserSettings, TrainerCheck, 0
 IniRead, FullArtCheck, %A_ScriptDir%\..\..\Settings.ini, UserSettings, FullArtCheck, 0
 IniRead, RainbowCheck, %A_ScriptDir%\..\..\Settings.ini, UserSettings, RainbowCheck, 0
@@ -32,22 +36,29 @@ IniRead, ImmersiveCheck, %A_ScriptDir%\..\..\Settings.ini, UserSettings, Immersi
 IniRead, PseudoGodPack, %A_ScriptDir%\..\..\Settings.ini, UserSettings, PseudoGodPack, 0
 IniRead, minStars, %A_ScriptDir%\..\..\Settings.ini, UserSettings, minStars, 0
 
+ExCount := StrReplace(ExCount, "x ", "")
+OneStarCount := StrReplace(OneStarCount, "x ", "")
+ThreeDiamondCount := StrReplace(ThreeDiamondCount, "x ", "")
+
 pToken := Gdip_Startup()
 
 CheckPack() {
-    foundGP := false
+    foundGP := false ;check card border to find godpacks
     foundFullArt := false
     foundRainbow := false
     found2starCount := 0
-    foundEx := false
     foundTrainer := false
+    foundExCount := 0
     found1starCount := 0
+    found3diamondCount := 0
     foundImmersive := false
     foundCrown := false
+    foundLabel := ""
+    foundGP := FindGodPack()
+    foundInvalid := FindBorders("immersive") + FindBorders("crown")
 
     foundLabel := ["The pack in the screenshot..."]
 
-    foundGP := FindGodPack()
     if (foundGP = "Invalid")
         foundLabel.push("- is an invalid God Pack")
     else if (foundGP)
@@ -74,17 +85,19 @@ CheckPack() {
             foundLabel.push("- contains " . foundTrainer . " 2-star trainer cards")
     }
     if (ExCheck) {
-        foundInvalid := FindBorders("immersive") + FindBorders("crown")
-        if (foundInvalid = 0) {
-            foundEx := FindExRule()
-            if (foundEx)
-                foundLabel.push("- contains " . foundEx . " EX cards")
-        }
+        foundExCount := FindExRule()
+        if (foundExCount >= ExCount)
+            foundLabel.push("- contains " . foundExCount . " EX cards")
     }
     if (OneStarCheck) {
         found1starCount := FindBorders("1star")
-        if (found1starCount > 1)
-            foundLabel.push("- contains " . found1starCount . " 2-star trainer cards")
+        if (found1starCount >= OneStarCount)
+            foundLabel.push("- contains " . found1starCount . " 1-star cards")
+    }
+    if (ThreeDiamondCheck) {
+        found3diamondCount := FindBorders("3diamond")
+        if (found3diamondCount >= ThreeDiamondCount)
+            foundLabel.push("- contains " . found3diamondCount . " 3-diamond cards")
     }
     if (ImmersiveCheck) {
         foundImmersive := FindBorders("immersive")
@@ -98,7 +111,7 @@ CheckPack() {
     }
 
     if (foundLabel.Length() = 1)
-        foundLabel.push("...doesn't contain any rare cards.")
+        foundLabel.push("...doesn't contain any rare cards, or would be ignored based on current settings.")
 
     MsgBox % ArrayJoin(foundLabel)
 }
