@@ -1179,7 +1179,7 @@ CheckPack() {
 			foundLabel := "Trainer"
 	}
 	if (ExCheck && !foundLabel) {
-		foundInvalid = FindBorders("immersive") + FindBorders("crown")
+		foundInvalid := FindBorders("immersive") + FindBorders("crown")
 		if (foundInvalid = 0) {
 			foundEx := FindExRule()
 			if (foundEx)
