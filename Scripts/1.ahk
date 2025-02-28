@@ -2781,7 +2781,7 @@ createAccountList(instance) {
 			xml := saveDir . "\" . A_LoopFileName
 			FileGetTime, fileTime, %xml%, M
 			timeDiff := A_Now - fileTime  ; Calculate time difference
-			if (timeDiff > 86400) {  ; 24 hours in seconds (60 * 60 * 24) 
+			if (timeDiff > 86400) {  ; 24 hours in seconds (60 * 60 * 24)
 				FileAppend, % A_LoopFileName "`n", %outputTxt%  ; Append file path to output.txt\
 			}
 		}
