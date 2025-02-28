@@ -423,6 +423,10 @@ Start:
 	IniWrite, %packMethod%, Settings.ini, UserSettings, packMethod
 	IniWrite, %ExCheck%, Settings.ini, UserSettings, ExCheck
 	IniWrite, %OneStarCheck%, Settings.ini, UserSettings, OneStarCheck
+    IniWrite, %ThreeDiamondCheck%, Settings.ini, UserSettings, ThreeDiamondCheck
+    IniWrite, %ExCount%, Settings.ini, UserSettings, ExCount
+    IniWrite, %OneStarCount%, Settings.ini, UserSettings, OneStarCount
+    IniWrite, %ThreeDiamondCount%, Settings.ini, UserSettings, ThreeDiamondCount
 	IniWrite, %ThreeDiamondCheck%, Settings.ini, UserSettings, ThreeDiamondCheck
 	IniWrite, %ExCount%, Settings.ini, UserSettings, ExCount
 	IniWrite, %OneStarCount%, Settings.ini, UserSettings, OneStarCount
