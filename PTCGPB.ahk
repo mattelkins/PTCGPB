@@ -67,6 +67,10 @@ IniRead, nukeAccount, Settings.ini, UserSettings, nukeAccount, 0
 IniRead, packMethod, Settings.ini, UserSettings, packMethod, 0
 IniRead, ExCheck, Settings.ini, UserSettings, ExCheck, 0
 IniRead, OneStarCheck, Settings.ini, UserSettings, OneStarCheck, 0
+IniRead, ThreeDiamondCheck, Settings.ini, UserSettings, ThreeDiamondCheck, 0
+IniRead, ExCount, Settings.ini, UserSettings, ExCount, x 1
+IniRead, OneStarCount, Settings.ini, UserSettings, OneStarCount, x 1
+IniRead, ThreeDiamondCount, Settings.ini, UserSettings, ThreeDiamondCount, x 1
 IniRead, TrainerCheck, Settings.ini, UserSettings, TrainerCheck, 0
 IniRead, FullArtCheck, Settings.ini, UserSettings, FullArtCheck, 0
 IniRead, RainbowCheck, Settings.ini, UserSettings, RainbowCheck, 0
@@ -202,55 +206,78 @@ else
 Gui, Add, Text, x275 y90, Other Pack Detection Settings:
 
 if(FullArtCheck)
-	Gui, Add, Checkbox, Checked vFullArtCheck x295 y110, Single Full Art
+	Gui, Add, Checkbox, Checked vFullArtCheck x295 y110, Full Art x 1
 else
-	Gui, Add, Checkbox, vFullArtCheck x295 y110, Single Full Art
+	Gui, Add, Checkbox, vFullArtCheck x295 y110, Full Art x 1
 
 if(TrainerCheck)
-	Gui, Add, Checkbox, Checked vTrainerCheck x295 y130, Single Trainer
+	Gui, Add, Checkbox, Checked vTrainerCheck x295 y130, Trainer x 1
 else
-	Gui, Add, Checkbox, vTrainerCheck x295 y130, Single Trainer
+	Gui, Add, Checkbox, vTrainerCheck x295 y130, Trainer x 1
 
 if(RainbowCheck)
-	Gui, Add, Checkbox, Checked vRainbowCheck x295 y150, Single Rainbow
+	Gui, Add, Checkbox, Checked vRainbowCheck x295 y150, Rainbow x 1
 else
-	Gui, Add, Checkbox, vRainbowCheck x295 y150, Single Rainbow
+	Gui, Add, Checkbox, vRainbowCheck x295 y150, Rainbow x 1
 
 if(PseudoGodPack)
-	Gui, Add, Checkbox, Checked vPseudoGodPack y+7, Double 2 Star
+	Gui, Add, Checkbox, Checked vPseudoGodPack y+7, 2 Star x 2
 else
-	Gui, Add, Checkbox, vPseudoGodPack y+7, Double 2 Star
-
-if(ExCheck)
-	Gui, Add, Checkbox, Checked vExCheck x392 y110, Single EX (inc. 4 Diamond)
-else
-	Gui, Add, Checkbox, vExCheck x392 y110, Single EX (inc. 4 Diamond)
-
-if(OneStarCheck)
-	Gui, Add, Checkbox, Checked vOneStarCheck y+7, Double 1 Star
-else
-	Gui, Add, Checkbox, vOneStarCheck y+7, Double 1 Star
+	Gui, Add, Checkbox, vPseudoGodPack y+7, 2 Star x 2
 
 if(CrownCheck)
-	Gui, Add, Checkbox, Checked vCrownCheck x392 y150, Save Crowns
+	Gui, Add, Checkbox, Checked vCrownCheck y+7, Save Crowns
 else
-	Gui, Add, Checkbox, vCrownCheck x392 y150, Save Crowns
+	Gui, Add, Checkbox, vCrownCheck y+7, Save Crowns
 
 if(ImmersiveCheck)
 	Gui, Add, Checkbox, Checked vImmersiveCheck y+7, Save Immersives
 else
 	Gui, Add, Checkbox, vImmersiveCheck y+7, Save Immersives
 
-Gui, Add, Text, x275 y190, Time Settings:
-Gui, Add, Text, x295 y210, Delay:
-Gui, Add, Edit, vDelay w35 x330 y210 h18, %Delay%
-Gui, Add, Text, x295 y230, Wait Time:
-Gui, Add, Edit, vwaitTime w25 x350 y230 h18, %waitTime%
-Gui, Add, Text, x295 y250, Swipe Speed:
-Gui, Add, Edit, vswipeSpeed w35 x365 y250 h18, %swipeSpeed%
+if(ExCheck)
+	Gui, Add, Checkbox, Checked vExCheck gpackDetectionSettings x392 y110, EX
+else
+	Gui, Add, Checkbox, vExCheck gpackDetectionSettings x392 y110, EX
 
-Gui, Add, Text, x275 y270, Other Settings:
-Gui, Add, Text, x295 y290, Monitor:
+if(OneStarCheck)
+	Gui, Add, Checkbox, Checked vOneStarCheck gpackDetectionSettings y+14, 1 Star
+else
+	Gui, Add, Checkbox, vOneStarCheck gpackDetectionSettings y+14, 1 Star
+
+if(ThreeDiamondCheck)
+	Gui, Add, Checkbox, Checked vThreeDiamondCheck gpackDetectionSettings y+14, 3 Diamond
+else
+	Gui, Add, Checkbox, vThreeDiamondCheck gpackDetectionSettings y+14, 3 Diamond
+
+defaultExCount := StrReplace(ExCount, "x ", "")
+if (ExCheck)
+	Gui, Add, DropDownList, vExCount choose%defaultExCount% x467 y107 w35, x 1|x 2|x 3
+else
+	Gui, Add, DropDownList, vExCount choose%defaultExCount% x467 y107 w35 Hidden, x 1|x 2|x 3
+
+defaultOneStarCount := StrReplace(OneStarCount, "x ", "")
+if (OneStarCheck)
+	Gui, Add, DropDownList, vOneStarCount choose%defaultOneStarCount% y+7 w35, x 1|x 2|x 3
+else
+	Gui, Add, DropDownList, vOneStarCount choose%defaultOneStarCount% y+7 w35 Hidden, x 1|x 2|x 3
+
+defaultThreeDiamondCount := StrReplace(ThreeDiamondCount, "x ", "")
+if (ThreeDiamondCheck)
+	Gui, Add, DropDownList, vThreeDiamondCount choose%defaultThreeDiamondCount% y+7 w35, x 1|x 2|x 3
+else
+	Gui, Add, DropDownList, vThreeDiamondCount choose%defaultThreeDiamondCount% y+7 w35 Hidden, x 1|x 2|x 3
+
+Gui, Add, Text, x275 y230, Time Settings:
+Gui, Add, Text, x295 y250, Delay:
+Gui, Add, Edit, vDelay w35 x330 y250 h18, %Delay%
+Gui, Add, Text, x295 y270, Wait Time:
+Gui, Add, Edit, vwaitTime w25 x350 y270 h18, %waitTime%
+Gui, Add, Text, x295 y290, Swipe Speed:
+Gui, Add, Edit, vswipeSpeed w35 x365 y290 h18, %swipeSpeed%
+
+Gui, Add, Text, x275 y310, Other Settings:
+Gui, Add, Text, x295 y330, Monitor:
 ; Initialize monitor dropdown options
 SysGet, MonitorCount, MonitorCount
 MonitorOptions := ""
@@ -262,13 +289,13 @@ Loop, %MonitorCount%
 
 }
 SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
-Gui, Add, DropDownList, x335 y288 w90 vSelectedMonitorIndex Choose%SelectedMonitorIndex%, %MonitorOptions%
-Gui, Add, Text, x295 y310, Folder Path:
-Gui, Add, Edit, vfolderPath w100 x355 y310 h18, %folderPath%
+Gui, Add, DropDownList, x335 y328 w90 vSelectedMonitorIndex Choose%SelectedMonitorIndex%, %MonitorOptions%
+Gui, Add, Text, x295 y350, Folder Path:
+Gui, Add, Edit, vfolderPath w100 x355 y350 h18, %folderPath%
 if(slowMotion)
-	Gui, Add, Checkbox, Checked vslowMotion x295 y330, Base Game Compatibility
+	Gui, Add, Checkbox, Checked vslowMotion x295 y370, Base Game Compatibility
 else
-	Gui, Add, Checkbox, vslowMotion x295 y330, Base Game Compatibility
+	Gui, Add, Checkbox, vslowMotion x295 y370, Base Game Compatibility
 
 Gui, Add, Button, gOpenLink x15 y400 w120, Buy Me a Coffee <3
 Gui, Add, Button, gOpenDiscord x145 y400 w120, Join our Discord!
@@ -291,6 +318,25 @@ Return
 
 CheckForUpdates:
 	CheckForUpdate()
+return
+
+packDetectionSettings:
+	Gui, Submit, NoHide
+
+	if (ExCheck)
+		GuiControl, Show, ExCount
+	else
+		GuiControl, Hide, ExCount
+
+	if (OneStarCheck)
+		GuiControl, Show, OneStarCount
+	else
+		GuiControl, Hide, OneStarCount
+
+	if (ThreeDiamondCheck)
+		GuiControl, Show, ThreeDiamondCount
+	else
+		GuiControl, Hide, ThreeDiamondCount
 return
 
 discordSettings:
@@ -377,6 +423,10 @@ Start:
 	IniWrite, %packMethod%, Settings.ini, UserSettings, packMethod
 	IniWrite, %ExCheck%, Settings.ini, UserSettings, ExCheck
 	IniWrite, %OneStarCheck%, Settings.ini, UserSettings, OneStarCheck
+	IniWrite, %ThreeDiamondCheck%, Settings.ini, UserSettings, ThreeDiamondCheck
+	IniWrite, %ExCount%, Settings.ini, UserSettings, ExCount
+	IniWrite, %OneStarCount%, Settings.ini, UserSettings, OneStarCount
+	IniWrite, %ThreeDiamondCount%, Settings.ini, UserSettings, ThreeDiamondCount
 	IniWrite, %TrainerCheck%, Settings.ini, UserSettings, TrainerCheck
 	IniWrite, %FullArtCheck%, Settings.ini, UserSettings, FullArtCheck
 	IniWrite, %RainbowCheck%, Settings.ini, UserSettings, RainbowCheck
