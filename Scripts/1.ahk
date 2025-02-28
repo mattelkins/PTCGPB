@@ -1161,15 +1161,18 @@ CheckPack() {
 		if (found2starCount > 1)
 			foundLabel := "Double two star"
 	}
-	if (ExCheck && !foundLabel) {
-		foundEx := FindExRule()
-		if (foundEx)
-			foundLabel := "Ex"
-	}
 	if (TrainerCheck && !foundLabel) {
 		foundTrainer := FindBorders("trainer")
 		if (foundTrainer)
 			foundLabel := "Trainer"
+	}
+	if (ExCheck && !foundLabel) {
+		foundInvalid := FindBorders("immersive") + FindBorders("crown")
+		if (foundInvalid = 0) {
+			foundEx := FindExRule()
+			if (foundEx)
+				foundLabel := "Ex"
+		}
 	}
 	if (OneStarCheck && !foundLabel) {
 		found1starCount := FindBorders("1star")
