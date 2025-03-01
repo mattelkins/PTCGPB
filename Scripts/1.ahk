@@ -12,7 +12,7 @@ CoordMode, Pixel, Screen
 DllCall("AllocConsole")
 WinHide % "ahk_id " DllCall("GetConsoleWindow", "ptr")
 
-global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, discordUserId, discordWebhookURL, deleteMethod, packs, FriendID, friendIDs, Instances, username, friendCode, stopToggle, friended, runMain, showStatus, injectMethod, packMethod, loadDir, loadedAccount, nukeAccount, ExCheck, OneStarCheck, TrainerCheck, FullArtCheck, RainbowCheck, dateChange, foundGP, foundLabel, friendsAdded, minStars, PseudoGodPack, Palkia, Dialga, Mew, Pikachu, Charizard, Mewtwo, packArray, CrownCheck, ImmersiveCheck, slowMotion, screenShot, accountFile, invalid, starCount, gpFound
+global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, discordUserId, discordWebhookURL, deleteMethod, packs, FriendID, friendIDs, Instances, username, friendCode, stopToggle, friended, runMain, showStatus, injectMethod, packMethod, loadDir, loadedAccount, nukeAccount, ExCheck, OneStarCheck, ThreeDiamondCheck, ExCount, OneStarCount, ThreeDiamondCount, TrainerCheck, FullArtCheck, RainbowCheck, dateChange, foundGP, foundLabel, friendsAdded, minStars, PseudoGodPack, Palkia, Dialga, Mew, Pikachu, Charizard, Mewtwo, packArray, CrownCheck, ImmersiveCheck, slowMotion, screenShot, accountFile, invalid, starCount, gpFound
 scriptName := StrReplace(A_ScriptName, ".ahk")
 winTitle := scriptName
 foundGP := false
@@ -43,6 +43,10 @@ IniRead, nukeAccount, %A_ScriptDir%\..\Settings.ini, UserSettings, nukeAccount, 
 IniRead, packMethod, %A_ScriptDir%\..\Settings.ini, UserSettings, packMethod, 0
 IniRead, ExCheck, %A_ScriptDir%\..\Settings.ini, UserSettings, ExCheck, 0
 IniRead, OneStarCheck, %A_ScriptDir%\..\Settings.ini, UserSettings, OneStarCheck, 0
+IniRead, ThreeDiamondCheck, %A_ScriptDir%\..\Settings.ini, UserSettings, ThreeDiamondCheck, 0
+IniRead, ExCount, %A_ScriptDir%\..\Settings.ini, UserSettings, ExCount, 1
+IniRead, OneStarCount, %A_ScriptDir%\..\Settings.ini, UserSettings, OneStarCount, 1
+IniRead, ThreeDiamondCount, %A_ScriptDir%\..\Settings.ini, UserSettings, ThreeDiamondCount, 1
 IniRead, TrainerCheck, %A_ScriptDir%\..\Settings.ini, UserSettings, TrainerCheck, 0
 IniRead, FullArtCheck, %A_ScriptDir%\..\Settings.ini, UserSettings, FullArtCheck, 0
 IniRead, RainbowCheck, %A_ScriptDir%\..\Settings.ini, UserSettings, RainbowCheck, 0
@@ -59,8 +63,11 @@ IniRead, Charizard, %A_ScriptDir%\..\Settings.ini, UserSettings, Charizard, 0
 IniRead, Mewtwo, %A_ScriptDir%\..\Settings.ini, UserSettings, Mewtwo, 0
 IniRead, slowMotion, %A_ScriptDir%\..\Settings.ini, UserSettings, slowMotion, 0
 
-pokemonList := ["Palkia", "Dialga", "Mew", "Pikachu", "Charizard", "Mewtwo", "Arceus"]
+ExCount := StrReplace(ExCount, "x ", "")
+OneStarCount := StrReplace(OneStarCount, "x ", "")
+ThreeDiamondCount := StrReplace(ThreeDiamondCount, "x ", "")
 
+pokemonList := ["Palkia", "Dialga", "Mew", "Pikachu", "Charizard", "Mewtwo", "Arceus"]
 packArray := []  ; Initialize an empty array
 
 Loop, % pokemonList.MaxIndex()  ; Loop through the array
@@ -1135,17 +1142,20 @@ CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 80) {
 }
 
 CheckPack() {
-	foundGP := false ;check card border to find godpacks
+	foundGP := false
 	foundFullArt := false
 	foundRainbow := false
 	found2starCount := 0
-	foundEx := false
 	foundTrainer := false
+	foundExCount := 0
 	found1starCount := 0
+	found3diamondCount := 0
 	foundImmersive := false
 	foundCrown := false
 	foundLabel := ""
 	foundGP := FindGodPack()
+	foundInvalid := FindBorders("immersive") + FindBorders("crown")
+
 	if (FullArtCheck && !foundLabel) {
 		foundFullArt := FindBorders("fullart")
 		if (foundFullArt)
@@ -1167,18 +1177,25 @@ CheckPack() {
 			foundLabel := "Trainer"
 	}
 	if (ExCheck && !foundLabel) {
-		foundInvalid := FindBorders("immersive") + FindBorders("crown")
-		if (foundInvalid = 0) {
-			foundEx := FindExRule()
-			if (foundEx)
-				foundLabel := "Ex"
-		}
+		foundExCount := FindExRule()
+		if (foundExCount >= ExCount)
+			foundLabel := foundExCount . " Ex"
 	}
 	if (OneStarCheck && !foundLabel) {
 		found1starCount := FindBorders("1star")
-		if (found1starCount > 1)
-			foundLabel := "Double one star"
+		if (found1starCount >= OneStarCount)
+			foundLabel := found1starCount . " One star"
 	}
+	if (ThreeDiamondCheck && !foundLabel) {
+		found3diamondCount := FindBorders("3diamond")
+		if (found3diamondCount >= ThreeDiamondCount)
+			foundLabel := found3diamondCount . " Three diamond"
+	}
+
+	if (foundLabel && foundInvalid) {
+		foundLabel := foundLabel . " (in invalid pack)"
+	}
+
 	if (ImmersiveCheck && !foundLabel) {
 		foundImmersive := FindBorders("immersive")
 		if (foundImmersive)
@@ -2781,7 +2798,7 @@ createAccountList(instance) {
 			xml := saveDir . "\" . A_LoopFileName
 			FileGetTime, fileTime, %xml%, M
 			timeDiff := A_Now - fileTime  ; Calculate time difference
-			if (timeDiff > 86400) {  ; 24 hours in seconds (60 * 60 * 24) 
+			if (timeDiff > 86400) {  ; 24 hours in seconds (60 * 60 * 24)
 				FileAppend, % A_LoopFileName "`n", %outputTxt%  ; Append file path to output.txt\
 			}
 		}
