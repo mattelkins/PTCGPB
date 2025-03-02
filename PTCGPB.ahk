@@ -17,9 +17,12 @@ if not A_IsAdmin
 	ExitApp
 }
 
-MsgBox, 64, The project is now licensed under CC BY-NC 4.0, The original intention of this project was not for it to be used for paid services even those disguised as 'donations.' I hope people respect my wishes and those of the community. `nThe project is now licensed under CC BY-NC 4.0, which allows you to use, modify, and share the software only for non-commercial purposes. Commercial use, including using the software to provide paid services or selling it (even if donations are involved), is not allowed under this license. The new license applies to this and all future releases.
-
-CheckForUpdate()
+gitRepo := FileExist(A_ScriptDir . "\.git\index")
+if (!gitRepo)
+{
+	MsgBox, 64, The project is now licensed under CC BY-NC 4.0, The original intention of this project was not for it to be used for paid services even those disguised as 'donations.' I hope people respect my wishes and those of the community. `nThe project is now licensed under CC BY-NC 4.0, which allows you to use, modify, and share the software only for non-commercial purposes. Commercial use, including using the software to provide paid services or selling it (even if donations are involved), is not allowed under this license. The new license applies to this and all future releases.
+	CheckForUpdate()
+}
 
 KillADBProcesses()
 
@@ -297,11 +300,12 @@ if(slowMotion)
 else
 	Gui, Add, Checkbox, vslowMotion x295 y370, Base Game Compatibility
 
-Gui, Add, Button, gOpenLink x15 y400 w120, Buy Me a Coffee <3
-Gui, Add, Button, gOpenDiscord x145 y400 w120, Join our Discord!
-Gui, Add, Button, gCheckForUpdates x275 y380 w120, Check for updates
-Gui, Add, Button, gArrangeWindows x275 y400 w120, Arrange Windows
-Gui, Add, Button, gStart x405 y400 w120, Start
+Gui, Add, Button, gOpenLink x15 y420 w120, Buy Me a Coffee <3
+Gui, Add, Button, gOpenDiscord x15 y400 w120, Join our Discord!
+Gui, Add, Button, gCheckForUpdates x145 y400 w120, Check for Updates
+Gui, Add, Button, gReload x145 y420 w120, Reload
+Gui, Add, Button, gArrangeWindows x275 y420 w120, Arrange Windows
+Gui, Add, Button, gStart x405 y420 w120, Start
 
 if (defaultLanguage = "Scale125") {
 	defaultLang := 1
@@ -392,6 +396,56 @@ OpenDiscord:
 	Run, https://discord.gg/C9Nyf7P4sT
 return
 
+Reload:
+	Gui, Submit
+
+	IniWrite, %FriendID%, Settings.ini, UserSettings, FriendID
+	IniWrite, %waitTime%, Settings.ini, UserSettings, waitTime
+	IniWrite, %Delay%, Settings.ini, UserSettings, Delay
+	IniWrite, %folderPath%, Settings.ini, UserSettings, folderPath
+	IniWrite, %discordWebhookURL%, Settings.ini, UserSettings, discordWebhookURL
+	IniWrite, %discordUserId%, Settings.ini, UserSettings, discordUserId
+	IniWrite, %Columns%, Settings.ini, UserSettings, Columns
+	IniWrite, %openPack%, Settings.ini, UserSettings, openPack
+	IniWrite, %godPack%, Settings.ini, UserSettings, godPack
+	IniWrite, %Instances%, Settings.ini, UserSettings, Instances
+	IniWrite, %instanceStartDelay%, Settings.ini, UserSettings, instanceStartDelay
+	;IniWrite, %setSpeed%, Settings.ini, UserSettings, setSpeed
+	IniWrite, %defaultLanguage%, Settings.ini, UserSettings, defaultLanguage
+	IniWrite, %SelectedMonitorIndex%, Settings.ini, UserSettings, SelectedMonitorIndex
+	IniWrite, %swipeSpeed%, Settings.ini, UserSettings, swipeSpeed
+	IniWrite, %deleteMethod%, Settings.ini, UserSettings, deleteMethod
+	IniWrite, %runMain%, Settings.ini, UserSettings, runMain
+	IniWrite, %heartBeat%, Settings.ini, UserSettings, heartBeat
+	IniWrite, %heartBeatWebhookURL%, Settings.ini, UserSettings, heartBeatWebhookURL
+	IniWrite, %heartBeatName%, Settings.ini, UserSettings, heartBeatName
+	IniWrite, %nukeAccount%, Settings.ini, UserSettings, nukeAccount
+	IniWrite, %packMethod%, Settings.ini, UserSettings, packMethod
+	IniWrite, %ExCheck%, Settings.ini, UserSettings, ExCheck
+	IniWrite, %OneStarCheck%, Settings.ini, UserSettings, OneStarCheck
+	IniWrite, %ThreeDiamondCheck%, Settings.ini, UserSettings, ThreeDiamondCheck
+	IniWrite, %ExCount%, Settings.ini, UserSettings, ExCount
+	IniWrite, %OneStarCount%, Settings.ini, UserSettings, OneStarCount
+	IniWrite, %ThreeDiamondCount%, Settings.ini, UserSettings, ThreeDiamondCount
+	IniWrite, %TrainerCheck%, Settings.ini, UserSettings, TrainerCheck
+	IniWrite, %FullArtCheck%, Settings.ini, UserSettings, FullArtCheck
+	IniWrite, %RainbowCheck%, Settings.ini, UserSettings, RainbowCheck
+	IniWrite, %CrownCheck%, Settings.ini, UserSettings, CrownCheck
+	IniWrite, %ImmersiveCheck%, Settings.ini, UserSettings, ImmersiveCheck
+	IniWrite, %PseudoGodPack%, Settings.ini, UserSettings, PseudoGodPack
+	IniWrite, %minStars%, Settings.ini, UserSettings, minStars
+	IniWrite, %Palkia%, Settings.ini, UserSettings, Palkia
+	IniWrite, %Dialga%, Settings.ini, UserSettings, Dialga
+	IniWrite, %Mew%, Settings.ini, UserSettings, Mew
+	IniWrite, %Pikachu%, Settings.ini, UserSettings, Pikachu
+	IniWrite, %Charizard%, Settings.ini, UserSettings, Charizard
+	IniWrite, %Mewtwo%, Settings.ini, UserSettings, Mewtwo
+	IniWrite, %slowMotion%, Settings.ini, UserSettings, slowMotion
+
+	Run *RunAs "%A_ScriptFullPath%"
+	ExitApp
+return
+
 Start:
 	Gui, Submit  ; Collect the input values from the first page
 	Instances := Instances  ; Directly reference the "Instances" variable
@@ -423,10 +477,6 @@ Start:
 	IniWrite, %packMethod%, Settings.ini, UserSettings, packMethod
 	IniWrite, %ExCheck%, Settings.ini, UserSettings, ExCheck
 	IniWrite, %OneStarCheck%, Settings.ini, UserSettings, OneStarCheck
-    IniWrite, %ThreeDiamondCheck%, Settings.ini, UserSettings, ThreeDiamondCheck
-    IniWrite, %ExCount%, Settings.ini, UserSettings, ExCount
-    IniWrite, %OneStarCount%, Settings.ini, UserSettings, OneStarCount
-    IniWrite, %ThreeDiamondCount%, Settings.ini, UserSettings, ThreeDiamondCount
 	IniWrite, %ThreeDiamondCheck%, Settings.ini, UserSettings, ThreeDiamondCheck
 	IniWrite, %ExCount%, Settings.ini, UserSettings, ExCount
 	IniWrite, %OneStarCount%, Settings.ini, UserSettings, OneStarCount
