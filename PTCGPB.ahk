@@ -442,8 +442,7 @@ Reload:
 	IniWrite, %Mewtwo%, Settings.ini, UserSettings, Mewtwo
 	IniWrite, %slowMotion%, Settings.ini, UserSettings, slowMotion
 
-	Run *RunAs "%A_ScriptFullPath%"
-	ExitApp
+	Reload
 return
 
 Start:
