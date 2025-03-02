@@ -42,172 +42,117 @@ ThreeDiamondCount := StrReplace(ThreeDiamondCount, "x ", "")
 
 pToken := Gdip_Startup()
 
-CheckPack() {
-    foundGP := false ;check card border to find godpacks
-    foundFullArt := false
-    foundRainbow := false
-    found2starCount := 0
-    foundTrainer := false
-    foundExCount := 0
-    found1starCount := 0
-    found3diamondCount := 0
-    foundImmersive := false
-    foundCrown := false
-    foundLabel := ""
-    foundGP := FindGodPack()
-    foundInvalid := FindBorders("immersive") + FindBorders("crown")
-
-    foundLabel := ["The pack in the screenshot..."]
-
-    if (foundGP = "Invalid")
-        foundLabel.push("- is an invalid God Pack")
-    else if (foundGP)
-        foundLabel.push("- is a God Pack!")
-
-    if (FullArtCheck) {
-        foundFullArt := FindBorders("fullart")
-        if (foundFullArt)
-            foundLabel.push("- contains " . foundFullArt . " full art cards")
-    }
-    if (RainbowCheck) {
-        foundRainbow := FindBorders("rainbow")
-        if (foundRainbow)
-            foundLabel.push("- contains " . foundRainbow . " rainbow cards")
-    }
-    if (PseudoGodPack) {
-        found2starCount := FindBorders("trainer") + FindBorders("rainbow") + FindBorders("fullart")
-        if (found2starCount > 1)
-            foundLabel.push("- contains " . found2starCount . " 2-star cards")
-    }
-    if (TrainerCheck) {
-        foundTrainer := FindBorders("trainer")
-        if (foundTrainer)
-            foundLabel.push("- contains " . foundTrainer . " 2-star trainer cards")
-    }
-    if (ExCheck) {
-        foundExCount := FindExRule()
-        if (foundExCount >= ExCount)
-            foundLabel.push("- contains " . foundExCount . " EX cards")
-    }
-    if (OneStarCheck) {
-        found1starCount := FindBorders("1star")
-        if (found1starCount >= OneStarCount)
-            foundLabel.push("- contains " . found1starCount . " 1-star cards")
-    }
-    if (ThreeDiamondCheck) {
-        found3diamondCount := FindBorders("3diamond")
-        if (found3diamondCount >= ThreeDiamondCount)
-            foundLabel.push("- contains " . found3diamondCount . " 3-diamond cards")
-    }
-    if (ImmersiveCheck) {
-        foundImmersive := FindBorders("immersive")
-        if (foundImmersive)
-            foundLabel.push("- contains " . foundImmersive . " immersive cards")
-    }
-    if (CrownCheck) {
-        foundCrown := FindBorders("crown")
-        if (foundCrown)
-            foundLabel.push("- contains " . foundCrown . " crown cards")
-    }
-
-    if (foundLabel.Length() = 1)
-        foundLabel.push("...doesn't contain any rare cards, or would be ignored based on current settings.")
-
-    MsgBox % ArrayJoin(foundLabel)
-}
-
-FindGodPack() {
-    global screenshotFilePath, minStars
-
-    searchVariation := 5
-    borderCoords := [[20, 284, 90, 286]
-        ,[103, 284, 173, 286]]
-
-    Loop {
-        normalBorders := false
-        pBitmap := Gdip_CreateBitmapFromFile(screenshotFilePath)
-        Path = %A_ScriptDir%\..\Scale125\Border.png
-        pNeedle := GetNeedle(Path)
-        for index, value in borderCoords {
-            coords := borderCoords[A_Index]
-            vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, coords[1], coords[2], coords[3], coords[4], searchVariation)
-            if (vRet = 1) {
-                normalBorders := true
-                break
-            }
-        }
-        Gdip_DisposeImage(pBitmap)
-        if(normalBorders) {
-            return false
-        } else {
-            foundImmersive := FindBorders("immersive")
-            foundCrown := FindBorders("crown")
-            if(foundImmersive || foundCrown) {
-                invalidGP := true
-            }
-            if(!invalidGP && minStars > 0) {
-                starCount := 5 - FindBorders("1star")
-                if(starCount < minStars) {
-                    invalidGP := true
-                }
-            }
-            if(invalidGP) {
-                return "Invalid"
-            }
-            else {
-                return true
-            }
-        }
-    }
-}
-
-FindBorders(prefix) {
-    global screenshotFilePath
-
-    count := 0
-    searchVariation := 40
-    borderCoords := [[30, 284, 83, 286]
+global borderCoords := [[30, 284, 83, 286]
         ,[113, 284, 166, 286]
         ,[196, 284, 249, 286]
         ,[70, 399, 123, 401]
         ,[155, 399, 208, 401]]
-    pBitmap := Gdip_CreateBitmapFromFile(screenshotFilePath)
-    for index, value in borderCoords {
-        coords := borderCoords[A_Index]
-        Path = %A_ScriptDir%\..\Scale125\%prefix%%A_Index%.png
-        pNeedle := GetNeedle(Path)
-        vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, coords[1], coords[2], coords[3], coords[4], searchVariation)
-        if (vRet = 1) {
-            count += 1
-        }
+
+global borderNeedles := ["normal"
+    ,"3diamond"
+    ,"1star"
+    ,"fullart"
+    ,"rainbow"
+    ,"trainer"
+    ,"immersive"
+    ,"crown"]
+; "ex" is not included in the arrays above because there is no reliable way of
+; identifying a 4-diamond EX card which is compatible with all languages (other
+; than having 5 needle images per language...)
+
+global bordersFound := {"3diamond": 0
+    ,"ex": 0
+    ,"1star": 0
+    ,"fullart": 0
+    ,"rainbow": 0
+    ,"trainer": 0
+    ,"immersive": 0
+    ,"crown": 0}
+
+CheckPack() {
+    ; Increment pack count.
+    packs += 1
+    if (packMethod)
+        packs := 1
+
+    ; What types of cards are in this pack?
+    bordersFound := {"3diamond": 0
+        ,"ex": 0
+        ,"1star": 0
+        ,"fullart": 0
+        ,"rainbow": 0
+        ,"trainer": 0
+        ,"immersive": 0
+        ,"crown": 0}
+
+    for index, coords in borderCoords {
+        borderFound := CheckCardSlot(index)
+        bordersFound[borderFound] := bordersFound[borderFound] + 1
     }
-    Gdip_DisposeImage(pBitmap)
-    return count
+
+    foundLabel := ["The pack in the screenshot..."]
+
+    found1starCount := bordersFound["1star"]
+    found2starCount := bordersFound["fullart"] + bordersFound["rainbow"] + bordersFound["trainer"] + bordersFound["immersive"] + bordersFound["crown"]
+    foundValid2starCount := bordersFound["fullart"] + bordersFound["rainbow"] + bordersFound["trainer"]
+
+    foundGP := false
+    if ((found2starCount + found1starCount) = 5) {
+        if ((foundValid2starCount + found1starCount) = 5 && (minStars = 0 || foundValid2starCount >= minStars))
+            foundLabel.push("- is a God Pack!")
+        else
+            foundLabel.push("- is an invalid God Pack")
+    }
+
+    foundInvalid := bordersFound["immersive"] + bordersFound["crown"]
+
+    foundLabel.push("- contains " . bordersFound["immersive"] . " immersive cards")
+    foundLabel.push("- contains " . bordersFound["crown"] . " crown cards")
+    foundLabel.push("- contains " . bordersFound["fullart"] . " full art cards")
+    foundLabel.push("- contains " . bordersFound["rainbow"] . " rainbow cards")
+    foundLabel.push("- contains " . foundValid2starCount . " 2-star cards")
+    foundLabel.push("- contains " . bordersFound["trainer"] . " 2-star trainer cards")
+
+    foundExCount := bordersFound["ex"]
+    foundLabel.push("- contains " . foundExCount . " EX cards")
+
+    found1starCount := bordersFound["1star"]
+    foundLabel.push("- contains " . found1starCount . " 1-star cards")
+
+    found3diamondCount := bordersFound["3diamond"]
+    foundLabel.push("- contains " . found3diamondCount . " 3-diamond cards")
+
+    MsgBox % ArrayJoin(foundLabel)
 }
 
-FindExRule() {
-    global screenshotFilePath
+CheckCardSlot(slotIndex) {
+    borderFound := ""
 
-    count := 0
-    searchVariation := 40
-    ruleCoords := [[45, 277, 88, 279]
-        ,[128, 277, 171, 279]
-        ,[211, 277, 254, 279]
-        ,[85, 392, 128, 394]
-        ,[170, 392, 213, 394]]
+    checkCoords := borderCoords[slotIndex]
+    searchVariation := 5
     pBitmap := Gdip_CreateBitmapFromFile(screenshotFilePath)
-    for index, value in ruleCoords {
-        coords := ruleCoords[A_Index]
-        ; @TODO Add support for other languages. Needles for each supported language required.
-        Path = %A_ScriptDir%\..\Scale125\ENG\4diamond%A_Index%.png
-        pNeedle := GetNeedle(Path)
-        vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, coords[1], coords[2], coords[3], coords[4], searchVariation)
+
+    for index, needleName in borderNeedles {
+        needlePath = %A_ScriptDir%\..\Scale125\%needleName%%slotIndex%.png
+
+        if (!FileExist(needlePath))
+            continue
+
+        pNeedle := GetNeedle(needlePath)
+        vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, checkCoords[1], checkCoords[2], checkCoords[3], checkCoords[4], searchVariation)
         if (vRet = 1) {
-            count += 1
+            borderFound := needleName
+            break
         }
     }
+
     Gdip_DisposeImage(pBitmap)
-    return count
+
+    ; If a border hasn't been identified, assume there is a 4-diamond EX card in the current slot.
+    if (borderFound = "")
+        borderFound := "ex"
+
+    return borderFound
 }
 
 GetNeedle(Path) {

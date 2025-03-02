@@ -1141,229 +1141,198 @@ CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 80) {
 	}
 }
 
-CheckPack() {
-	foundGP := false
-	foundFullArt := false
-	foundRainbow := false
-	found2starCount := 0
-	foundTrainer := false
-	foundExCount := 0
-	found1starCount := 0
-	found3diamondCount := 0
-	foundImmersive := false
-	foundCrown := false
-	foundLabel := ""
-	foundGP := FindGodPack()
-	foundInvalid := FindBorders("immersive") + FindBorders("crown")
-
-	if (FullArtCheck && !foundLabel) {
-		foundFullArt := FindBorders("fullart")
-		if (foundFullArt)
-			foundLabel := "Full Art"
-	}
-	if (RainbowCheck && !foundLabel) {
-		foundRainbow := FindBorders("rainbow")
-		if (foundRainbow)
-			foundLabel := "Rainbow"
-	}
-	if (PseudoGodPack && !foundLabel) {
-		found2starCount := FindBorders("trainer") + FindBorders("rainbow") + FindBorders("fullart")
-		if (found2starCount > 1)
-			foundLabel := "Double two star"
-	}
-	if (TrainerCheck && !foundLabel) {
-		foundTrainer := FindBorders("trainer")
-		if (foundTrainer)
-			foundLabel := "Trainer"
-	}
-	if (ExCheck && !foundLabel) {
-		foundExCount := FindExRule()
-		if (foundExCount >= ExCount)
-			foundLabel := foundExCount . " Ex"
-	}
-	if (OneStarCheck && !foundLabel) {
-		found1starCount := FindBorders("1star")
-		if (found1starCount >= OneStarCount)
-			foundLabel := found1starCount . " One star"
-	}
-	if (ThreeDiamondCheck && !foundLabel) {
-		found3diamondCount := FindBorders("3diamond")
-		if (found3diamondCount >= ThreeDiamondCount)
-			foundLabel := found3diamondCount . " Three diamond"
-	}
-
-	if (foundLabel && foundInvalid) {
-		foundLabel := foundLabel . " (in invalid pack)"
-	}
-
-	if (ImmersiveCheck && !foundLabel) {
-		foundImmersive := FindBorders("immersive")
-		if (foundImmersive)
-			foundLabel := "Immersive"
-	}
-	if (CrownCheck && !foundLabel) {
-		foundCrown := FindBorders("crown")
-		if (foundCrown)
-			foundLabel := "Crown"
-	}
-	if (foundGP || foundLabel) {
-		if (loadedAccount)
-			FileDelete, %loadedAccount% ;delete xml file from folder if using inject method
-		if (foundGP)
-			restartGameInstance("God Pack found. Continuing...", "GodPack") ; restarts to backup and delete xml file with account info.
-		else {
-			FoundStars(foundLabel)
-			restartGameInstance(foundLabel . " found. Continuing...", "GodPack") ; restarts to backup and delete xml file with account info.
-		}
-	}
-}
-
-FoundStars(star) {
-	screenShot := Screenshot(star)
-	accountFile := saveAccount(star)
-	friendCode := getFriendCode()
-	if(star = "Crown" || star = "Immersive")
-		RemoveFriends()
-	logMessage := star . " found by " . username . " (" . friendCode . ") in instance: " . scriptName . " (" . packs . " packs)\nFile name: " . accountFile . "\nBacking up to the Accounts\\SpecificCards folder and continuing..."
-	CreateStatusMessage(logMessage)
-	LogToFile(logMessage, "GPlog.txt")
-	LogToDiscord(logMessage, screenShot, discordUserId)
-}
-
-FindBorders(prefix) {
-	count := 0
-	searchVariation := 40
-	borderCoords := [[30, 284, 83, 286]
+global borderCoords := [[30, 284, 83, 286]
 		,[113, 284, 166, 286]
 		,[196, 284, 249, 286]
 		,[70, 399, 123, 401]
 		,[155, 399, 208, 401]]
-	pBitmap := from_window(WinExist(winTitle))
-	; imagePath := "C:\Users\Arturo\Desktop\PTCGP\GPs\" . Clipboard . ".png"
-	; pBitmap := Gdip_CreateBitmapFromFile(imagePath)
-	for index, value in borderCoords {
-		coords := borderCoords[A_Index]
-		Path = %A_ScriptDir%\%defaultLanguage%\%prefix%%A_Index%.png
-		pNeedle := GetNeedle(Path)
-		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, coords[1], coords[2], coords[3], coords[4], searchVariation)
-		if (vRet = 1) {
-			count += 1
+
+global borderNeedles := ["3diamond"
+    ,"1star"
+    ,"fullart"
+    ,"rainbow"
+    ,"trainer"
+    ,"immersive"
+    ,"crown"]
+; "ex" is not included in the arrays above because there is no reliable way of
+; identifying a 4-diamond EX card which is compatible with all languages (other
+; than having 5 needle images per language...)
+
+global bordersFound := {"3diamond": 0
+    ,"ex": 0
+    ,"1star": 0
+    ,"fullart": 0
+    ,"rainbow": 0
+    ,"trainer": 0
+    ,"immersive": 0
+    ,"crown": 0}
+
+CheckPack() {
+	; Increment pack count.
+	packs += 1
+	if (packMethod)
+		packs := 1
+
+	; What types of cards are in this pack?
+    bordersFound := {"3diamond": 0
+        ,"ex": 0
+        ,"1star": 0
+        ,"fullart": 0
+        ,"rainbow": 0
+        ,"trainer": 0
+        ,"immersive": 0
+        ,"crown": 0}
+
+	for index, needleName in borderNeedles {
+		borderFound := CheckCardSlot(index)
+        bordersFound[borderFound] := bordersFound[borderFound] + 1
+	}
+
+	found1starCount := bordersFound["1star"]
+	found2starCount := bordersFound["fullart"] + bordersFound["rainbow"] + bordersFound["trainer"] + bordersFound["immersive"] + bordersFound["crown"]
+	foundValid2starCount := bordersFound["fullart"] + bordersFound["rainbow"] + bordersFound["trainer"]
+
+	foundGP := false
+	if ((found2starCount + found1starCount) = 5) {
+		if ((foundValid2starCount + found1starCount) = 5 && (minStars = 0 || foundValid2starCount >= minStars))
+			foundGP := "Valid"
+		else
+			foundGP := "Invalid"
+	}
+
+	if (foundGP != false) {
+		GodPackFound(foundGP)
+
+		if (foundGP = "Valid") {
+			if (loadedAccount)
+				; Delete XML file from folder if using inject method.
+				FileDelete, %loadedAccount%
+
+			restartGameInstance("God Pack found. Continuing...", "GodPack")
 		}
 	}
-	Gdip_DisposeImage(pBitmap)
-	return count
-}
 
-FindExRule() {
-	count := 0
-	searchVariation := 40
-	ruleCoords := [[45, 277, 88, 279]
-		,[128, 277, 171, 279]
-		,[211, 277, 254, 279]
-		,[85, 392, 128, 394]
-		,[170, 392, 213, 394]]
-	pBitmap := from_window(WinExist(winTitle))
-	for index, value in ruleCoords {
-		coords := ruleCoords[A_Index]
-		; @TODO Add support for other languages. Needles for each supported language required.
-		Path = %A_ScriptDir%\%defaultLanguage%\ENG\4diamond%A_Index%.png
-		pNeedle := GetNeedle(Path)
-		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, coords[1], coords[2], coords[3], coords[4], searchVariation)
-		if (vRet = 1) {
-			count += 1
+	foundLabel := ""
+	foundInvalid := bordersFound["immersive"] + bordersFound["crown"]
+
+	if (foundInvalid) {
+		if (ImmersiveCheck && bordersFound["immersive"] > 0) {
+			foundLabel := "Immersive"
+		} else if (CrownCheck && bordersFound["crown"] > 0) {
+			foundLabel := "Crown"
+		}
+
+		; Still need to unfriend - the pack is invalid but the account will
+		; be saved based on the settings.
+		RemoveFriends()
+	} else {
+		if (FullArtCheck && bordersFound["fullart"] > 0) {
+			foundLabel := "Full Art"
+		} else if (RainbowCheck && bordersFound["rainbow"] > 0) {
+			foundLabel := "Rainbow"
+		} else if (PseudoGodPack && foundValid2starCount >= 2) {
+			foundLabel := "Double two star"
+		} else if (TrainerCheck && bordersFound["trainer"] > 0) {
+			foundLabel := "Trainer"
+		} else if (ExCheck && bordersFound["ex"] >= ExCount) {
+			foundExCount := bordersFound["ex"]
+			foundLabel := foundExCount . " Ex"
+		} else if (OneStarCheck && bordersFound["1star"] >= OneStarCount) {
+			found1starCount := bordersFound["1star"]
+			foundLabel := found1starCount . " One star"
+		} else if (ThreeDiamondCheck && bordersFound["3diamond"] >= ThreeDiamondCount) {
+			found3diamondCount := bordersFound["3diamond"]
+			foundLabel := found3diamondCount . " Three diamond"
 		}
 	}
-	Gdip_DisposeImage(pBitmap)
-	return count
+
+	if (foundLabel = "") {
+		; Unfriend and continue.
+		RemoveFriends()
+	} else {
+		SpecificPackFound(foundLabel)
+
+		if (loadedAccount)
+			; Delete XML file from folder if using inject method.
+			FileDelete, %loadedAccount%
+
+		restartGameInstance(foundLabel . " found. Continuing...", "GodPack")
+	}
 }
 
-FindGodPack() {
-	global winTitle, discordUserId, Delay, username, packs, minStars
-	gpFound := false
-	invalidGP := false
+CheckCardSlot(slotIndex) {
+	borderFound := ""
+
+	checkCoords := borderCoords[slotIndex]
 	searchVariation := 5
-	confirm := false
+	pBitmap := from_window(WinExist(winTitle))
+
+	; Wait until card has rendered.
+	lagPath = %A_ScriptDir%\%defaultLanguage%\lag%slotIndex%.png
+	pLag := GetNeedle(lagPath)
+	vLag := Gdip_ImageSearch(pBitmap, pLag, vPosXY, checkCoords[1], checkCoords[2], checkCoords[3], checkCoords[4], searchVariation)
+
 	Loop {
-		if(FindBorders("lag") = 0)
+		if(vLag = 0)
 			break
 		Delay(1)
 	}
-	borderCoords := [[20, 284, 90, 286]
-		,[103, 284, 173, 286]]
-	if(packs = 3)
-		packs := 0
-	Loop {
-		normalBorders := false
-		pBitmap := from_window(WinExist(winTitle))
-		Path = %A_ScriptDir%\%defaultLanguage%\Border.png
-		pNeedle := GetNeedle(Path)
-		for index, value in borderCoords {
-			coords := borderCoords[A_Index]
-			vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, coords[1], coords[2], coords[3], coords[4], searchVariation)
-			if (vRet = 1) {
-				normalBorders := true
-				break
-			}
-		}
-		Gdip_DisposeImage(pBitmap)
-		if(normalBorders) {
-			CreateStatusMessage("Not a God Pack ")
-			packs += 1
+
+	for index, needleName in borderNeedles {
+		needlePath = %A_ScriptDir%\%defaultLanguage%\%needleName%%slotIndex%.png
+
+		if (!FileExist(needlePath))
+			continue
+
+		pNeedle := GetNeedle(needlePath)
+		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, checkCoords[1], checkCoords[2], checkCoords[3], checkCoords[4], searchVariation)
+		if (vRet = 1) {
+			borderFound := needleName
 			break
-		} else {
-			packs += 1
-			if(packMethod)
-				packs := 1
-			foundImmersive := FindBorders("immersive")
-			foundCrown := FindBorders("crown")
-			if(foundImmersive || foundCrown) {
-				invalidGP := true
-			}
-			if(!invalidGP && minStars > 0) {
-				starCount := 5 - FindBorders("1star")
-				if(starCount < minStars) {
-					CreateStatusMessage("Does not meet minimum 2 star threshold.")
-					invalidGP := true
-				}
-			}
-			if(invalidGP) {
-				gpFound := true
-				GodPackFound("Invalid")
-				RemoveFriends()
-				break
-			}
-			else {
-				gpFound := true
-				GodPackFound("Valid")
-				break
-			}
 		}
 	}
-	return gpFound
+
+	Gdip_DisposeImage(pBitmap)
+
+	; If a border hasn't been identified, assume there is a 4-diamond EX card in the current slot.
+	if (borderFound := "")
+		borderFound := "ex"
+
+	return borderFound
+}
+
+SpecificPackFound(packLabel) {
+	screenShot := Screenshot(packLabel)
+	accountFile := saveAccount(packLabel)
+	friendCode := getFriendCode()
+	logMessage := packLabel . " found by " . username . " (" . friendCode . ") in instance: " . scriptName . " (" . packs . " packs)\nFile name: " . accountFile
+	LogToFile(logMessage, "GPlog.txt")
+	CreateStatusMessage(logMessage)
+	logMessage := packLabel . " found by " . username . " (" . friendCode . ") in instance: " . scriptName . " (" . packs . " packs)\nFile name: " . accountFile . "\nBacking up to the Accounts\\SpecificCards folder and continuing..."
+	LogToDiscord(logMessage, screenShot, discordUserId)
 }
 
 GodPackFound(validity) {
-	if(validity = "Valid") {
+	invalidLabel := "Invalid "
+	if (validity = "Valid") {
 		Praise := ["Congrats!", "Congratulations!", "GG!", "Whoa!", "Praise Helix! ༼ つ ◕_◕ ༽つ", "Way to go!", "You did it!", "Awesome!", "Nice!", "Cool!", "You deserve it!", "Keep going!", "This one has to be live!", "No duds, no duds, no duds!", "Fantastic!", "Bravo!", "Excellent work!", "Impressive!", "You're amazing!", "Well done!", "You're crushing it!", "Keep up the great work!", "You're unstoppable!", "Exceptional!", "You nailed it!", "Hats off to you!", "Sweet!", "Kudos!", "Phenomenal!", "Boom! Nailed it!", "Marvelous!", "Outstanding!", "Legendary!", "Youre a rock star!", "Unbelievable!", "Keep shining!", "Way to crush it!", "You're on fire!", "Killing it!", "Top-notch!", "Superb!", "Epic!", "Cheers to you!", "Thats the spirit!", "Magnificent!", "Youre a natural!", "Gold star for you!", "You crushed it!", "Incredible!", "Shazam!", "You're a genius!", "Top-tier effort!", "This is your moment!", "Powerful stuff!", "Wicked awesome!", "Props to you!", "Big win!", "Yesss!", "Champion vibes!", "Spectacular!"]
-		invalid := ""
+		invalidLabel := ""
 	} else {
 		Praise := ["Uh-oh!", "Oops!", "Not quite!", "Better luck next time!", "Yikes!", "That didn’t go as planned.", "Try again!", "Almost had it!", "Not your best effort.", "Keep practicing!", "Oh no!", "Close, but no cigar.", "You missed it!", "Needs work!", "Back to the drawing board!", "Whoops!", "That’s rough!", "Don’t give up!", "Ouch!", "Swing and a miss!", "Room for improvement!", "Could be better.", "Not this time.", "Try harder!", "Missed the mark.", "Keep at it!", "Bummer!", "That’s unfortunate.", "So close!", "Gotta do better!"]
-		invalid := validity
 	}
 	Randmax := Praise.Length()
 	Random, rand, 1, Randmax
 	Interjection := Praise[rand]
-	starCount := 5 - FindBorders("1star")
+	starCount := bordersFound["fullart"] + bordersFound["rainbow"] + bordersFound["trainer"]
 	screenShot := Screenshot(validity)
 	accountFile := saveAccount(validity)
-	logMessage := "\n" . username . "\n[" . starCount . "/5][" . packs . "P] " . invalid . " God pack found in instance: " . scriptName . "\nFile name: " . accountFile . "\nGetting friend code then sendind discord message."
+	logMessage := "\n" . username . "\n[" . starCount . "/5][" . packs . "P] " . invalidLabel . "God pack found in instance: " . scriptName . "\nFile name: " . accountFile
 	godPackLog = GPlog.txt
 	LogToFile(logMessage, godPackLog)
 	CreateStatusMessage(logMessage)
 	friendCode := getFriendCode()
-	logMessage := Interjection . "\n" . username . " (" . friendCode . ")\n[" . starCount . "/5][" . packs . "P] " . invalid . " God pack found in instance: " . scriptName . "\nFile name: " . accountFile . "\nBacking up to the Accounts\\GodPacks folder and continuing..."
+	logMessage := Interjection . "\n" . username . " (" . friendCode . ")\n[" . starCount . "/5][" . packs . "P] " . invalidLabel . "God pack found in instance: " . scriptName . "\nFile name: " . accountFile . "\nBacking up to the Accounts\\GodPacks folder and continuing..."
 	LogToFile(logMessage, godPackLog)
-	;Run, http://google.com, , Hide ;Remove the ; at the start of the line and replace your url if you want to trigger a link when finding a god pack.
 	LogToDiscord(logMessage, screenShot, discordUserId)
 }
 
