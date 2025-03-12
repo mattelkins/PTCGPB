@@ -1,3 +1,5 @@
+#Include %A_ScriptDir%\Scripts\3477\PTCGPB.ahk
+
 version = Arturos PTCGP Bot
 #SingleInstance, force
 CoordMode, Mouse, Screen
@@ -278,6 +280,9 @@ if (defaultLanguage = "Scale125") {
 ;Gui, Add, Text, x270 y400 cWhite, Scale:
 ;Gui, Add, DropDownList, x310 y395 w145 vdefaultLanguage choose%defaultLang%, Scale125
 
+; ~*~*~/// 3477 \\\~*~*~
+Gui3477()
+
 Gui, Show, , %localVersion% PTCGPB Bot Setup [Non-Commercial 4.0 International License]
 Return
 
@@ -407,6 +412,8 @@ Start:
 	IniWrite, %autoLaunchMonitor%, Settings.ini, UserSettings, autoLaunchMonitor
 	IniWrite, %instanceLaunchDelay%, Settings.ini, UserSettings, instanceLaunchDelay
 
+	; ~*~*~/// 3477 \\\~*~*~
+	Start3477()
 
 	; Download a new Main ID file prior to running the rest of the below
 	if(mainIdsURL != "") {
