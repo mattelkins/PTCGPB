@@ -1,3 +1,4 @@
+#Include %A_ScriptDir%\3477\Instance.ahk
 #Include %A_ScriptDir%\Include\Gdip_All.ahk
 #Include %A_ScriptDir%\Include\Gdip_Imagesearch.ahk
 
@@ -2718,7 +2719,9 @@ PackOpening() {
 
 	FindImageAndClick(0, 98, 116, 125, 5, "Opening", 239, 497) ;skip through cards until results opening screen
 
-	CheckPack()
+	; ~*~*~/// 3477 \\\~*~*~
+	;CheckPack()
+	CheckPack3477()
 
 	FindImageAndClick(233, 486, 272, 519, , "Skip", 146, 494) ;click on next until skip button appears
 
@@ -2837,7 +2840,9 @@ HourglassOpening(HG := false) {
 
 	FindImageAndClick(0, 98, 116, 125, 5, "Opening", 239, 497) ;skip through cards until results opening screen
 
-	CheckPack()
+	; ~*~*~/// 3477 \\\~*~*~
+	;CheckPack()
+	CheckPack3477()
 
 	FindImageAndClick(233, 486, 272, 519, , "Skip", 146, 494) ;click on next until skip button appears
 
