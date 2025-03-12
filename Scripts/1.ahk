@@ -738,7 +738,7 @@ FindOrLoseImage(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", E
 
 FindImageAndClick(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", clickx := 0, clicky := 0, sleepTime := "", skip := false, safeTime := 0) {
 	global winTitle, failSafe, confirmed, slowMotion
-	
+
 	if(slowMotion) {
 		if(imageName = "Platin" || imageName = "One" || imageName = "Two" || imageName = "Three")
 			return true
@@ -1591,7 +1591,7 @@ adbClick(X, Y) {
     static clickCommands := Object()
     static convX := 540/277, convY := 960/489, offset := -44
 
-    key := X << 16 | Y 
+    key := X << 16 | Y
 
     if (!clickCommands.HasKey(key)) {
         clickCommands[key] := Format("input tap {} {}"
@@ -2888,7 +2888,7 @@ createAccountList(instance) {
 			xml := saveDir . "\" . A_LoopFileName
 			FileGetTime, fileTime, %xml%, M
 			timeDiff := A_Now - fileTime  ; Calculate time difference
-			if (timeDiff > 86400) {  ; 24 hours in seconds (60 * 60 * 24) 
+			if (timeDiff > 86400) {  ; 24 hours in seconds (60 * 60 * 24)
 				FileAppend, % A_LoopFileName "`n", %outputTxt%  ; Append file path to output.txt\
 			}
 		}

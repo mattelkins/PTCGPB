@@ -92,14 +92,14 @@ Gui, Font, s10 cWhite, Segoe UI ; Modern font
 
 
 
-; ========== Column 1 ========== 
+; ========== Column 1 ==========
 ; ==============================
 
 ; ========== Friend ID Section ==========
 Gui, Add, GroupBox, x5 y0 w240 h40 cWhite, Friend ID
 if(FriendID = "ERROR" || FriendID = "")
     Gui, Add, Edit, vFriendID w180 x35 y15 h20 -E0x200 Background2A2A2A cWhite
-else 
+else
     Gui, Add, Edit, vFriendID w180 x35 y15 h20 -E0x200 Background2A2A2A cWhite, %FriendID%
 
 ; ========== Instance Settings Section ==========
@@ -167,7 +167,7 @@ Gui, Add, Checkbox, % (autoLaunchMonitor ? "Checked" : "") " vautoLaunchMonitor 
 
 
 
-; ========== Column 2 ========== 
+; ========== Column 2 ==========
 ; ==============================
 
 ; ========== God Pack Settings Section ==========
@@ -177,7 +177,7 @@ Gui, Add, Edit, vminStars w50 x350 y23 h20 -E0x200 Background2A2A2A cWhite Cente
 Gui, Add, Text, x270 y53 c39FF14, Method:
 if (deleteMethod = "5 Pack")
     defaultDelete := 1
-else if (deleteMethod = "3 Pack") 
+else if (deleteMethod = "3 Pack")
     defaultDelete := 2
 else if (deleteMethod = "Inject")
     defaultDelete := 3
@@ -206,15 +206,15 @@ Gui, Add, Checkbox, % (ImmersiveCheck ? "Checked" : "") " vImmersiveCheck x280 y
 
 
 
-; ========== Column 3 ========== 
-; ============================== 
+; ========== Column 3 ==========
+; ==============================
 
 ; ========== Discord Settings Section ==========
 Gui, Add, GroupBox, x505 y0 w240 h120 cFF69B4, Discord Settings ; Hot pink
 if(StrLen(discordUserID) < 3)
     discordUserID =
 if(StrLen(discordWebhookURL) < 3)
-    discordWebhookURL = 
+    discordWebhookURL =
 Gui, Add, Text, x520 y20 cFF69B4, Discord ID:
 Gui, Add, Edit, vdiscordUserId w210 x520 y40 h20 -E0x200 Background2A2A2A cWhite, %discordUserId%
 Gui, Add, Text, x520 y70 cFF69B4, Webhook URL:
@@ -227,7 +227,7 @@ Gui, Add, Checkbox, % (heartBeat ? "Checked" : "") " vheartBeat x520 y145 gdisco
 if(StrLen(heartBeatName) < 3)
     heartBeatName =
 if(StrLen(heartBeatWebhookURL) < 3)
-    heartBeatWebhookURL = 
+    heartBeatWebhookURL =
 
 if (heartBeat) {
     Gui, Add, Text, vhbName x520 y170 c00FFFF, Name:
@@ -242,11 +242,11 @@ if (heartBeat) {
 }
 
 ; ========== Action Buttons ==========
-Gui, Add, Button, gOpenLink x505 y350 w76 h35, Buy Me a Coffee 
-Gui, Add, Button, gCheckForUpdates x588 y350 w77 h35, Check Updates 
-Gui, Add, Button, gOpenDiscord x670 y350 w75 h35, Join Discord 
+Gui, Add, Button, gOpenLink x505 y350 w76 h35, Buy Me a Coffee
+Gui, Add, Button, gCheckForUpdates x588 y350 w77 h35, Check Updates
+Gui, Add, Button, gOpenDiscord x670 y350 w75 h35, Join Discord
 Gui, Add, Button, gStart x505 y280 w240 h30, START BOT
-Gui, Add, Button, gArrangeWindows x630 y315 w115 h30, Arrange Windows 
+Gui, Add, Button, gArrangeWindows x630 y315 w115 h30, Arrange Windows
 Gui, Add, Button, gLaunchAllMumu x505 y315 w115 h30, Launch All Mumu
 
 
@@ -256,7 +256,7 @@ Gui, Add, GroupBox, x255 y385 w490 h110 cWhite, Download Settings ;
 if(StrLen(mainIdsURL) < 3)
     mainIdsURL =
 if(StrLen(vipIdsURL) < 3)
-    vipIdsURL = 
+    vipIdsURL =
 
 Gui, Add, Text, x270 y405 cWhite, ids.txt API:
 Gui, Add, Edit, vmainIdsURL w460 x270 y425 h20 -E0x200 Background2A2A2A cWhite, %mainIdsURL%
@@ -538,7 +538,7 @@ Start:
 					offlineAHK := "Offline: none."
 				if(onlineAHK = "Online: ")
 					onlineAHK := "Online: none."
-				
+
 
 
 				discMessage := "\n" . onlineAHK . "\n" . offlineAHK . "\n" . packStatus
