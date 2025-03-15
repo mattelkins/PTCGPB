@@ -1,4 +1,4 @@
-global ExCheck, OneStarCheck, ThreeDiamondCheck, ExCount, OneStarCount, ThreeDiamondCount, MatchCount, ScreenshotAllPacks
+global ExCheck, OneStarCheck, ThreeDiamondCheck, ExCount, OneStarCount, ThreeDiamondCount, MatchCount, ReportAllPacks
 
 IniRead, ExCheck, %A_ScriptDir%\..\Settings.ini, UserSettings, ExCheck, 0
 IniRead, OneStarCheck, %A_ScriptDir%\..\Settings.ini, UserSettings, OneStarCheck, 0
@@ -7,23 +7,24 @@ IniRead, ExCount, %A_ScriptDir%\..\Settings.ini, UserSettings, ExCount, 1
 IniRead, OneStarCount, %A_ScriptDir%\..\Settings.ini, UserSettings, OneStarCount, 1
 IniRead, ThreeDiamondCount, %A_ScriptDir%\..\Settings.ini, UserSettings, ThreeDiamondCount, 1
 IniRead, MatchCount, Settings.ini, UserSettings, MatchCount, 1
-IniRead, ScreenshotAllPacks, Settings.ini, UserSettings, ScreenshotAllPacks, 0
+IniRead, ReportAllPacks, Settings.ini, UserSettings, ReportAllPacks, 0
 
 ExCount := Trim(StrReplace(ExCount, "x", ""))
 OneStarCount := Trim(StrReplace(OneStarCount, "x", ""))
 ThreeDiamondCount := Trim(StrReplace(ThreeDiamondCount, "x", ""))
 
 CheckPack3477() {
-    global scriptName, DeadCheck
-
-    if (ScreenshotAllPacks) {
+    if (ReportAllPacks) {
         Loop {
             if (FindBorders("lag") = 0)
                 break
             Delay(1)
         }
 
-        Screenshot("Opened")
+        screenShot := Screenshot("Opened")
+
+        logMessage := "Pack opened by " . username . " in instance: " . scriptName . ". Continuing..."
+        LogToDiscord(logMessage, screenShot)
     }
 
     foundGP := false
@@ -161,10 +162,11 @@ FoundGood(foundLabel) {
     accountFile := saveAccount(foundLabel)
     friendCode := getFriendCode()
 
+    CreateStatusMessage(foundLabel . " found!")
+
     logMessage := foundLabel . " found by " . username . " (" . friendCode . ") in instance: " . scriptName . " (" . packs . " packs)\nFile name: " . accountFile . "\nBacking up to the Accounts\\SpecificCards folder and continuing..."
-    CreateStatusMessage(logMessage)
     LogToFile(logMessage, "GPlog.txt")
-    LogToDiscord(logMessage, screenShot, discordUserId, "", "")
+    LogToDiscord(logMessage, screenShot, discordUserId)
 
     if(foundLabel = "Crown" || foundLabel = "Immersive")
         RemoveFriends()
