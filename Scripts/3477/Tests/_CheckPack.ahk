@@ -22,12 +22,6 @@ if (!FileExist(screenshotFilePath)) {
     ExitApp
 }
 
-IniRead, ExCheck, %A_ScriptDir%\..\..\Settings.ini, UserSettings, ExCheck, 0
-IniRead, OneStarCheck, %A_ScriptDir%\..\..\Settings.ini, UserSettings, OneStarCheck, 0
-IniRead, ThreeDiamondCheck, %A_ScriptDir%\..\..\Settings.ini, UserSettings, ThreeDiamondCheck, 0
-IniRead, ExCount, %A_ScriptDir%\..\..\Settings.ini, UserSettings, ExCount, 1
-IniRead, OneStarCount, %A_ScriptDir%\..\..\Settings.ini, UserSettings, OneStarCount, 1
-IniRead, ThreeDiamondCount, %A_ScriptDir%\..\..\Settings.ini, UserSettings, ThreeDiamondCount, 1
 IniRead, TrainerCheck, %A_ScriptDir%\..\..\Settings.ini, UserSettings, TrainerCheck, 0
 IniRead, FullArtCheck, %A_ScriptDir%\..\..\Settings.ini, UserSettings, FullArtCheck, 0
 IniRead, RainbowCheck, %A_ScriptDir%\..\..\Settings.ini, UserSettings, RainbowCheck, 0
@@ -35,13 +29,21 @@ IniRead, CrownCheck, %A_ScriptDir%\..\..\Settings.ini, UserSettings, CrownCheck,
 IniRead, ImmersiveCheck, %A_ScriptDir%\..\..\Settings.ini, UserSettings, ImmersiveCheck, 0
 IniRead, PseudoGodPack, %A_ScriptDir%\..\..\Settings.ini, UserSettings, PseudoGodPack, 0
 IniRead, minStars, %A_ScriptDir%\..\..\Settings.ini, UserSettings, minStars, 0
+IniRead, ExCheck, %A_ScriptDir%\..\..\Settings.ini, UserSettings, ExCheck, 0
+IniRead, OneStarCheck, %A_ScriptDir%\..\..\Settings.ini, UserSettings, OneStarCheck, 0
+IniRead, ThreeDiamondCheck, %A_ScriptDir%\..\..\Settings.ini, UserSettings, ThreeDiamondCheck, 0
+IniRead, ExCount, %A_ScriptDir%\..\..\Settings.ini, UserSettings, ExCount, 1
+IniRead, OneStarCount, %A_ScriptDir%\..\..\Settings.ini, UserSettings, OneStarCount, 1
+IniRead, ThreeDiamondCount, %A_ScriptDir%\..\..\Settings.ini, UserSettings, ThreeDiamondCount, 1
+IniRead, MatchCount, Settings.ini, UserSettings, MatchCount, 1
 
-ExCount := StrReplace(ExCount, "x ", "")
-OneStarCount := StrReplace(OneStarCount, "x ", "")
-ThreeDiamondCount := StrReplace(ThreeDiamondCount, "x ", "")
+ExCount := Trim(StrReplace(ExCount, "x", ""))
+OneStarCount := Trim(StrReplace(OneStarCount, "x", ""))
+ThreeDiamondCount := Trim(StrReplace(ThreeDiamondCount, "x", ""))
 
 pToken := Gdip_Startup()
 
+; @TODO Update reporting include check against MatchCount.
 CheckPack() {
     foundGP := false ;check card border to find godpacks
     foundFullArt := false
@@ -117,8 +119,6 @@ CheckPack() {
 }
 
 FindGodPack() {
-    global screenshotFilePath, minStars
-
     searchVariation := 5
     borderCoords := [[20, 284, 90, 286]
         ,[103, 284, 173, 286]]
@@ -161,9 +161,8 @@ FindGodPack() {
     }
 }
 
+; @TODO Adjust border coordinates for cropped pack screenshots.
 FindBorders(prefix) {
-    global screenshotFilePath
-
     count := 0
     searchVariation := 40
     borderCoords := [[30, 284, 83, 286]
@@ -185,9 +184,31 @@ FindBorders(prefix) {
     return count
 }
 
-FindExRule() {
-    global screenshotFilePath
+; @TODO Adjust border coordinates for cropped pack screenshots.
+FindBorders3477(prefix) {
+    count := 0
+    searchVariation := 40
+    borderCoords := [[30, 284, 83, 286]
+        ,[113, 284, 166, 286]
+        ,[196, 284, 249, 286]
+        ,[70, 399, 123, 401]
+        ,[155, 399, 208, 401]]
+    pBitmap := Gdip_CreateBitmapFromFile(screenshotFilePath)
+    for index, value in borderCoords {
+        coords := borderCoords[A_Index]
+        Path = %A_ScriptDir%\..\Assets\Needles\%prefix%%A_Index%.png
+        pNeedle := GetNeedle(Path)
+        vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, coords[1], coords[2], coords[3], coords[4], searchVariation)
+        if (vRet = 1) {
+            count += 1
+        }
+    }
+    Gdip_DisposeImage(pBitmap)
+    return count
+}
 
+; @TODO Adjust rule coordinates for cropped pack screenshots.
+FindExRule() {
     count := 0
     searchVariation := 40
     ruleCoords := [[45, 277, 88, 279]
@@ -199,7 +220,7 @@ FindExRule() {
     for index, value in ruleCoords {
         coords := ruleCoords[A_Index]
         ; @TODO Add support for other languages. Needles for each supported language required.
-        Path = %A_ScriptDir%\..\Scale125\ENG\4diamond%A_Index%.png
+        Path = %A_ScriptDir%\..\Assets\Needles\ENG\4diamond%A_Index%.png
         pNeedle := GetNeedle(Path)
         vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, coords[1], coords[2], coords[3], coords[4], searchVariation)
         if (vRet = 1) {
