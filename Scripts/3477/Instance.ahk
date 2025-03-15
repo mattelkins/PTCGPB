@@ -1,13 +1,18 @@
 global ExCheck, OneStarCheck, ThreeDiamondCheck, ExCount, OneStarCount, ThreeDiamondCount, MatchCount, ReportAllPacks
+global ExS4T, OneStarS4T, ThreeDiamondS4T, ReportS4T
 
-IniRead, ExCheck, %A_ScriptDir%\..\Settings.ini, UserSettings, ExCheck, 0
-IniRead, OneStarCheck, %A_ScriptDir%\..\Settings.ini, UserSettings, OneStarCheck, 0
-IniRead, ThreeDiamondCheck, %A_ScriptDir%\..\Settings.ini, UserSettings, ThreeDiamondCheck, 0
-IniRead, ExCount, %A_ScriptDir%\..\Settings.ini, UserSettings, ExCount, 1
-IniRead, OneStarCount, %A_ScriptDir%\..\Settings.ini, UserSettings, OneStarCount, 1
-IniRead, ThreeDiamondCount, %A_ScriptDir%\..\Settings.ini, UserSettings, ThreeDiamondCount, 1
+IniRead, ExCheck, Settings.ini, UserSettings, ExCheck, 0
+IniRead, OneStarCheck, Settings.ini, UserSettings, OneStarCheck, 0
+IniRead, ThreeDiamondCheck, Settings.ini, UserSettings, ThreeDiamondCheck, 0
+IniRead, ExCount, Settings.ini, UserSettings, ExCount, 1
+IniRead, OneStarCount, Settings.ini, UserSettings, OneStarCount, 1
+IniRead, ThreeDiamondCount, Settings.ini, UserSettings, ThreeDiamondCount, 1
 IniRead, MatchCount, Settings.ini, UserSettings, MatchCount, 1
 IniRead, ReportAllPacks, Settings.ini, UserSettings, ReportAllPacks, 0
+IniRead, ExS4T, Settings.ini, UserSettings, ExS4T, 0
+IniRead, OneStarS4T, Settings.ini, UserSettings, OneStarS4T, 0
+IniRead, ThreeDiamondS4T, Settings.ini, UserSettings, ThreeDiamondS4T, 0
+IniRead, ReportS4T, Settings.ini, UserSettings, ReportS4T, 0
 
 ExCount := Trim(StrReplace(ExCount, "x", ""))
 OneStarCount := Trim(StrReplace(OneStarCount, "x", ""))
@@ -106,6 +111,36 @@ CheckPack3477() {
             FoundGood(foundLabel)
             restartGameInstance(foundLabel . " found. Continuing...", "GodPack") ; restarts to backup and delete xml file with account info.
         }
+    } else {
+        savedForTrade := false
+
+        if (!savedForTrade && ExS4T) {
+            if (!(ExCheck && foundExCount = 0)) {
+                foundExCount := FindExRule()
+                if (foundExCount > 0) {
+                    SaveForTrade("EX", foundExCount)
+                    savedForTrade := true
+                }
+            }
+        }
+        if (!savedForTrade && OneStarS4T) {
+            if (!(OneStarCheck && OneStarCount = 0)) {
+                found1starCount := FindBorders("1star")
+                if (found1starCount > 0) {
+                    SaveForTrade("One Star", found1starCount)
+                    savedForTrade := true
+                }
+            }
+        }
+        if (!savedForTrade && ThreeDiamondS4T) {
+            if (!(ThreeDiamondCheck && ThreeDiamondCount    = 0)) {
+                found3diamondCount := FindBorders3477("3diamond")
+                if (found3diamondCount > 0) {
+                    SaveForTrade("Three Diamond", found3diamondCount)
+                    savedForTrade := true
+                }
+            }
+        }
     }
 }
 
@@ -155,7 +190,6 @@ FindExRule() {
 }
 
 FoundGood(foundLabel) {
-    global scriptName, DeadCheck
     IniWrite, 0, %A_ScriptDir%\..\%scriptName%.ini, UserSettings, DeadCheck
 
     fileName := StrReplace(foundLabel, " ", "_")
@@ -170,6 +204,68 @@ FoundGood(foundLabel) {
     LogToFile(logMessage, "GPlog.txt")
     LogToDiscord(logMessage, screenShot, discordUserId)
 
-    if(foundLabel = "Crown" || foundLabel = "Immersive")
+    if (foundLabel = "Crown" || foundLabel = "Immersive")
         RemoveFriends()
+}
+
+SaveForTrade(cardType, cardCount) {
+    ; @TODO Get friend code for file name(s) and log message(s).
+    ;friendCode := getFriendCode()
+    friendCode := "@TODO"
+
+    fileName := openPack . "_" . StrReplace(cardType, " ", "_") . "_x" . cardCount
+
+    screenShot := Screenshot(fileName)
+    accountFile := saveAccount3477(fileName, "Accounts\Trades")
+
+    CreateStatusMessage("Account saved for trading!")
+
+    if (ReportS4T) {
+        logMessage := cardCount . " " . cardType . " card(s) found by " . username . " in instance: " . scriptName . "\nFile name: " . accountFile . "\nBacking up to the Accounts\\Trades folder and continuing..."
+        LogToFile(logMessage, "GPlog.txt")
+        LogToDiscord(logMessage, screenShot, discordUserId)
+    }
+}
+
+saveAccount3477(file, folder) {
+    saveDir := A_ScriptDir . "\..\" . folder . "\"
+    xmlFile := A_Now . "_" . file . "_" . packs . "_packs.xml"
+    filePath := saveDir . xmlFile
+
+    if !FileExist(saveDir) ; Check if the directory exists
+        FileCreateDir, %saveDir% ; Create the directory if it doesn't exist
+
+    count := 0
+    Loop {
+        CreateStatusMessage("Attempting to save account XML. " . count . "/10")
+
+        adbShell.StdIn.WriteLine("cp -f /data/data/jp.pokemon.pokemontcgp/shared_prefs/deviceAccount:.xml /sdcard/deviceAccount.xml")
+        waitadb()
+        Sleep, 500
+
+        RunWait, % adbPath . " -s 127.0.0.1:" . adbPort . " pull /sdcard/deviceAccount.xml """ . filePath,, Hide
+
+        Sleep, 500
+
+        adbShell.StdIn.WriteLine("rm /sdcard/deviceAccount.xml")
+
+        Sleep, 500
+
+        FileGetSize, OutputVar, %filePath%
+
+        if (OutputVar > 0)
+            break
+
+        if (count > 10 && file != "All") {
+            CreateStatusMessage("Attempted to save the account XML`n10 times, but was unsuccesful.`nPausing...")
+            LogToDiscord("Attempted to save account in " . scriptName . " but was unsuccessful. Pausing. You will need to manually extract.", Screenshot(), discordUserId)
+            Pause, On
+        } else if (count > 10) {
+            LogToDiscord("Couldnt save this regular account. Skipping it.")
+            break
+        }
+        count++
+    }
+
+    return xmlFile
 }
