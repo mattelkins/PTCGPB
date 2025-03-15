@@ -5,7 +5,7 @@ global CrownCheck, ImmersiveCheck, PseudoGodPack, minStars, Palkia, Dialga, Arce
 global slowMotion, ocrLanguage, mainIdsURL, vipIdsURL, autoLaunchMonitor, instanceLaunchDelay
 
 global ExCheck, OneStarCheck, ThreeDiamondCheck, ExCount, OneStarCount, ThreeDiamondCount, MatchCount, ExS4T,
-global OneStarS4T, ThreeDiamondS4T, DebugLogs, ScreenshotAllPacks, ReportS4T
+global OneStarS4T, ThreeDiamondS4T, DebugLogs, ReportAllPacks, ReportS4T
 
 IniRead, ExCheck, Settings.ini, UserSettings, ExCheck, 0
 IniRead, OneStarCheck, Settings.ini, UserSettings, OneStarCheck, 0
@@ -18,7 +18,7 @@ IniRead, ExS4T, Settings.ini, UserSettings, ExS4T, 0
 IniRead, OneStarS4T, Settings.ini, UserSettings, OneStarS4T, 0
 IniRead, ThreeDiamondS4T, Settings.ini, UserSettings, ThreeDiamondS4T, 0
 IniRead, DebugLogs, Settings.ini, UserSettings, DebugLogs, 0
-IniRead, ScreenshotAllPacks, Settings.ini, UserSettings, ScreenshotAllPacks, 0
+IniRead, ReportAllPacks, Settings.ini, UserSettings, ReportAllPacks, 0
 IniRead, ReportS4T, Settings.ini, UserSettings, ReportS4T, 0
 
 Gui3477() {
@@ -88,10 +88,10 @@ Gui3477() {
     else
         Gui, Add, Checkbox, vDebugLogs y+2 c00AEAE, 3477 Logging
 
-    if (ScreenshotAllPacks)
-        Gui, Add, Checkbox, Checked vScreenshotAllPacks y+2 c00AEAE, Pack Screenshots
+    if (ReportAllPacks)
+        Gui, Add, Checkbox, Checked vReportAllPacks y+2 c00AEAE, Report All Packs
     else
-        Gui, Add, Checkbox, vScreenshotAllPacks y+2 c00AEAE, Pack Screenshots
+        Gui, Add, Checkbox, vReportAllPacks y+2 c00AEAE, Report All Packs
 
     if (ReportS4T)
         Gui, Add, Checkbox, Checked vReportS4T y+2 c00AEAE, Report S4T
@@ -113,7 +113,7 @@ Start3477() {
     IniWrite, %OneStarS4T%, Settings.ini, UserSettings, OneStarS4T
     IniWrite, %ThreeDiamondS4T%, Settings.ini, UserSettings, ThreeDiamondS4T
     IniWrite, %DebugLogs%, Settings.ini, UserSettings, DebugLogs
-    IniWrite, %ScreenshotAllPacks%, Settings.ini, UserSettings, ScreenshotAllPacks
+    IniWrite, %ReportAllPacks%, Settings.ini, UserSettings, ReportAllPacks
     IniWrite, %ReportS4T%, Settings.ini, UserSettings, ReportS4T
 }
 
@@ -193,7 +193,7 @@ SaveReload() {
     IniWrite, %OneStarS4T%, Settings.ini, UserSettings, OneStarS4T
     IniWrite, %ThreeDiamondS4T%, Settings.ini, UserSettings, ThreeDiamondS4T
     IniWrite, %DebugLogs%, Settings.ini, UserSettings, DebugLogs
-    IniWrite, %ScreenshotAllPacks%, Settings.ini, UserSettings, ScreenshotAllPacks
+    IniWrite, %ReportAllPacks%, Settings.ini, UserSettings, ReportAllPacks
     IniWrite, %ReportS4T%, Settings.ini, UserSettings, ReportS4T
 
     Reload
