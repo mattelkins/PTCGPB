@@ -158,8 +158,10 @@ FoundGood(foundLabel) {
     global scriptName, DeadCheck
     IniWrite, 0, %A_ScriptDir%\..\%scriptName%.ini, UserSettings, DeadCheck
 
-    screenShot := Screenshot(foundLabel)
-    accountFile := saveAccount(foundLabel)
+    fileName := StrReplace(foundLabel, " ", "_")
+
+    screenShot := Screenshot(fileName)
+    accountFile := saveAccount(fileName)
     friendCode := getFriendCode()
 
     CreateStatusMessage(foundLabel . " found!")
