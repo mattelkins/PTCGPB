@@ -647,7 +647,7 @@ Start:
 
 	for index, value in Selected {
 		if(index = Selected.MaxIndex())
-			commaSeparate := "."
+			commaSeparate := ""
 		else
 			commaSeparate := ", "
 		if(value)
@@ -702,15 +702,15 @@ Start:
 					IniRead, value, HeartBeat.ini, HeartBeat, Main
 					if(value) {
 						if (onlineAHK)
-							onlineAHK := "Online: Main, " . onlineAHK
+							onlineAHK := "Main, " . onlineAHK
 						else
-							onlineAHK := "Online: Main"
+							onlineAHK := "Main"
 					}
 					else {
 						if (offlineAHK)
-							offlineAHK := "Offline: Main, " . offlineAHK
+							offlineAHK := "Main, " . offlineAHK
 						else
-							offlineAHK := "Offline: Main"
+							offlineAHK := "Main"
 					}
 					IniWrite, 0, HeartBeat.ini, HeartBeat, Main
 				}
