@@ -1,5 +1,5 @@
-#Include %A_ScriptDir%\..\Include\Gdip_All.ahk
-#Include %A_ScriptDir%\..\Include\Gdip_Imagesearch.ahk
+#Include %A_ScriptDir%\..\..\Include\Gdip_All.ahk
+#Include %A_ScriptDir%\..\..\Include\Gdip_Imagesearch.ahk
 
 #SingleInstance, Force
 SetBatchLines, -1
@@ -12,7 +12,7 @@ if not A_IsAdmin {
     ExitApp
 }
 
-global scriptName, screenshotFilePath, ExCheck, OneStarCheck, ThreeDiamondCheck, ExCount, OneStarCount, ThreeDiamondCount, TrainerCheck, FullArtCheck, RainbowCheck, CrownCheck, ImmersiveCheck, PseudoGodPack, minStars
+global scriptName, screenshotFilePath, ExCheck, OneStarCheck, ThreeDiamondCheck, ExCount, OneStarCount, ThreeDiamondCount, TrainerCheck, FullArtCheck, RainbowCheck, ShinyCheck, CrownCheck, ImmersiveCheck, PseudoGodPack, minStars
 
 scriptName := StrReplace(A_ScriptName, ".ahk")
 screenshotFilePath := A_ScriptDir . "\_CheckPack\screenshot.png"
@@ -22,19 +22,20 @@ if (!FileExist(screenshotFilePath)) {
     ExitApp
 }
 
-IniRead, TrainerCheck, %A_ScriptDir%\..\..\Settings.ini, UserSettings, TrainerCheck, 0
-IniRead, FullArtCheck, %A_ScriptDir%\..\..\Settings.ini, UserSettings, FullArtCheck, 0
-IniRead, RainbowCheck, %A_ScriptDir%\..\..\Settings.ini, UserSettings, RainbowCheck, 0
-IniRead, CrownCheck, %A_ScriptDir%\..\..\Settings.ini, UserSettings, CrownCheck, 0
-IniRead, ImmersiveCheck, %A_ScriptDir%\..\..\Settings.ini, UserSettings, ImmersiveCheck, 0
-IniRead, PseudoGodPack, %A_ScriptDir%\..\..\Settings.ini, UserSettings, PseudoGodPack, 0
-IniRead, minStars, %A_ScriptDir%\..\..\Settings.ini, UserSettings, minStars, 0
-IniRead, ExCheck, %A_ScriptDir%\..\..\Settings.ini, UserSettings, ExCheck, 0
-IniRead, OneStarCheck, %A_ScriptDir%\..\..\Settings.ini, UserSettings, OneStarCheck, 0
-IniRead, ThreeDiamondCheck, %A_ScriptDir%\..\..\Settings.ini, UserSettings, ThreeDiamondCheck, 0
-IniRead, ExCount, %A_ScriptDir%\..\..\Settings.ini, UserSettings, ExCount, 1
-IniRead, OneStarCount, %A_ScriptDir%\..\..\Settings.ini, UserSettings, OneStarCount, 1
-IniRead, ThreeDiamondCount, %A_ScriptDir%\..\..\Settings.ini, UserSettings, ThreeDiamondCount, 1
+IniRead, TrainerCheck, %A_ScriptDir%\..\..\..\Settings.ini, UserSettings, TrainerCheck, 0
+IniRead, FullArtCheck, %A_ScriptDir%\..\..\..\Settings.ini, UserSettings, FullArtCheck, 0
+IniRead, RainbowCheck, %A_ScriptDir%\..\..\..\Settings.ini, UserSettings, RainbowCheck, 0
+IniRead, ShinyCheck, %A_ScriptDir%\..\..\..\Settings.ini, UserSettings, ShinyCheck, 0
+IniRead, CrownCheck, %A_ScriptDir%\..\..\..\Settings.ini, UserSettings, CrownCheck, 0
+IniRead, ImmersiveCheck, %A_ScriptDir%\..\..\..\Settings.ini, UserSettings, ImmersiveCheck, 0
+IniRead, PseudoGodPack, %A_ScriptDir%\..\..\..\Settings.ini, UserSettings, PseudoGodPack, 0
+IniRead, minStars, %A_ScriptDir%\..\..\..\Settings.ini, UserSettings, minStars, 0
+IniRead, ExCheck, %A_ScriptDir%\..\..\..\Settings.ini, UserSettings, ExCheck, 0
+IniRead, OneStarCheck, %A_ScriptDir%\..\..\..\Settings.ini, UserSettings, OneStarCheck, 0
+IniRead, ThreeDiamondCheck, %A_ScriptDir%\..\..\..\Settings.ini, UserSettings, ThreeDiamondCheck, 0
+IniRead, ExCount, %A_ScriptDir%\..\..\..\Settings.ini, UserSettings, ExCount, 1
+IniRead, OneStarCount, %A_ScriptDir%\..\..\..\Settings.ini, UserSettings, OneStarCount, 1
+IniRead, ThreeDiamondCount, %A_ScriptDir%\..\..\..\Settings.ini, UserSettings, ThreeDiamondCount, 1
 IniRead, MatchCount, Settings.ini, UserSettings, MatchCount, 1
 
 ExCount := Trim(StrReplace(ExCount, "x", ""))
@@ -53,10 +54,12 @@ CheckPack() {
     foundExCount := 0
     found1starCount := 0
     found3diamondCount := 0
+    foundShiny := false
     foundImmersive := false
     foundCrown := false
     foundLabel := ""
-    foundGP := FindGodPack()
+    ;foundGP := FindGodPack()
+    foundGP := false
     foundInvalid := FindBorders("immersive") + FindBorders("crown")
 
     foundLabel := ["The pack in the screenshot..."]
@@ -101,6 +104,11 @@ CheckPack() {
         if (found3diamondCount >= ThreeDiamondCount)
             foundLabel.push("- contains " . found3diamondCount . " 3-diamond cards")
     }
+    if (ShinyCheck) {
+        foundShiny := FindBorders("shiny2star") + FindBorders("shiny1star")
+        if (foundShiny)
+            foundLabel.push("- contains " . foundShiny . " shiny cards")
+    }
     if (ImmersiveCheck) {
         foundImmersive := FindBorders("immersive")
         if (foundImmersive)
@@ -126,7 +134,7 @@ FindGodPack() {
     Loop {
         normalBorders := false
         pBitmap := Gdip_CreateBitmapFromFile(screenshotFilePath)
-        Path = %A_ScriptDir%\..\Scale125\Border.png
+        Path = %A_ScriptDir%\..\..\Scale125\Border.png
         pNeedle := GetNeedle(Path)
         for index, value in borderCoords {
             coords := borderCoords[A_Index]
@@ -161,7 +169,6 @@ FindGodPack() {
     }
 }
 
-; @TODO Adjust border coordinates for cropped pack screenshots.
 FindBorders(prefix) {
     count := 0
     searchVariation := 40
@@ -170,10 +177,18 @@ FindBorders(prefix) {
         ,[196, 284, 249, 286]
         ,[70, 399, 123, 401]
         ,[155, 399, 208, 401]]
+    if (prefix = "shiny1star" || prefix = "shiny2star") {
+        MsgBox % prefix
+        borderCoords := [[90, 261, 93, 283]
+        ,[173, 261, 176, 283]
+        ,[255, 261, 258, 283]
+        ,[130, 376, 133, 398]
+        ,[215, 376, 218, 398]]
+    }
     pBitmap := Gdip_CreateBitmapFromFile(screenshotFilePath)
     for index, value in borderCoords {
         coords := borderCoords[A_Index]
-        Path = %A_ScriptDir%\..\Scale125\%prefix%%A_Index%.png
+        Path = %A_ScriptDir%\..\..\Scale125\%prefix%%A_Index%.png
         pNeedle := GetNeedle(Path)
         vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, coords[1], coords[2], coords[3], coords[4], searchVariation)
         if (vRet = 1) {
@@ -184,7 +199,6 @@ FindBorders(prefix) {
     return count
 }
 
-; @TODO Adjust border coordinates for cropped pack screenshots.
 FindBorders3477(prefix) {
     count := 0
     searchVariation := 40
@@ -196,7 +210,7 @@ FindBorders3477(prefix) {
     pBitmap := Gdip_CreateBitmapFromFile(screenshotFilePath)
     for index, value in borderCoords {
         coords := borderCoords[A_Index]
-        Path = %A_ScriptDir%\..\Assets\Needles\%prefix%%A_Index%.png
+        Path = %A_ScriptDir%\..\..\Assets\Needles\%prefix%%A_Index%.png
         pNeedle := GetNeedle(Path)
         vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, coords[1], coords[2], coords[3], coords[4], searchVariation)
         if (vRet = 1) {
@@ -220,7 +234,7 @@ FindExRule() {
     for index, value in ruleCoords {
         coords := ruleCoords[A_Index]
         ; @TODO Add support for other languages. Needles for each supported language required.
-        Path = %A_ScriptDir%\..\Assets\Needles\ENG\4diamond%A_Index%.png
+        Path = %A_ScriptDir%\..\..\Assets\Needles\ENG\4diamond%A_Index%.png
         pNeedle := GetNeedle(Path)
         vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, coords[1], coords[2], coords[3], coords[4], searchVariation)
         if (vRet = 1) {
