@@ -2424,7 +2424,7 @@ DoTutorial() {
 
 	adbClick(140, 424)
 
-	FindImageAndClick(203, 273, 228, 290, , "Pack", 140, 424) ;wait for pack to be ready  to trace
+	FindImageAndClick(225, 273, 235, 290, , "Pack", 140, 424) ;wait for pack to be ready  to trace
 		if(setSpeed > 1) {
 			FindImageAndClick(65, 195, 100, 215, , "Platin", 18, 109, 2000) ; click mod settings
 			FindImageAndClick(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
@@ -2435,7 +2435,7 @@ DoTutorial() {
 	Loop {
 		adbSwipe()
 		Sleep, 10
-		if (FindOrLoseImage(203, 273, 228, 290, , "Pack", 1, failSafeTime)){
+		if (FindOrLoseImage(225, 273, 235, 290, , "Pack", 1, failSafeTime)){
 			if(setSpeed > 1) {
 				if(setSpeed = 3)
 						FindImageAndClick(182, 170, 194, 190, , "Three", 187, 180) ; click 3x
@@ -2519,7 +2519,7 @@ DoTutorial() {
 	Delay(3)
 	adbClick(142, 436)
 
-	FindImageAndClick(203, 273, 228, 290, , "Pack", 239, 497) ;wait for pack to be ready  to Trace
+	FindImageAndClick(225, 273, 235, 290, , "Pack", 239, 497) ;wait for pack to be ready  to Trace
 		if(setSpeed > 1) {
 			FindImageAndClick(65, 195, 100, 215, , "Platin", 18, 109, 2000) ; click mod settings
 			FindImageAndClick(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
@@ -2530,7 +2530,7 @@ DoTutorial() {
 	Loop {
 		adbSwipe()
 		Sleep, 10
-		if (FindOrLoseImage(203, 273, 228, 290, , "Pack", 1, failSafeTime)){
+		if (FindOrLoseImage(225, 273, 235, 290, , "Pack", 1, failSafeTime)){
 		if(setSpeed > 1) {
 			if(setSpeed = 3)
 						FindImageAndClick(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
@@ -2726,7 +2726,7 @@ PackOpening() {
 	Loop {
 		adbSwipe()
 		Sleep, 10
-		if (FindOrLoseImage(203, 273, 228, 290, , "Pack", 1, failSafeTime)){
+		if (FindOrLoseImage(225, 273, 235, 290, , "Pack", 1, failSafeTime)){
 		if(setSpeed > 1) {
 			if(setSpeed = 3)
 					FindImageAndClick(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
@@ -2847,7 +2847,7 @@ HourglassOpening(HG := false) {
 	Loop {
 		adbSwipe()
 		Sleep, 10
-		if (FindOrLoseImage(203, 273, 228, 290, , "Pack", 1, failSafeTime)){
+		if (FindOrLoseImage(225, 273, 235, 290, , "Pack", 1, failSafeTime)){
 		if(setSpeed > 1) {
 			if(setSpeed = 3)
 					FindImageAndClick(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
