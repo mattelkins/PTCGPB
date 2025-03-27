@@ -2628,38 +2628,29 @@ SelectPack(HG := false) {
 	global openPack, packArray
 	packy := 196
 	if(openPack = "Shining") {
-		packx := 145 ;TODO verify that shining is where arceus was
+		packx := 145 
 	} else if(openPack = "Arceus") {
-		packx := 145
-		;packx := 200 ;TODO replace and verify that arceus went to where dialga was
-	} else if(openPack = "Mew") {   ;TODO remove and verify that mew is not in home screen
-		packx := 80   ;TODO remove and verify that mew is not in home screen
+		packx := 200
 	} else {
-		packx := 200 
-		;packx := 80 ;TODO replace and verify that dialga went to where mew was
+		packx := 80
 	}
 	FindImageAndClick(233, 400, 264, 428, , "Points", packx, packy)
-	if(openPack = "Pikachu" || openPack = "Mewtwo" || openPack = "Charizard") { ;TODO remove
-	;if(openPack = "Pikachu" || openPack = "Mewtwo" || openPack = "Charizard" || openPack = "Mew") { ;TODO uncomment
+	if(openPack = "Pikachu" || openPack = "Mewtwo" || openPack = "Charizard" || openPack = "Mew") {
 		FindImageAndClick(115, 140, 160, 155, , "SelectExpansion", 245, 475)
 		packy := 442
 		if(openPack = "Pikachu" || openPack = "Mewtwo" || openPack = "Charizard"){
-			;Sleep, 500 ; TODO uncomment 
-			;adbSwipeUp(160) ; TODO uncomment 
-			;Sleep, 500 ; TODO uncomment 
-			;TODO find new y. maybe not even needed
+			Sleep, 500 
+			adbSwipeUp(160)
+			Sleep, 500
 		}
 		if(openPack = "Pikachu"){
-            packx := 245
-            ; packx := 125 ;TODO replace and verify 
+            packx := 125
         } else if(openPack = "Mewtwo"){
-            packx := 205 
-            ; packx := 85 ;TODO replace and verify 
+            packx := 85
         } else if(openPack = "Charizard"){
-            packx := 165 
-            ; packx := 45 ;TODO replace and verify 
+            packx := 45 
         } else if(openPack = "Mew"){
-            packx := 205 ;TODO verify that mew went to where mewtwo was
+            packx := 205
         }
 		FindImageAndClick(233, 400, 264, 428, , "Points", packx, packy)
 	} else if(openPack = "Palkia") {
