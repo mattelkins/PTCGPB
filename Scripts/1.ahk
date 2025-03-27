@@ -1249,7 +1249,7 @@ CheckPack() {
 			foundTS := "Full Art"
 	}
 	if(ShinyCheck && !foundTS) {
-		foundShiny := FindBorders("shiny2star")
+		foundShiny := FindBorders("shiny2star") + FindBorders("shiny1star")
 		if(ShinyCheck)
 			foundTS := "Shiny"
 	}
@@ -1399,13 +1399,14 @@ FindGodPack() {
 			packs += 1
 			if(packMethod)
 				packs := 1
+			foundShiny := FindBorders("shiny2star") + FindBorders("shiny1star")
 			foundImmersive := FindBorders("immersive")
 			foundCrown := FindBorders("crown")
-			if(foundImmersive || foundCrown) {
+			if(foundImmersive || foundCrown || foundShiny) {
 				invalidGP := true
 			}
 			if(!invalidGP && minStars > 0) {
-				starCount := 5 - FindBorders("1star") - FindBorders("shiny1star")
+				starCount := 5 - FindBorders("1star")
 				if(starCount < minStars) {
 					CreateStatusMessage("Does not meet minimum 2 star threshold.")
 					invalidGP := true
@@ -2654,9 +2655,9 @@ SelectPack(HG := false) {
         }
 		FindImageAndClick(233, 400, 264, 428, , "Points", packx, packy)
 	} else if(openPack = "Palkia") {
-		Delay(2)
+		Sleep, 500 
 		adbClick(245, 245) ;temp
-		Delay(2)
+		Sleep, 500 
 	}
 	if(HG = "Tutorial") {
 		FindImageAndClick(236, 198, 266, 226, , "Hourglass2", 180, 436, 500) ;stop at hourglasses tutorial 2 180 to 203?
