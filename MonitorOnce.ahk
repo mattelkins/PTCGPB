@@ -17,8 +17,8 @@ mumuFolder = %folderPath%\MuMuPlayerGlobal-12.0
 if !FileExist(mumuFolder)
     mumuFolder = %folderPath%\MuMu Player 12
 if !FileExist(mumuFolder){
-	MsgBox, 16, , Double check your folder path! It should be the one that contains the MuMuPlayer 12 folder! `nDefault is just C:\Program Files\Netease
-	ExitApp
+    MsgBox, 16, , Double check your folder path! It should be the one that contains the MuMuPlayer 12 folder! `nDefault is just C:\Program Files\Netease
+    ExitApp
 }
 
 ; Loop through each instance, check if it's started, and start it if it's not
@@ -69,10 +69,10 @@ Loop %Instances% {
 ExitApp
 
 LogToFile(message, logFile) {
-	logFile := A_ScriptDir . "\Logs\" . logFile
+    logFile := A_ScriptDir . "\Logs\" . logFile
 
-	FormatTime, readableTime, %A_Now%, MMMM dd, yyyy HH:mm:ss
-	FileAppend, % "[" readableTime "] " message "`n", %logFile%
+    FormatTime, readableTime, %A_Now%, MMMM dd, yyyy HH:mm:ss
+    FileAppend, % "[" readableTime "] " message "`n", %logFile%
 }
 
 killAHK(scriptName := "")
@@ -151,7 +151,7 @@ launchInstance(instanceNum := "")
         mumuNum := getMumuInstanceNumFromPlayerName(instanceNum)
         if(mumuNum != "") {
             ; Run, %mumuFolder%\shell\MuMuPlayer.exe -v %mumuNum%
-			Run_(mumuFolder . "\shell\MuMuPlayer.exe", "-v " . mumuNum)
+            Run_(mumuFolder . "\shell\MuMuPlayer.exe", "-v " . mumuNum)
         }
     }
 }
@@ -163,31 +163,31 @@ getMumuInstanceNumFromPlayerName(scriptName := "") {
         return ""
     }
 
-	; Loop through all directories in the base folder
-	Loop, Files, %mumuFolder%\vms\*, D  ; D flag to include directories only
-	{
-		folder := A_LoopFileFullPath
-		configFolder := folder "\configs"  ; The config folder inside each directory
+    ; Loop through all directories in the base folder
+    Loop, Files, %mumuFolder%\vms\*, D  ; D flag to include directories only
+    {
+        folder := A_LoopFileFullPath
+        configFolder := folder "\configs"  ; The config folder inside each directory
 
-		; Check if config folder exists
-		IfExist, %configFolder%
-		{
-			; Define paths to vm_config.json and extra_config.json
-			extraConfigFile := configFolder "\extra_config.json"
+        ; Check if config folder exists
+        IfExist, %configFolder%
+        {
+            ; Define paths to vm_config.json and extra_config.json
+            extraConfigFile := configFolder "\extra_config.json"
 
-			; Check if extra_config.json exists and read playerName
-			IfExist, %extraConfigFile%
-			{
-				FileRead, extraConfigContent, %extraConfigFile%
-				; Parse the JSON for playerName
-				RegExMatch(extraConfigContent, """playerName"":\s*""(.*?)""", playerName)
-				if(playerName1 == scriptName) {
+            ; Check if extra_config.json exists and read playerName
+            IfExist, %extraConfigFile%
+            {
+                FileRead, extraConfigContent, %extraConfigFile%
+                ; Parse the JSON for playerName
+                RegExMatch(extraConfigContent, """playerName"":\s*""(.*?)""", playerName)
+                if(playerName1 == scriptName) {
                     RegExMatch(A_LoopFileFullPath, "[^-]+$", mumuNum)
-					return mumuNum
-				}
-			}
-		}
-	}
+                    return mumuNum
+                }
+            }
+        }
+    }
 }
 
 ; Function to run as a NON-adminstrator, since MuMu has issues if run as Administrator
