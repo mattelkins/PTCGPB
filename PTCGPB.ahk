@@ -1,3 +1,4 @@
+#Include %A_ScriptDir%\Scripts\Include\Logging.ahk
 #Include %A_ScriptDir%\Scripts\Include\ADB.ahk
 
 version = Arturos PTCGP Bot
@@ -1124,12 +1125,6 @@ VersionCompare(v1, v2) {
         return 1 ; Alpha version is older
 
     return 0 ; Versions are equal
-}
-
-LogToFile(message, logFile) {
-    logFile := A_ScriptDir . "\Logs\" . logFile
-    FormatTime, readableTime, %A_Now%, MMMM dd, yyyy HH:mm:ss
-    FileAppend, % "[" readableTime "] " message "`n", %logFile%
 }
 
 ~+F7::ExitApp

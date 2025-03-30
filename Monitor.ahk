@@ -1,3 +1,5 @@
+#Include %A_ScriptDir%\Scripts\Include\Logging.ahk
+
 #SingleInstance, force
 CoordMode, Mouse, Screen
 SetTitleMatchMode, 3
@@ -68,13 +70,6 @@ Loop {
 
     ; Check for dead instances every 30 seconds
     Sleep, 30000
-}
-
-LogToFile(message, logFile) {
-    logFile := A_ScriptDir . "\Logs\" . logFile
-
-    FormatTime, readableTime, %A_Now%, MMMM dd, yyyy HH:mm:ss
-    FileAppend, % "[" readableTime "] " message "`n", %logFile%
 }
 
 killAHK(scriptName := "")
