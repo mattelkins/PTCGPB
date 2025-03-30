@@ -1,3 +1,5 @@
+#Include %A_ScriptDir%\Include\Logging.ahk
+
 #SingleInstance, force
 CoordMode, Mouse, Screen
 SetTitleMatchMode, 3
@@ -67,13 +69,6 @@ Loop %Instances% {
 }
 
 ExitApp
-
-LogToFile(message, logFile) {
-    logFile := A_ScriptDir . "\Logs\" . logFile
-
-    FormatTime, readableTime, %A_Now%, MMMM dd, yyyy HH:mm:ss
-    FileAppend, % "[" readableTime "] " message "`n", %logFile%
-}
 
 killAHK(scriptName := "")
 {

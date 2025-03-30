@@ -1,3 +1,4 @@
+#Include %A_ScriptDir%\Include\Logging.ahk
 #Include %A_ScriptDir%\Include\ADB.ahk
 #Include %A_ScriptDir%\Include\Gdip_All.ahk
 #Include %A_ScriptDir%\Include\Gdip_Imagesearch.ahk
@@ -455,18 +456,6 @@ restartGameInstance(reason, RL := true){
         LogToDiscord("Restarted game for instance " scriptName " Reason: " reason, , discordUserId)
         Reload
     }
-}
-
-LogToFile(message, logFile := "") {
-    global scriptName
-    if(logFile = "") {
-        return ;step logs no longer needed and i'm too lazy to go through the script and remove them atm...
-        logFile := A_ScriptDir . "\..\Logs\Logs" . scriptName . ".txt"
-    }
-    else
-        logFile := A_ScriptDir . "\..\Logs\" . logFile
-    FormatTime, readableTime, %A_Now%, MMMM dd, yyyy HH:mm:ss
-    FileAppend, % "[" readableTime "] " message "`n", %logFile%
 }
 
 CreateStatusMessage(Message, GuiName := "StatusMessage", X := 0, Y := 80) {
