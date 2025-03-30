@@ -1,14 +1,8 @@
 Accounts/*
 !Accounts/*.ahk
-!Accounts/Saved/1.txt
 json/*
-!json/1.txt
 Logs/*
-!Logs/log1.txt
 Screenshots/*
-!Screenshots/1.txt
-Scripts/temp/*
-!Scripts/temp/1.txt
 Scripts/*.ahk
 Scripts/*.ini
 !Scripts/1.ahk
@@ -18,3 +12,4 @@ usernames.txt
 vip_ids.txt
 *.ini
 *.bak
+!.gitkeep
