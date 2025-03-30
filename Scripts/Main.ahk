@@ -259,7 +259,7 @@ FindOrLoseImage(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", E
 		}else if (imageName = 99Path) { ; 100% full of friend list
 			Y1 := 103
 			Y2 := 118
-		} 
+		}
 	}
 	;bboxAndPause(X1, Y1, X2, Y2)
 
@@ -1241,8 +1241,8 @@ ParseFriendInfo(ByRef friendCode, ByRef friendName, ByRef parseFriendCodeResult,
 ; Attempts to extract and validate text from a specified region of a screenshot using OCR.
 ParseFriendInfoLoop(screenshotFile, x, y, w, h, allowedChars, validPattern, ByRef output) {
 	; ------------------------------------------------------------------------------
-	; The function crops, formats, and scales the screenshot, runs OCR, 
-	; and checks if the result matches a valid pattern. It loops through multiple 
+	; The function crops, formats, and scales the screenshot, runs OCR,
+	; and checks if the result matches a valid pattern. It loops through multiple
 	; scaling factors to improve OCR accuracy.
 	;
 	; Parameters:
@@ -1282,11 +1282,11 @@ class FriendAccount {
 	;   Name (String)    - The name associated with the friend account.
 	;
 	; Methods:
-	;   __New(Code, Name) - Constructor method to initialize the friend account 
+	;   __New(Code, Name) - Constructor method to initialize the friend account
 	;                       with a code and name.
 	;   ToString()        - Returns a string representation of the friend account.
-	;                       If both the code and name are provided, it returns 
-	;                       "Name (Code)". If only one is available, it returns 
+	;                       If both the code and name are provided, it returns
+	;                       "Name (Code)". If only one is available, it returns
 	;                       that value, and if both are missing, it returns "Null".
 	; ------------------------------------------------------------------------------
 	__New(Code, Name) {
@@ -1363,9 +1363,9 @@ GetFriendAccountsFromFile(filePath, ByRef includesIdsAndNames) {
 			continue
 
 		; Trim spaces and create a FriendAccount object
-		if (twoStarCount == "" 
-			|| (packName != "Shining" && twoStarCount >= minStars) 
-			|| (packName == "Shining" && twoStarCount >= minStarsA2b)  
+		if (twoStarCount == ""
+			|| (packName != "Shining" && twoStarCount >= minStars)
+			|| (packName == "Shining" && twoStarCount >= minStarsA2b)
 			|| (packName == "" && (twoStarCount >= minStars || twoStarCount >= minStarsA2b)) ) {
 			friend := new FriendAccount(friendCode, friendName)
 			friendList.Push(friend)  ; Add to array
@@ -1383,7 +1383,7 @@ MatchFriendAccounts(friend1, friend2, ByRef similarityScore := 1) {
 	; Parameters:
 	;   friend1 (Object)           - The first friend account to compare.
 	;   friend2 (Object)           - The second friend account to compare.
-	;   similarityScore (ByRef)    - A reference to store the calculated similarity score 
+	;   similarityScore (ByRef)    - A reference to store the calculated similarity score
 	;                                (defaults to 1).
 	;
 	; Returns:

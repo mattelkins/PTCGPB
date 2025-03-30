@@ -5,9 +5,9 @@ HBitmapToRandomAccessStream(hBitmap) {
 		  , IID_IPicture            := "{7BF80980-BF32-101A-8BBB-00AA00300CAB}"
 		  , PICTYPE_BITMAP := 1
 		  , BSOS_DEFAULT   := 0
-		  
+
 	DllCall("Ole32\CreateStreamOnHGlobal", "Ptr", 0, "UInt", true, "PtrP", pIStream, "UInt")
-	
+
 	VarSetCapacity(PICTDESC, sz := 8 + A_PtrSize*2, 0)
 	NumPut(sz, PICTDESC)
 	NumPut(PICTYPE_BITMAP, PICTDESC, 4)
@@ -124,7 +124,7 @@ ocr(fileOrStream, lang := "FirstFromAvailableLanguages")
 	loop % count
 	{
 		DllCall(NumGet(NumGet(LinesList+0)+6*A_PtrSize), "ptr", LinesList, "int", A_Index-1, "ptr*", OcrLine)
-		DllCall(NumGet(NumGet(OcrLine+0)+7*A_PtrSize), "ptr", OcrLine, "ptr*", hText) 
+		DllCall(NumGet(NumGet(OcrLine+0)+7*A_PtrSize), "ptr", OcrLine, "ptr*", hText)
 		buffer := DllCall("Combase.dll\WindowsGetStringRawBuffer", "ptr", hText, "uint*", length, "ptr")
 		text .= StrGet(buffer, "UTF-16") "`n"
 		ObjRelease(OcrLine)

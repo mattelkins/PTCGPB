@@ -9,11 +9,11 @@ Levenshtein(s1, s2) {
 	; ------------------------------------------------------------------------------
 	m := StrLen(s1)
 	n := StrLen(s2)
-	
+
 	dp := []
 	Loop, % m + 1
 		dp[A_Index] := []
-	
+
 	Loop, % m + 1
 	{
 		i := A_Index - 1
@@ -33,7 +33,7 @@ Levenshtein(s1, s2) {
 	return dp[m, n] ;Levenshtein Distance
 }
 
-; Computes the similarity between two strings using the Levenshtein distance method.    
+; Computes the similarity between two strings using the Levenshtein distance method.
 SimilarityScore(s1, s2) {
 	; ------------------------------------------------------------------------------
 	; Parameters:
