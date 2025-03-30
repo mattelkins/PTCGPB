@@ -162,7 +162,7 @@ if (defaultLanguage = "Scale125") {
 	defaultLang := 1
 	scaleParam := 277
 } else if (defaultLanguage = "Scale100") {
-	defaultLang := 2  
+	defaultLang := 2
 	scaleParam := 287
 }
 Gui, Add, DropDownList, x155 y345 w75 vdefaultLanguage choose%defaultLang% Background2A2A2A cWhite, Scale125|Scale100
@@ -517,10 +517,10 @@ Start:
 	IniWrite, %minStarsA2Palkia%, Settings.ini, UserSettings, minStarsA2Palkia
 	IniWrite, %minStarsA2a%, Settings.ini, UserSettings, minStarsA2a
 	IniWrite, %minStarsA2b%, Settings.ini, UserSettings, minStarsA2b
-	
+
 	IniWrite, %heartBeatDelay%, Settings.ini, UserSettings, heartBeatDelay
 	IniWrite, %sendAccountXml%, Settings.ini, UserSettings, sendAccountXml
-	
+
 	; Using FriendID field to provide a URL to download ids.txt is deprecated.
 	if (inStr(FriendID, "http")) {
 		MsgBox, To provide a URL for friend IDs, please use the ids.txt API field and leave the Friend ID field empty.
