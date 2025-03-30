@@ -1,3 +1,5 @@
+#Include %A_ScriptDir%\Scripts\Include\ADB.ahk
+
 version = Arturos PTCGP Bot
 #SingleInstance, force
 CoordMode, Mouse, Screen
@@ -919,13 +921,6 @@ SumVariablesInJsonFile() {
     return sum
 }
 
-KillADBProcesses() {
-    ; Use AHK's Process command to close adb.exe
-    Process, Close, adb.exe
-    ; Fallback to taskkill for robustness
-    RunWait, %ComSpec% /c taskkill /IM adb.exe /F /T,, Hide
-}
-
 CheckForUpdate() {
     global githubUser, repoName, localVersion, zipPath, extractPath, scriptFolder
     url := "https://api.github.com/repos/" githubUser "/" repoName "/releases/latest"
@@ -1129,6 +1124,12 @@ VersionCompare(v1, v2) {
         return 1 ; Alpha version is older
 
     return 0 ; Versions are equal
+}
+
+LogToFile(message, logFile) {
+    logFile := A_ScriptDir . "\Logs\" . logFile
+    FormatTime, readableTime, %A_Now%, MMMM dd, yyyy HH:mm:ss
+    FileAppend, % "[" readableTime "] " message "`n", %logFile%
 }
 
 ~+F7::ExitApp

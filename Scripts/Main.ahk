@@ -1,3 +1,4 @@
+#Include %A_ScriptDir%\Include\ADB.ahk
 #Include %A_ScriptDir%\Include\Gdip_All.ahk
 #Include %A_ScriptDir%\Include\Gdip_Imagesearch.ahk
 
@@ -19,7 +20,7 @@ CoordMode, Pixel, Screen
 DllCall("AllocConsole")
 WinHide % "ahk_id " DllCall("GetConsoleWindow", "ptr")
 
-global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, discordUserId, discordWebhookURL, skipInvalidGP, deleteXML, packs, FriendID, AddFriend, Instances, showStatus
+global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, scriptName, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, discordUserId, discordWebhookURL, skipInvalidGP, deleteXML, packs, FriendID, AddFriend, Instances, showStatus
 global triggerTestNeeded, testStartTime, firstRun, minStars, minStarsA2b, vipIdsURL
 
 deleteAccount := false
@@ -54,27 +55,12 @@ IniRead, clientLanguage, %A_ScriptDir%\..\Settings.ini, UserSettings, clientLang
 IniRead, minStars, %A_ScriptDir%\..\Settings.ini, UserSettings, minStars, 0
 IniRead, minStarsA2b, %A_ScriptDir%\..\Settings.ini, UserSettings, minStarsA2b, 0
 
-adbPort := findAdbPorts(folderPath)
-
-adbPath := folderPath . "\MuMuPlayerGlobal-12.0\shell\adb.exe"
-
-if !FileExist(adbPath) ;if international mumu file path isn't found look for chinese domestic path
-    adbPath := folderPath . "\MuMu Player 12\shell\adb.exe"
-
-if !FileExist(adbPath)
-    MsgBox Double check your folder path! It should be the one that contains the MuMuPlayer 12 folder! `nDefault is just C:\Program Files\Netease
-
-if(!adbPort) {
-    Msgbox, Invalid port... Check the common issues section in the readme/github guide.
-    ExitApp
-}
-
 ; connect adb
 instanceSleep := scriptName * 1000
 Sleep, %instanceSleep%
 
 ; Attempt to connect to ADB
-ConnectAdb()
+ConnectAdb(folderPath)
 
 if (InStr(defaultLanguage, "100")) {
     scaleParam := 287
@@ -541,13 +527,7 @@ SetTextAndResize(controlHwnd, newText) {
     GuiControl MoveDraw, %controlHwnd%, % "h" h*96/A_ScreenDPI + 2 " w" w*96/A_ScreenDPI + 2
 }
 
-adbClick(X, Y) {
-    global adbShell, setSpeed, adbPath, adbPort
-    initializeAdbShell()
-    X := Round(X / 277 * 540)
-    Y := Round((Y - 44) / 489 * 960)
-    adbShell.StdIn.WriteLine("input tap " X " " Y)
-}
+
 
 ControlClick(X, Y) {
     global winTitle
@@ -566,50 +546,8 @@ RandomUsername() {
     return values[randomIndex]
 }
 
-adbInput(name) {
-    global adbShell, adbPath, adbPort
-    initializeAdbShell()
-    adbShell.StdIn.WriteLine("input text " . name )
-}
-
-adbSwipeUp() {
-    global adbShell, adbPath, adbPort
-    initializeAdbShell()
-    adbShell.StdIn.WriteLine("input swipe 309 816 309 355 60")
-    ;adbShell.StdIn.WriteLine("input swipe 309 816 309 555 30")
-    Sleep, 150
-}
-
-adbSwipe() {
-    global adbShell, setSpeed, swipeSpeed, adbPath, adbPort
-    initializeAdbShell()
-    X1 := 35
-    Y1 := 327
-    X2 := 267
-    Y2 := 327
-    X1 := Round(X1 / 277 * 535)
-    Y1 := Round((Y1 - 44) / 489 * 960)
-    X2 := Round(X2 / 44 * 535)
-    Y2 := Round((Y2 - 44) / 489 * 960)
-    if(setSpeed = 1) {
-        adbShell.StdIn.WriteLine("input swipe " . X1 . " " . Y1 . " " . X2 . " " . Y2 . " " . swipeSpeed)
-        sleepDuration := swipeSpeed * 1.2
-        Sleep, %sleepDuration%
-    }
-    else if(setSpeed = 2) {
-        adbShell.StdIn.WriteLine("input swipe " . X1 . " " . Y1 . " " . X2 . " " . Y2 . " " . swipeSpeed)
-        sleepDuration := swipeSpeed * 1.2
-        Sleep, %sleepDuration%
-    }
-    else {
-        adbShell.StdIn.WriteLine("input swipe " . X1 . " " . Y1 . " " . X2 . " " . Y2 . " " . swipeSpeed)
-        sleepDuration := swipeSpeed * 1.2
-        Sleep, %sleepDuration%
-    }
-}
-
 Screenshot(filename := "Valid") {
-    global adbShell, adbPath, packs
+    global packs
     SetWorkingDir %A_ScriptDir%  ; Ensures the working directory is the script's directory
 
     ; Define folder and file paths
@@ -893,110 +831,6 @@ bboxAndPause(X1, Y1, X2, Y2, doPause := False) {
     Gui, BoundingBox:Destroy
 }
 
-; Function to initialize ADB Shell
-initializeAdbShell() {
-    global adbShell, adbPath, adbPort
-    RetryCount := 0
-    MaxRetries := 10
-    BackoffTime := 1000  ; Initial backoff time in milliseconds
-
-    Loop {
-        try {
-            if (!adbShell) {
-                ; Validate adbPath and adbPort
-                if (!FileExist(adbPath)) {
-                    throw "ADB path is invalid."
-                }
-                if (adbPort < 0 || adbPort > 65535)
-                    throw "ADB port is invalid."
-
-                adbShell := ComObjCreate("WScript.Shell").Exec(adbPath . " -s 127.0.0.1:" . adbPort . " shell")
-
-                adbShell.StdIn.WriteLine("su")
-            } else if (adbShell.Status != 0) {
-                Sleep, BackoffTime
-                BackoffTime += 1000 ; Increase the backoff time
-            } else {
-                break
-            }
-        } catch e {
-            RetryCount++
-            if (RetryCount > MaxRetries) {
-                CreateStatusMessage("Failed to connect to shell: " . e.message)
-                LogToFile("Failed to connect to shell: " . e.message)
-                Pause
-            }
-        }
-        Sleep, BackoffTime
-    }
-}
-ConnectAdb() {
-    global adbPath, adbPort, StatusText
-    MaxRetries := 5
-    RetryCount := 0
-    connected := false
-    ip := "127.0.0.1:" . adbPort ; Specify the connection IP:port
-
-    CreateStatusMessage("Connecting to ADB...")
-
-    Loop %MaxRetries% {
-        ; Attempt to connect using CmdRet
-        connectionResult := CmdRet(adbPath . " connect " . ip)
-
-        ; Check for successful connection in the output
-        if InStr(connectionResult, "connected to " . ip) {
-            connected := true
-            CreateStatusMessage("ADB connected successfully.")
-            return true
-        } else {
-            RetryCount++
-            CreateStatusMessage("ADB connection failed. Retrying (" . RetryCount . "/" . MaxRetries . ").")
-            Sleep, 2000
-        }
-    }
-
-    if !connected {
-        CreateStatusMessage("Failed to connect to ADB after multiple retries. Please check your emulator and port settings.")
-        Reload
-    }
-}
-
-CmdRet(sCmd, callBackFuncObj := "", encoding := "")
-{
-    static HANDLE_FLAG_INHERIT := 0x00000001, flags := HANDLE_FLAG_INHERIT
-        , STARTF_USESTDHANDLES := 0x100, CREATE_NO_WINDOW := 0x08000000
-
-   (encoding = "" && encoding := "cp" . DllCall("GetOEMCP", "UInt"))
-   DllCall("CreatePipe", "PtrP", hPipeRead, "PtrP", hPipeWrite, "Ptr", 0, "UInt", 0)
-   DllCall("SetHandleInformation", "Ptr", hPipeWrite, "UInt", flags, "UInt", HANDLE_FLAG_INHERIT)
-
-   VarSetCapacity(STARTUPINFO , siSize :=    A_PtrSize*4 + 4*8 + A_PtrSize*5, 0)
-   NumPut(siSize              , STARTUPINFO)
-   NumPut(STARTF_USESTDHANDLES, STARTUPINFO, A_PtrSize*4 + 4*7)
-   NumPut(hPipeWrite          , STARTUPINFO, A_PtrSize*4 + 4*8 + A_PtrSize*3)
-   NumPut(hPipeWrite          , STARTUPINFO, A_PtrSize*4 + 4*8 + A_PtrSize*4)
-
-   VarSetCapacity(PROCESS_INFORMATION, A_PtrSize*2 + 4*2, 0)
-
-   if !DllCall("CreateProcess", "Ptr", 0, "Str", sCmd, "Ptr", 0, "Ptr", 0, "UInt", true, "UInt", CREATE_NO_WINDOW
-                              , "Ptr", 0, "Ptr", 0, "Ptr", &STARTUPINFO, "Ptr", &PROCESS_INFORMATION)
-   {
-      DllCall("CloseHandle", "Ptr", hPipeRead)
-      DllCall("CloseHandle", "Ptr", hPipeWrite)
-      throw "CreateProcess is failed"
-   }
-   DllCall("CloseHandle", "Ptr", hPipeWrite)
-   VarSetCapacity(sTemp, 4096), nSize := 0
-   while DllCall("ReadFile", "Ptr", hPipeRead, "Ptr", &sTemp, "UInt", 4096, "UIntP", nSize, "UInt", 0) {
-      sOutput .= stdOut := StrGet(&sTemp, nSize, encoding)
-      ( callBackFuncObj && callBackFuncObj.Call(stdOut) )
-   }
-   DllCall("CloseHandle", "Ptr", NumGet(PROCESS_INFORMATION))
-   DllCall("CloseHandle", "Ptr", NumGet(PROCESS_INFORMATION, A_PtrSize))
-   DllCall("CloseHandle", "Ptr", hPipeRead)
-   Return sOutput
-}
-
 GetNeedle(Path) {
     static NeedleBitmaps := Object()
     if (NeedleBitmaps.HasKey(Path)) {
@@ -1005,54 +839,6 @@ GetNeedle(Path) {
         pNeedle := Gdip_CreateBitmapFromFile(Path)
         NeedleBitmaps[Path] := pNeedle
         return pNeedle
-    }
-}
-
-findAdbPorts(baseFolder := "C:\Program Files\Netease") {
-    global adbPorts, winTitle, scriptName
-    ; Initialize variables
-    adbPorts := 0  ; Create an empty associative array for adbPorts
-    mumuFolder = %baseFolder%\MuMuPlayerGlobal-12.0\vms\*
-    if !FileExist(mumuFolder)
-        mumuFolder = %baseFolder%\MuMu Player 12\vms\*
-
-    if !FileExist(mumuFolder){
-        MsgBox, 16, , Double check your folder path! It should be the one that contains the MuMuPlayer 12 folder! `nDefault is just C:\Program Files\Netease
-        ExitApp
-    }
-    ; Loop through all directories in the base folder
-    Loop, Files, %mumuFolder%, D  ; D flag to include directories only
-    {
-        folder := A_LoopFileFullPath
-        configFolder := folder "\configs"  ; The config folder inside each directory
-
-        ; Check if config folder exists
-        IfExist, %configFolder%
-        {
-            ; Define paths to vm_config.json and extra_config.json
-            vmConfigFile := configFolder "\vm_config.json"
-            extraConfigFile := configFolder "\extra_config.json"
-
-            ; Check if vm_config.json exists and read adb host port
-            IfExist, %vmConfigFile%
-            {
-                FileRead, vmConfigContent, %vmConfigFile%
-                ; Parse the JSON for adb host port
-                RegExMatch(vmConfigContent, """host_port"":\s*""(\d+)""", adbHostPort)
-                adbPort := adbHostPort1  ; Capture the adb host port value
-            }
-
-            ; Check if extra_config.json exists and read playerName
-            IfExist, %extraConfigFile%
-            {
-                FileRead, extraConfigContent, %extraConfigFile%
-                ; Parse the JSON for playerName
-                RegExMatch(extraConfigContent, """playerName"":\s*""(.*?)""", playerName)
-                if(playerName1 = scriptName) {
-                    return adbPort
-                }
-            }
-        }
     }
 }
 
@@ -1158,8 +944,16 @@ RemoveNonVipFriends() {
                 if (friendIndex < 2)
                     friendIndex++
                 else {
-                    adbSwipeFriend()
-                    ;adbGestureFriend()
+                    ; Large vertical swipe up, to scroll through no more than 3 friends on the friend list.
+                    ; The swipe is performed with a fixed X-coordinate, simulating a larger vertical swipe.
+                    X := 138
+                    Y1 := 380
+                    Y2 := 200
+
+                    Delay(10)
+                    adbSwipe(X . " " . Y1 . " " . X . " " . Y2 . " " . 300)
+                    Sleep, 1000
+
                     friendIndex := 0
                 }
             }
@@ -1179,7 +973,16 @@ RemoveNonVipFriends() {
             ; If on social screen, we're stuck between friends, micro scroll
             If (FindOrLoseImage(226, 100, 270, 135, , "Add", 0)) {
                 CreateStatusMessage("Stuck between friends. Tiny scroll and continue.")
-                adbSwipeFriendMicro()
+
+                ; Very small vertical swipe up, to correct miss-swipe on the friend list.
+                ; The swipe is performed with a fixed X-coordinate, simulating a small vertical swipe.
+                X := 138
+                Y1 := 380
+                Y2 := 355
+
+                Delay(3)
+                adbSwipe(X . " " . Y1 . " " . X . " " . Y2 . " " . 200)
+                Sleep, 500
             }
             else { ; Handling for account not currently in use
                 FindImageAndClick(226, 100, 270, 135, , "Add", 143, 508, 500)
@@ -1453,63 +1256,6 @@ IsRecentlyCheckedAccount(inputFriend, ByRef friendList) {
     friendList.Push(inputFriend)
 
     return false  ; Account was not found and has been added
-}
-
-; Large veritical swipe up, to scroll through no more than 3 friends on the friend list.
-adbSwipeFriend() {
-    ; Simulates a swipe gesture on an Android device, swiping from one Y-coordinate to another.
-    ; The swipe is performed with a fixed X-coordinate, simulating a larger vertical swipe.
-    global adbShell
-    initializeAdbShell()
-    X := 138
-    Y1 := 380
-    Y2 := 200
-
-    Delay(10)
-    adbShell.StdIn.WriteLine("input swipe " . X . " " . Y1 . " " . X . " " . Y2 . " " . 300)
-    Sleep, 1000
-}
-
-; Very small vertical swipe up, to correct miss-swipe on the friend list.
-adbSwipeFriendMicro() {
-    ; Simulates a swipe gesture on an Android device, swiping from one Y-coordinate to another.
-    ; The swipe is performed with a fixed X-coordinate, simulating a small vertical swipe.
-    global adbShell
-    initializeAdbShell()
-    X := 138
-    Y1 := 380
-    Y2 := 355
-
-    Delay(3)
-    adbShell.StdIn.WriteLine("input swipe " . X . " " . Y1 . " " . X . " " . Y2 . " " . 200)
-    Sleep, 500
- }
-
-; Simulates a touch gesture on an Android device to scroll in a controlled way.
-adbGestureFriend() {
-    ; It performs a drag-up gesture by holding and dragging from a lower to an upper Y-coordinate.
-    ; Unfortunately, touchscreen gesture doesn't seem to be supported.
-    global adbShell
-    initializeAdbShell()
-    X := 138
-    Y1 := 380
-    Y2 := 90
-    duration := 2000
-
-    adbShell.StdIn.WriteLine("input touchscreen gesture 0 " . duration . " " . X . " " . Y1 . " " . X . " " . Y2 . " " . X . " " . Y2)
-    Delay(1)
-}
-
-; Takes a screenshot of an Android device using ADB and saves it to a file.
-adbTakeScreenshot(outputFile) {
-    ; ------------------------------------------------------------------------------
-    ; Parameters:
-    ;   outputFile (String) - The path and filename where the screenshot will be saved.
-    ; ------------------------------------------------------------------------------
-    global adbPath, adbPort
-    deviceAddress := "127.0.0.1:" . adbPort
-    command := """" . adbPath . """ -s " . deviceAddress . " exec-out screencap -p > """ .  outputFile . """"
-    RunWait, %ComSpec% /c "%command%", , Hide
 }
 
 ; Crops an image, scales it up, converts it to grayscale, and enhances contrast to improve OCR accuracy.
