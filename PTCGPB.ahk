@@ -1,3 +1,5 @@
+#Include %A_ScriptDir%\Scripts\3477\PTCGPB.ahk
+
 version = Arturos PTCGP Bot
 #SingleInstance, force
 CoordMode, Mouse, Screen
@@ -165,7 +167,7 @@ if (defaultLanguage = "Scale125") {
 	defaultLang := 1
 	scaleParam := 277
 } else if (defaultLanguage = "Scale100") {
-	defaultLang := 2  
+	defaultLang := 2
 	scaleParam := 287
 }
 Gui, Add, DropDownList, x155 y345 w75 vdefaultLanguage choose%defaultLang% Background2A2A2A cWhite, Scale125|Scale100
@@ -338,6 +340,9 @@ Gui, Add, Text, x270 y425 %sectionColor%, ids.txt API:
 Gui, Add, Edit, vmainIdsURL w460 x270 y445 h20 -E0x200 Background2A2A2A cWhite, %mainIdsURL%
 Gui, Add, Text, x270 y465 %sectionColor%, vip_ids.txt (GP Test Mode) API:
 Gui, Add, Edit, vvipIdsURL w460 x270 y485 h20 -E0x200 Background2A2A2A cWhite, %vipIdsURL%
+
+; ~*~*~/// 3477 \\\~*~*~
+Gui3477()
 
 Gui, Show, , %localVersion% PTCGPB Bot Setup [Non-Commercial 4.0 International License]
 Return
@@ -520,10 +525,13 @@ Start:
 	IniWrite, %minStarsA2Palkia%, Settings.ini, UserSettings, minStarsA2Palkia
 	IniWrite, %minStarsA2a%, Settings.ini, UserSettings, minStarsA2a
 	IniWrite, %minStarsA2b%, Settings.ini, UserSettings, minStarsA2b
-	
+
 	IniWrite, %heartBeatDelay%, Settings.ini, UserSettings, heartBeatDelay
 	IniWrite, %sendAccountXml%, Settings.ini, UserSettings, sendAccountXml
-	
+
+	; ~*~*~/// 3477 \\\~*~*~
+	Start3477()
+
 	; Using FriendID field to provide a URL to download ids.txt is deprecated.
 	if (inStr(FriendID, "http")) {
 		MsgBox, To provide a URL for friend IDs, please use the ids.txt API field and leave the Friend ID field empty.
