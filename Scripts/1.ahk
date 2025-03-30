@@ -16,8 +16,8 @@ CoordMode, Pixel, Screen
 DllCall("AllocConsole")
 WinHide % "ahk_id " DllCall("GetConsoleWindow", "ptr")
 
-global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, discordUserId, discordWebhookURL, deleteMethod, packs, FriendID, friendIDs, Instances, username, friendCode, stopToggle, friended, runMain, Mains, showStatus, injectMethod, packMethod, loadDir, loadedAccount, nukeAccount, TrainerCheck, FullArtCheck, RainbowCheck, ShinyCheck, dateChange, foundGP, foundTS, friendsAdded, minStars, PseudoGodPack, Palkia, Dialga, Mew, Pikachu, Charizard, Mewtwo, packArray, CrownCheck, ImmersiveCheck, slowMotion, screenShot, accountFile, invalid, starCount, gpFound, foundTS
-global DeadCheck
+global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, discordUserId, discordWebhookURL, deleteMethod, packs, FriendID, friendIDs, Instances, username, friendCode, stopToggle, friended, runMain, Mains, showStatus, injectMethod, packMethod, loadDir, loadedAccount, nukeAccount, CheckShiningPackOnly, TrainerCheck, FullArtCheck, RainbowCheck, ShinyCheck, dateChange, foundGP, foundTS, friendsAdded, minStars, PseudoGodPack, Palkia, Dialga, Mew, Pikachu, Charizard, Mewtwo, packArray, CrownCheck, ImmersiveCheck, InvalidCheck, slowMotion, screenShot, accountFile, invalid, starCount, gpFound, foundTS, minStarsA1Charizard, minStarsA1Mewtwo, minStarsA1Pikachu, minStarsA1a, minStarsA2Dialga, minStarsA2Palkia, minStarsA2a, minStarsA2b
+global DeadCheck, sendAccountXml
 
 scriptName := StrReplace(A_ScriptName, ".ahk")
 winTitle := scriptName
@@ -48,12 +48,14 @@ IniRead, heartBeatWebhookURL, %A_ScriptDir%\..\Settings.ini, UserSettings, heart
 IniRead, heartBeatName, %A_ScriptDir%\..\Settings.ini, UserSettings, heartBeatName, ""
 IniRead, nukeAccount, %A_ScriptDir%\..\Settings.ini, UserSettings, nukeAccount, 0
 IniRead, packMethod, %A_ScriptDir%\..\Settings.ini, UserSettings, packMethod, 0
+IniRead, CheckShiningPackOnly, %A_ScriptDir%\..\Settings.ini, UserSettings, CheckShiningPackOnly, 0
 IniRead, TrainerCheck, %A_ScriptDir%\..\Settings.ini, UserSettings, TrainerCheck, 0
 IniRead, FullArtCheck, %A_ScriptDir%\..\Settings.ini, UserSettings, FullArtCheck, 0
 IniRead, RainbowCheck, %A_ScriptDir%\..\Settings.ini, UserSettings, RainbowCheck, 0
 IniRead, ShinyCheck, %A_ScriptDir%\..\Settings.ini, UserSettings, ShinyCheck, 0
 IniRead, CrownCheck, %A_ScriptDir%\..\Settings.ini, UserSettings, CrownCheck, 0
 IniRead, ImmersiveCheck, %A_ScriptDir%\..\Settings.ini, UserSettings, ImmersiveCheck, 0
+IniRead, InvalidCheck, %A_ScriptDir%\..\Settings.ini, UserSettings, InvalidCheck, 0
 IniRead, PseudoGodPack, %A_ScriptDir%\..\Settings.ini, UserSettings, PseudoGodPack, 0
 IniRead, minStars, %A_ScriptDir%\..\Settings.ini, UserSettings, minStars, 0
 IniRead, Palkia, %A_ScriptDir%\..\Settings.ini, UserSettings, Palkia, 0
@@ -67,6 +69,16 @@ IniRead, Mewtwo, %A_ScriptDir%\..\Settings.ini, UserSettings, Mewtwo, 0
 IniRead, slowMotion, %A_ScriptDir%\..\Settings.ini, UserSettings, slowMotion, 0
 IniRead, DeadCheck, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck, 0
 IniRead, ocrLanguage, %A_ScriptDir%\..\Settings.ini, UserSettings, ocrLanguage, en
+IniRead, sendAccountXml, %A_ScriptDir%\..\Settings.ini, UserSettings, sendAccountXml, 0
+
+IniRead, minStarsA1Charizard, %A_ScriptDir%\..\Settings.ini, UserSettings, minStarsA1Charizard, 0
+IniRead, minStarsA1Mewtwo, %A_ScriptDir%\..\Settings.ini, UserSettings, minStarsA1Mewtwo, 0
+IniRead, minStarsA1Pikachu, %A_ScriptDir%\..\Settings.ini, UserSettings, minStarsA1Pikachu, 0
+IniRead, minStarsA1a, %A_ScriptDir%\..\Settings.ini, UserSettings, minStarsA1a, 0
+IniRead, minStarsA2Dialga, %A_ScriptDir%\..\Settings.ini, UserSettings, minStarsA2Dialga, 0
+IniRead, minStarsA2Palkia, %A_ScriptDir%\..\Settings.ini, UserSettings, minStarsA2Palkia, 0
+IniRead, minStarsA2a, %A_ScriptDir%\..\Settings.ini, UserSettings, minStarsA2a, 0
+IniRead, minStarsA2b, %A_ScriptDir%\..\Settings.ini, UserSettings, minStarsA2b, 0
 
 pokemonList := ["Palkia", "Dialga", "Mew", "Pikachu", "Charizard", "Mewtwo", "Arceus", "Shining"]
 
@@ -121,16 +133,19 @@ Loop {
 		OwnerWND := WinExist(winTitle)
 		x4 := x + 5
 		y4 := y + 44
+		buttonWidth := 40
+		if (scaleParam = 287)
+			buttonWidth := buttonWidth + 5
 
 		Gui, New, +Owner%OwnerWND% -AlwaysOnTop +ToolWindow -Caption +LastFound
 		Gui, Default
 		Gui, Margin, 4, 4  ; Set margin for the GUI
 		Gui, Font, s5 cGray Norm Bold, Segoe UI  ; Normal font for input labels
-		Gui, Add, Button, x0 y0 w40 h25 gReloadScript, Reload  (Shift+F5)
-		Gui, Add, Button, x40 y0 w40 h25 gPauseScript, Pause (Shift+F6)
-		Gui, Add, Button, x80 y0 w40 h25 gResumeScript, Resume (Shift+F6)
-		Gui, Add, Button, x120 y0 w40 h25 gStopScript, Stop (Shift+F7)
-		Gui, Add, Button, x160 y0 w40 h25 gShowStatusMessages, Status (Shift+F8)
+		Gui, Add, Button, % "x" . (buttonWidth * 0) . " y0 w" . buttonWidth . " h25 gReloadScript", Reload  (Shift+F5)
+		Gui, Add, Button, % "x" . (buttonWidth * 1) . " y0 w" . buttonWidth . " h25 gPauseScript", Pause (Shift+F6)
+		Gui, Add, Button, % "x" . (buttonWidth * 2) . " y0 w" . buttonWidth . " h25 gResumeScript", Resume (Shift+F6)
+		Gui, Add, Button, % "x" . (buttonWidth * 3) . " y0 w" . buttonWidth . " h25 gStopScript", Stop (Shift+F7)
+		Gui, Add, Button, % "x" . (buttonWidth * 4) . " y0 w" . buttonWidth . " h25 gShowStatusMessages", Status (Shift+F8)
 		DllCall("SetWindowPos", "Ptr", WinExist(), "Ptr", 1  ; HWND_BOTTOM
 				, "Int", 0, "Int", 0, "Int", 0, "Int", 0, "UInt", 0x13)  ; SWP_NOSIZE, SWP_NOMOVE, SWP_NOACTIVATE
 		Gui, Show, NoActivate x%x4% y%y4% AutoSize
@@ -490,6 +505,9 @@ AddFriends(renew := false, getFC := false) {
 					clickButton := FindOrLoseImage(75, 340, 195, 530, 80, "Button", 0)
 					if(clickButton) {
 						StringSplit, pos, clickButton, `,  ; Split at ", "
+						if (scaleParam = 287) {
+							pos2 += 5
+						}
 						adbClick(pos1, pos2)
 					}
 				}
@@ -696,6 +714,16 @@ FindOrLoseImage(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", E
 			Y1 := 220
 			X2 := 230
 			Y2 := 260
+		} else if (imageName = "Erika") { ; 100% fix for Erika avatar
+			X1 := 149
+			Y1 := 153
+			X2 := 159
+			Y2 := 162
+		} else if (imageName = "DeleteAll") { ; 100% for Deleteall offset
+			X1 := 200
+			Y1 := 340
+			X2 := 265
+			Y2 := 530
 		}
 	}
 	;bboxAndPause(X1, Y1, X2, Y2)
@@ -727,6 +755,9 @@ FindOrLoseImage(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", E
 		pNeedle := GetNeedle(Path)
 		; ImageSearch within the region
 		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 30, 331, 50, 449, searchVariation)
+		if (scaleParam = 287) {
+			vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 30, 325, 55, 445, searchVariation)
+		}
 		if (vRet = 1) {
 			adbShell.StdIn.WriteLine("rm -rf /data/data/jp.pokemon.pokemontcgp/cache/*") ; clear cache
 			waitadb()
@@ -786,14 +817,51 @@ FindImageAndClick(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT",
 			Y1 := 0
 		}
 
+		clicky += 2 ; clicky offset
 		if (imageName = "Platin") { ; can't do text so purple box
 			X1 := 141
 			Y1 := 189
 			X2 := 208
 			Y2 := 224
 		} else if (imageName = "Opening") { ; Opening click (to skip cards) can't click on the immersive skip with 239, 497
+			X1 := 10
+			Y1 := 80
+			X2 := 50
+			Y2 := 115
 			clickx := 250
 			clicky := 505
+		} else if (imageName = "SelectExpansion") { ; SelectExpansion
+			X1 := 120
+			Y1 := 135
+			X2 := 161
+			Y2 := 145
+		} else if (imageName = "CountrySelect2") { ; SelectExpansion
+			X1 := 120
+			Y1 := 130
+			X2 := 174
+			Y2 := 155
+		} else if (imageName = "ChosenTag") { ; ChangeTag GP found
+			X1 := 218
+			Y1 := 307
+			X2 := 231
+			Y2 := 312
+		} else if (imageName = "Badge") { ; ChangeTag GP found
+			X1 := 48
+			Y1 := 204
+			X2 := 72
+			Y2 := 230
+		} else if (imageName = "ChooseErika") { ; ChangeTag GP found
+			X1 := 150
+			Y1 := 286
+			X2 := 155
+			Y2 := 291
+		} else if (imageName = "ChooseEevee") { ; Change Eevee Avatar
+			X1 := 157
+			Y1 := 195
+			X2 := 162
+			Y2 := 200
+			clickx := 147
+			clicky := 207
 		}
 	}
 
@@ -831,6 +899,8 @@ FindImageAndClick(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT",
 			ElapsedTime := (A_TickCount - StartSkipTime) // 1000
 			if(imageName = "Country")
 				FSTime := 90
+			else if(imageName = "Proceed") ; Decrease time for Marowak
+				FSTime := 8
 			else
 				FSTime := 45
 			if(!skip) {
@@ -872,6 +942,9 @@ FindImageAndClick(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT",
 			pNeedle := GetNeedle(Path)
 			; ImageSearch within the region
 			vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 30, 331, 50, 449, searchVariation)
+			if (scaleParam = 287) {
+				vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 30, 325, 55, 445, searchVariation)
+			}
 			if (vRet = 1) {
 				adbShell.StdIn.WriteLine("rm -rf /data/data/jp.pokemon.pokemontcgp/cache/*") ; clear cache
 				waitadb()
@@ -917,6 +990,9 @@ LevelUp() {
 	if(Leveled) {
 		clickButton := FindOrLoseImage(75, 340, 195, 530, 80, "Button", 0, failSafeTime)
 		StringSplit, pos, clickButton, `,  ; Split at ", "
+		if (scaleParam = 287) {
+			pos2 += 5
+		}
 		adbClick(pos1, pos2)
 	}
 	Delay(1)
@@ -986,7 +1062,7 @@ waitadb() {
 }
 
 restartGameInstance(reason, RL := true){
-	global Delay, scriptName, adbShell, adbPath, adbPort, friended, loadedAccount, DeadCheck
+	global Delay, scriptName, adbShell, adbPath, adbPort, friended, loadedAccount, DeadCheck, openPack
 	;initializeAdbShell()
 	CreateStatusMessage("Restarting game reason: `n" reason)
 
@@ -1009,9 +1085,9 @@ restartGameInstance(reason, RL := true){
 	} else if(RL) {
 		if(menuDeleteStart()) {
 			IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
-			logMessage := "\n" . username . "\n[" . starCount . "/5][" . packs . "P] " . invalid . " God pack found in instance: " . scriptName . "\nFile name: " . accountFile . "\nGot stuck getting friend code."
+			logMessage := "\n" . username . "\n[" . starCount . "/5][" . packs . "P][" . openPack . " Booster] " . invalid . " God pack found in instance: " . scriptName . "\nFile name: " . accountFile . "\nGot stuck getting friend code."
 			LogToFile(logMessage, "GPlog.txt")
-			LogToDiscord(logMessage, screenShot, discordUserId)
+			LogToDiscord(logMessage, screenShot, discordUserId, accountFullPath, fcScreenshot)
 		}
 		LogToFile("Restarted game for instance " scriptName " Reason: " reason, "Restart.txt")
 
@@ -1049,11 +1125,14 @@ menuDelete() {
 		failSafe := A_TickCount
 		failSafeTime := 0
 		Loop {
-			clickButton := FindOrLoseImage(75, 340, 195, 530, 80, "Button", 0, failSafeTime)
+			clickButton := FindOrLoseImage(75, 340, 195, 530, 40, "Button2", 0, failSafeTime)
 			if(!clickButton) {
-				clickImage := FindOrLoseImage(140, 340, 250, 530, 60, "DeleteAll", 0, failSafeTime)
+				clickImage := FindOrLoseImage(200, 340, 250, 530, 60, "DeleteAll", 0, failSafeTime) ; fix https://discord.com/channels/1330305075393986703/1354775917288882267/1355090394307887135
 				if(clickImage) {
 					StringSplit, pos, clickImage, `,  ; Split at ", "
+					if (scaleParam = 287) {
+						pos2 += 5
+					}
 					adbClick(pos1, pos2)
 				}
 				else {
@@ -1070,6 +1149,9 @@ menuDelete() {
 			Sleep,%Delay%
 		}
 		StringSplit, pos, clickButton, `,  ; Split at ", "
+		if (scaleParam = 287) {
+			pos2 += 5
+		}
 		adbClick(pos1, pos2)
 		break
 		failSafeTime := (A_TickCount - failSafe) // 1000
@@ -1113,9 +1195,12 @@ menuDeleteStart() {
 			Loop {
 				clickButton := FindOrLoseImage(75, 340, 195, 530, 80, "Button", 0, failSafeTime)
 				if(!clickButton) {
-					clickImage := FindOrLoseImage(140, 340, 250, 530, 60, "DeleteAll", 0, failSafeTime)
+					clickImage := FindOrLoseImage(200, 340, 250, 530, 60, "DeleteAll", 0, failSafeTime)
 					if(clickImage) {
 						StringSplit, pos, clickImage, `,  ; Split at ", "
+						if (scaleParam = 287) {
+							pos2 += 5
+						}
 						adbClick(pos1, pos2)
 					}
 					else {
@@ -1132,6 +1217,9 @@ menuDeleteStart() {
 				Sleep,%Delay%
 			}
 			StringSplit, pos, clickButton, `,  ; Split at ", "
+			if (scaleParam = 287) {
+				pos2 += 5
+			}
 			adbClick(pos1, pos2)
 			break
 			failSafeTime := (A_TickCount - failSafe) // 1000
@@ -1222,7 +1310,7 @@ SetTextAndResize(controlHwnd, newText) {
 }
 
 CheckPack() {
-	global scriptName, DeadCheck
+	global scriptName, DeadCheck, CheckShiningPackOnly, InvalidCheck
 	foundGP := false ;check card border to find godpacks
 	foundTrainer := false
 	foundRainbow := false
@@ -1233,59 +1321,63 @@ CheckPack() {
 	foundTS := false
 	foundGP := FindGodPack()
 	;msgbox 1 foundGP:%foundGP%, TC:%TrainerCheck%, RC:%RainbowCheck%, FAC:%FullArtCheck%, FTS:%foundTS%
-	if(TrainerCheck && !foundTS) {
-		foundTrainer := FindBorders("trainer")
-		if(foundTrainer)
-			foundTS := "Trainer"
-	}
-	if(RainbowCheck && !foundTS) {
-		foundRainbow := FindBorders("rainbow")
-		if(foundRainbow)
-			foundTS := "Rainbow"
-	}
-	if(FullArtCheck && !foundTS) {
-		foundFullArt := FindBorders("fullart")
-		if(foundFullArt)
-			foundTS := "Full Art"
-	}
-	if(ShinyCheck && !foundTS) {
-		foundShiny := FindBorders("shiny2star") + FindBorders("shiny1star")
-		if(ShinyCheck)
-			foundTS := "Shiny"
-	}
-	if(ImmersiveCheck && !foundTS) {
-		foundImmersive := FindBorders("immersive")
-		if(foundImmersive)
-			foundTS := "Immersive"
-	}
-	If(CrownCheck && !foundTS) {
-		foundCrown := FindBorders("crown")
-		if(foundCrown)
-			foundTS := "Crown"
-	}
-	If(PseudoGodPack && !foundTS) {
-		2starCount := FindBorders("trainer") + FindBorders("rainbow") + FindBorders("fullart") + FindBorders("shiny2star")
-		if(2starCount > 1)
-			foundTS := "Double two star"
+	if(!CheckShiningPackOnly || openPack = "Shining") {
+		if(TrainerCheck && !foundTS) {
+			foundTrainer := FindBorders("trainer")
+			if(foundTrainer)
+				foundTS := "Trainer"
+		}
+		if(RainbowCheck && !foundTS) {
+			foundRainbow := FindBorders("rainbow")
+			if(foundRainbow)
+				foundTS := "Rainbow"
+		}
+		if(FullArtCheck && !foundTS) {
+			foundFullArt := FindBorders("fullart")
+			if(foundFullArt)
+				foundTS := "Full Art"
+		}
+		if((ShinyCheck && !foundTS) || InvalidCheck) {
+			foundShiny := FindBorders("shiny2star") + FindBorders("shiny1star")
+			if(foundShiny)
+				foundTS := "Shiny"
+		}
+		if((ImmersiveCheck && !foundTS) || InvalidCheck) {
+			foundImmersive := FindBorders("immersive")
+			if(foundImmersive)
+				foundTS := "Immersive"
+		}
+		If((CrownCheck && !foundTS) || InvalidCheck) {
+			foundCrown := FindBorders("crown")
+			if(foundCrown)
+				foundTS := "Crown"
+		}
+		If(PseudoGodPack && !foundTS) {
+			2starCount := FindBorders("trainer") + FindBorders("rainbow") + FindBorders("fullart")
+			if(2starCount > 1)
+				foundTS := "Double two star"
+		}
 	}
 	if(foundGP || foundTrainer || foundRainbow || foundFullArt || foundShiny || foundImmersive || foundCrown || 2starCount > 1) {
-		if(loadedAccount) {
-			FileDelete, %loadedAccount% ;delete xml file from folder if using inject method
-			IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
-		}
-		if(foundGP)
-			restartGameInstance("God Pack found. Continuing...", "GodPack") ; restarts to backup and delete xml file with account info.
-		else {
-			FoundStars(foundTS)
-			restartGameInstance(foundTS . " found. Continuing...", "GodPack") ; restarts to backup and delete xml file with account info.
+		if(!(InvalidCheck && (foundShiny || foundImmersive || foundCrown)) || foundGP) {
+			if(loadedAccount) {
+				FileDelete, %loadedAccount% ;delete xml file from folder if using inject method
+				IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
+			}
+			if(foundGP)
+				restartGameInstance("God Pack found. Continuing...", "GodPack") ; restarts to backup and delete xml file with account info.
+			else {
+				FoundStars(foundTS)
+				restartGameInstance(foundTS . " found. Continuing...", "GodPack") ; restarts to backup and delete xml file with account info.
+			}
 		}
 	}
 }
 
 FoundStars(star) {
-	global scriptName, DeadCheck, ocrLanguage, injectMethod
+	global scriptName, DeadCheck, ocrLanguage, injectMethod, openPack
 	screenShot := Screenshot(star)
-	accountFile := saveAccount(star)
+	accountFile := saveAccount(star, accountFullPath)
 	friendCode := getFriendCode()
 	IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
 
@@ -1293,14 +1385,14 @@ FoundStars(star) {
 	Sleep, 8000
 	fcScreenshot := Screenshot("FRIENDCODE")
 
-	if(star = "Crown" || star = "Immersive")
+	if(star = "Crown" || star = "Immersive" || star = "Shiny")
 		RemoveFriends()
 	else {
 		; If we're doing the inject method, try to OCR our Username
 		try {
-			if(injectMethod && IsFunc("ocr_from_file"))
+			if(injectMethod && IsFunc("ocr"))
 			{
-					ocrText := Func("ocr_from_file").Call(fcScreenshot, ocrLanguage)
+					ocrText := Func("ocr").Call(fcScreenshot, ocrLanguage)
 					ocrLines := StrSplit(ocrText, "`n")
 					len := ocrLines.MaxIndex()
 					if(len > 1) {
@@ -1315,11 +1407,11 @@ FoundStars(star) {
 		}
 	}
 
-	logMessage := star . " found by " . username . " (" . friendCode . ") in instance: " . scriptName . " (" . packs . " packs)\nFile name: " . accountFile . "\nBacking up to the Accounts\\SpecificCards folder and continuing..."
+	logMessage := star . " found by " . username . " (" . friendCode . ") in instance: " . scriptName . " (" . packs . " packs, " . openPack . " booster)\nFile name: " . accountFile . "\nBacking up to the Accounts\\SpecificCards folder and continuing..."
 	CreateStatusMessage(logMessage)
 	LogToFile(logMessage, "GPlog.txt")
-	LogToDiscord(logMessage, screenShot, discordUserId, "", fcScreenshot)
-	if(star != "Crown" && star != "Immersive")
+	LogToDiscord(logMessage, screenShot, discordUserId, accountFullPath, fcScreenshot)
+	if(star != "Crown" && star != "Immersive" && star != "Shiny")
 		ChooseTag()
 }
 
@@ -1339,6 +1431,22 @@ FindBorders(prefix) {
 		,[130, 376, 133, 398]
 		,[215, 376, 218, 398]]
 	}
+	; 100% scale changes
+	if (scaleParam = 287) {
+		if (prefix = "shiny1star" || prefix = "shiny2star") {
+			borderCoords := [[91, 253, 95, 278]
+			,[175, 253, 179, 278]  
+			,[259, 253, 263, 278]
+			,[132, 370, 136, 395]
+			,[218, 371, 222, 394]]
+		} else {
+			borderCoords := [[30, 277, 85, 281]
+			,[112, 277, 167, 281]
+			,[195, 277, 250, 281]
+			,[70, 394, 125, 398]
+			,[156, 394, 211, 398]]
+		}
+	}
 	pBitmap := from_window(WinExist(winTitle))
 	; imagePath := "C:\Users\Arturo\Desktop\PTCGP\GPs\" . Clipboard . ".png"
 	; pBitmap := Gdip_CreateBitmapFromFile(imagePath)
@@ -1356,7 +1464,33 @@ FindBorders(prefix) {
 }
 
 FindGodPack() {
-	global winTitle, discordUserId, Delay, username, packs, minStars, scriptName, DeadCheck, deleteMethod
+	global winTitle, discordUserId, Delay, username, packs, minStars, minStarsA1Charizard, minStarsA1Mewtwo, minStarsA1Pikachu, minStarsA1a, minStarsA2Dialga, minStarsA2Palkia, minStarsA2a, minStarsA2b, openPack, scriptName, DeadCheck, deleteMethod
+	packMinStars := minStars
+	if(openPack = "Shining") { 
+		packMinStars := minStarsA2b 
+	}
+	if (openPack = "Arceus") { 
+		packMinStars := minStarsA2a 
+	}
+	if (openPack = "Palkia") { 
+		packMinStars := minStarsA2Palkia 
+	}
+	if (openPack = "Dialga") { 
+		packMinStars := minStarsA2Dialga 
+	}
+	if (openPack = "Mew") { 
+		packMinStars := minStarsA1a 
+	}
+	if (openPack = "Pikachu") { 
+		packMinStars := minStarsA1Pikachu 
+	}
+	if (openPack = "Charizard") { 
+		packMinStars := minStarsA1Charizard 
+	}
+	if (openPack = "Mewtwo") { 
+		packMinStars := minStarsA1Mewtwo 
+	}
+	
 	gpFound := false
 	invalidGP := false
 	searchVariation := 5
@@ -1368,6 +1502,12 @@ FindGodPack() {
 	}
 	borderCoords := [[20, 284, 90, 286]
 		,[103, 284, 173, 286]]
+		
+	; Change borderCoords if scaleParam is 287 for 100%
+	if (scaleParam = 287) {
+		borderCoords := [[21, 278, 91, 280]
+			,[105, 278, 175, 280]]
+	}
 
 	;	SquallTCGP 2025.03.12 - 	Just checking the packs count and setting them to 0 if it's number of packs is 3. 
 	;															This applies to any Delete Method except 5 Pack (Fast). This change is made based 
@@ -1405,9 +1545,9 @@ FindGodPack() {
 			if(foundImmersive || foundCrown || foundShiny) {
 				invalidGP := true
 			}
-			if(!invalidGP && minStars > 0) {
+			if(!invalidGP && packMinStars > 0) {
 				starCount := 5 - FindBorders("1star")
-				if(starCount < minStars) {
+				if(starCount < packMinStars) {
 					CreateStatusMessage("Does not meet minimum 2 star threshold.")
 					invalidGP := true
 				}
@@ -1430,7 +1570,7 @@ FindGodPack() {
 }
 
 GodPackFound(validity) {
-	global scriptName, DeadCheck, ocrLanguage, injectMethod
+	global scriptName, DeadCheck, ocrLanguage, injectMethod, openPack
 
 	if(validity = "Valid") {
 		IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
@@ -1445,7 +1585,7 @@ GodPackFound(validity) {
 	Interjection := Praise[rand]
 	starCount := 5 - FindBorders("1star") - FindBorders("shiny1star")
 	screenShot := Screenshot(validity)
-	accountFile := saveAccount(validity)
+	accountFile := saveAccount(validity, accountFullPath)
 	logMessage := "\n" . username . "\n[" . starCount . "/5][" . packs . "P] " . invalid . " God pack found in instance: " . scriptName . "\nFile name: " . accountFile . "\nGetting friend code then sendind discord message."
 	godPackLog = GPlog.txt
 	LogToFile(logMessage, godPackLog)
@@ -1459,9 +1599,9 @@ GodPackFound(validity) {
 
 	; If we're doing the inject method, try to OCR our Username
 	try {
-		if(injectMethod && IsFunc("ocr_from_file"))
+		if(injectMethod && IsFunc("ocr"))
 		{
-				ocrText := Func("ocr_from_file").Call(fcScreenshot, ocrLanguage)
+				ocrText := Func("ocr").Call(fcScreenshot, ocrLanguage)
 				ocrLines := StrSplit(ocrText, "`n")
 				len := ocrLines.MaxIndex()
 				if(len > 1) {
@@ -1475,16 +1615,16 @@ GodPackFound(validity) {
 		LogToFile("Failed to OCR the friend code: " . e.message, "BC.txt")
 	}
 
-	logMessage := Interjection . "\n" . username . " (" . friendCode . ")\n[" . starCount . "/5][" . packs . "P] " . invalid . " God pack found in instance: " . scriptName . "\nFile name: " . accountFile . "\nBacking up to the Accounts\\GodPacks folder and continuing..."
+	logMessage := Interjection . "\n" . username . " (" . friendCode . ")\n[" . starCount . "/5][" . packs . "P][" . openPack . " Booster] " . invalid . " God pack found in instance: " . scriptName . "\nFile name: " . accountFile . "\nBacking up to the Accounts\\GodPacks folder and continuing..."
 	LogToFile(logMessage, godPackLog)
 	;Run, http://google.com, , Hide ;Remove the ; at the start of the line and replace your url if you want to trigger a link when finding a god pack.
 
 	; Adjust the below to only send a 'ping' to Discord friends on Valid packs
 	if(validity = "Valid") {
-		LogToDiscord(logMessage, screenShot, discordUserId, "", fcScreenshot)
+		LogToDiscord(logMessage, screenShot, discordUserId, accountFullPath, fcScreenshot)
 		ChooseTag()
 	} else {
-		LogToDiscord(logMessage, screenShot)
+		LogToDiscord(logMessage, screenShot, false, accountFullPath, fcScreenshot)
 	}
 }
 
@@ -1558,7 +1698,7 @@ loadAccount() {
 	return loadDir
 }
 
-saveAccount(file := "Valid") {
+saveAccount(file := "Valid", ByRef filePath := "") {
 	global adbShell, adbPath, adbPort
 	;initializeAdbShell()
 	currentDate := A_Now
@@ -1571,6 +1711,8 @@ saveAccount(file := "Valid") {
 	daysSinceBase += day
 
 	remainder := Mod(daysSinceBase, 3)
+
+	filePath := ""
 
 	if (file = "All") {
 		saveDir := A_ScriptDir "\..\Accounts\Saved\" . remainder . "\" . winTitle
@@ -1736,6 +1878,10 @@ Screenshot(filename := "Valid") {
 	screenshotFile := screenshotsDir "\" . A_Now . "_" . winTitle . "_" . filename . "_" . packs . "_packs.png"
 	pBitmapW := from_window(WinExist(winTitle))
 	pBitmap := Gdip_CloneBitmapArea(pBitmapW, 18, 175, 240, 227)
+	;scale 100%
+	if (scaleParam = 287) {
+	pBitmap := Gdip_CloneBitmapArea(pBitmapW, 17, 168, 245, 230)
+	}
 	Gdip_DisposeImage(pBitmapW)
 
 	Gdip_SaveBitmapToFile(pBitmap, screenshotFile)
@@ -1745,7 +1891,7 @@ Screenshot(filename := "Valid") {
 }
 
 LogToDiscord(message, screenshotFile := "", ping := false, xmlFile := "", screenshotFile2 := "") {
-	global discordUserId, discordWebhookURL, friendCode
+	global discordUserId, discordWebhookURL, friendCode, sendAccountXml
 	discordPing := "<@" . discordUserId . "> "
 	discordFriends := ReadFile("discord")
 
@@ -1758,35 +1904,47 @@ LogToDiscord(message, screenshotFile := "", ping := false, xmlFile := "", screen
 	}
 
 	if (discordWebhookURL != "") {
+		if (!sendAccountXml)
+			xmlFile := ""
 		MaxRetries := 10
 		RetryCount := 0
 		Loop {
 			try {
-				if(screenshotFile != "" && screenshotFile2 != "" && FileExist(screenshotFile) && FileExist(screenshotFile2))
-				{
-					; Send the image using curl
-					curlCommand := "curl -k "
-						. "-F ""payload_json={\""content\"":\""" . discordPing . message . "\""};type=application/json;charset=UTF-8"" "
-						. "-F ""file1=@" . screenshotFile . """ "
-						. "-F ""file2=@" . screenshotFile2 . """ "
-						. discordWebhookURL
-					RunWait, %curlCommand%,, Hide
-				} else if (screenshotFile != "") {
-					; Check if the file exists
-					if (FileExist(screenshotFile)) {
-						; Send the image using curl
-						curlCommand := "curl -k "
-							. "-F ""payload_json={\""content\"":\""" . discordPing . message . "\""};type=application/json;charset=UTF-8"" "
-							. "-F ""file=@" . screenshotFile . """ "
-							. discordWebhookURL
-						RunWait, %curlCommand%,, Hide
+				; Base command
+				curlCommand := "curl -k "
+					. "-F ""payload_json={\""content\"":\""" . discordPing . message . "\""};type=application/json;charset=UTF-8"" "
+				
+				; If an screenshot or xml file is provided, send it
+				sendScreenshot1 := screenshotFile != "" && FileExist(screenshotFile)
+				sendScreenshot2 := screenshotFile2 != "" && FileExist(screenshotFile2)
+				sendAccountXml := xmlFile != "" && FileExist(xmlFile)
+				if (sendScreenshot1 + sendScreenshot2 + sendAccountXml > 1) {
+					fileIndex := 0
+					if (sendScreenshot1) {
+						fileIndex++
+						curlCommand := curlCommand . "-F ""file" . fileIndex . "=@" . screenshotFile . """ "
+					}
+					if (sendScreenshot2) {
+						fileIndex++
+						curlCommand := curlCommand . "-F ""file" . fileIndex . "=@" . screenshotFile2 . """ "
+					}
+					if (sendAccountXml) {
+						fileIndex++
+						curlCommand := curlCommand . "-F ""file" . fileIndex . "=@" . xmlFile . """ "
 					}
 				}
-				else {
-					curlCommand := "curl -k "
-						. "-F ""payload_json={\""content\"":\""" . discordPing . message . "\""};type=application/json;charset=UTF-8"" " . discordWebhookURL
-					RunWait, %curlCommand%,, Hide
+				else if (sendScreenshot1 + sendScreenshot2 + sendAccountXml == 1) {
+					if (sendScreenshot1)
+						curlCommand := curlCommand . "-F ""file=@" . screenshotFile . """ "
+					if (sendScreenshot2)
+						curlCommand := curlCommand . "-F ""file=@" . screenshotFile2 . """ "
+					if (sendAccountXml)
+						curlCommand := curlCommand . "-F ""file=@" . xmlFile . """ "
 				}
+				; Add the webhook
+				curlCommand := curlCommand . discordWebhookURL
+				; Send the message using curl
+				RunWait, %curlCommand%,, Hide
 				break
 			}
 			catch {
@@ -2423,7 +2581,7 @@ DoTutorial() {
 
 	adbClick(140, 424)
 
-	FindImageAndClick(203, 273, 228, 290, , "Pack", 140, 424) ;wait for pack to be ready  to trace
+	FindImageAndClick(225, 273, 235, 290, , "Pack", 140, 424) ;wait for pack to be ready  to trace
 		if(setSpeed > 1) {
 			FindImageAndClick(65, 195, 100, 215, , "Platin", 18, 109, 2000) ; click mod settings
 			FindImageAndClick(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
@@ -2434,7 +2592,7 @@ DoTutorial() {
 	Loop {
 		adbSwipe()
 		Sleep, 10
-		if (FindOrLoseImage(203, 273, 228, 290, , "Pack", 1, failSafeTime)){
+		if (FindOrLoseImage(225, 273, 235, 290, , "Pack", 1, failSafeTime)){
 			if(setSpeed > 1) {
 				if(setSpeed = 3)
 						FindImageAndClick(182, 170, 194, 190, , "Three", 187, 180) ; click 3x
@@ -2518,7 +2676,7 @@ DoTutorial() {
 	Delay(3)
 	adbClick(142, 436)
 
-	FindImageAndClick(203, 273, 228, 290, , "Pack", 239, 497) ;wait for pack to be ready  to Trace
+	FindImageAndClick(225, 273, 235, 290, , "Pack", 239, 497) ;wait for pack to be ready  to Trace
 		if(setSpeed > 1) {
 			FindImageAndClick(65, 195, 100, 215, , "Platin", 18, 109, 2000) ; click mod settings
 			FindImageAndClick(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
@@ -2529,7 +2687,7 @@ DoTutorial() {
 	Loop {
 		adbSwipe()
 		Sleep, 10
-		if (FindOrLoseImage(203, 273, 228, 290, , "Pack", 1, failSafeTime)){
+		if (FindOrLoseImage(225, 273, 235, 290, , "Pack", 1, failSafeTime)){
 		if(setSpeed > 1) {
 			if(setSpeed = 3)
 						FindImageAndClick(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
@@ -2725,7 +2883,7 @@ PackOpening() {
 	Loop {
 		adbSwipe()
 		Sleep, 10
-		if (FindOrLoseImage(203, 273, 228, 290, , "Pack", 1, failSafeTime)){
+		if (FindOrLoseImage(225, 273, 235, 290, , "Pack", 1, failSafeTime)){
 		if(setSpeed > 1) {
 			if(setSpeed = 3)
 					FindImageAndClick(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
@@ -2826,6 +2984,9 @@ HourglassOpening(HG := false) {
 		clickButton := FindOrLoseImage(145, 440, 258, 480, 80, "Button", 0, failSafeTime)
 		if(clickButton) {
 			StringSplit, pos, clickButton, `,  ; Split at ", "
+			if (scaleParam = 287) {
+				pos2 += 5
+			}
 			adbClick(pos1, pos2)
 		}
 		failSafeTime := (A_TickCount - failSafe) // 1000
@@ -2844,7 +3005,7 @@ HourglassOpening(HG := false) {
 	Loop {
 		adbSwipe()
 		Sleep, 10
-		if (FindOrLoseImage(203, 273, 228, 290, , "Pack", 1, failSafeTime)){
+		if (FindOrLoseImage(225, 273, 235, 290, , "Pack", 1, failSafeTime)){
 		if(setSpeed > 1) {
 			if(setSpeed = 3)
 					FindImageAndClick(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
@@ -2962,6 +3123,10 @@ DoWonderPick() {
 			clickButton := FindOrLoseImage(100, 367, 190, 480, 100, "Button", 0, failSafeTime)
 			if(clickButton) {
 				StringSplit, pos, clickButton, `,  ; Split at ", "
+					; Adjust pos2 if scaleParam is 287 for 100%
+					if (scaleParam = 287) {
+						pos2 += 5
+					}
 					adbClick(pos1, pos2)
 				Delay(3)
 			}
