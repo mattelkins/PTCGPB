@@ -40,11 +40,12 @@ CheckPack3477() {
     foundExCount := 0
     found1starCount := 0
     found3diamondCount := 0
+    foundShiny := false
     foundImmersive := false
     foundCrown := false
     foundLabel := ""
     foundGP := FindGodPack()
-    foundInvalid := FindBorders("immersive") + FindBorders("crown")
+    foundInvalid := FindBorders("immersive") + FindBorders("crown") + FindBorders("shiny2star") + FindBorders("shiny1star")
 
     if (!foundGP && !foundInvalid) {
         checkCount := 0
@@ -77,18 +78,23 @@ CheckPack3477() {
         if (OneStarCheck) {
             found1starCount := FindBorders("1star")
             if (found1starCount >= OneStarCount)
-                checkCount++
+                checkCount += found1starCount
         }
         if (ThreeDiamondCheck) {
             found3diamondCount := FindBorders3477("3diamond")
             if (found3diamondCount >= ThreeDiamondCount)
-                checkCount++
+                checkCount += found3diamondCount
         }
 
         if (checkCount >= MatchCount)
             foundLabel := "Good Pack"
     }
 
+    if (ShinyCheck && !foundLabel) {
+        foundShiny := FindBorders("shiny2star") + FindBorders("shiny1star")
+        if (foundShiny)
+            foundLabel := "Shiny"
+    }
     if (ImmersiveCheck && !foundLabel) {
         foundImmersive := FindBorders("immersive")
         if (foundImmersive)
