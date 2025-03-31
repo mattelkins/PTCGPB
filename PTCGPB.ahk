@@ -653,7 +653,7 @@ Start:
         packStatus .= "   |   Avg: " . Round(total / mminutes, 2) . " packs/min"
 
         ; Display pack status at the bottom of the first reroll instance
-        CreateStatusMessage(packStatus, ((Mains * scaleParam) + 5), 490)
+        CreateStatusMessage(packStatus, "PackStatus", ((Mains * scaleParam) + 5), 490)
 
         if(heartBeat)
             if((A_Index = 1 || (Mod(A_Index, (heartBeatDelay // 0.5)) = 0))) {
@@ -767,34 +767,6 @@ resetWindows(Title, SelectedMonitorIndex) {
         Sleep, 1000
     }
     return true
-}
-
-CreateStatusMessage(Message, X := 0, Y := 80) {
-    global PacksText, SelectedMonitorIndex, createdGUI, Instances
-    MaxRetries := 10
-    RetryCount := 0
-    try {
-        GuiName := 22
-        SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
-        SysGet, Monitor, Monitor, %SelectedMonitorIndex%
-        X := MonitorLeft + X
-        Y := MonitorTop + Y
-        Gui %GuiName%:+LastFoundExist
-        if WinExist() {
-            GuiControl, , PacksText, %Message%
-        } else {            OwnerWND := WinExist(1)
-            if(!OwnerWND)
-                Gui, %GuiName%:New, +ToolWindow -Caption +LastFound
-            else
-                Gui, %GuiName%:New, +Owner%OwnerWND% +ToolWindow -Caption +LastFound
-            Gui, %GuiName%:Margin, 2, 2  ; Set margin for the GUI
-            Gui, %GuiName%:Font, s8  ; Set the font size to 8 (adjust as needed)
-            Gui, %GuiName%:Add, Text, vPacksText, %Message%
-            DllCall("SetWindowPos", "Ptr", WinExist(), "Ptr", WinExist("A")  ; set behind active window
-                , "Int", 0, "Int", 0, "Int", 0, "Int", 0, "UInt", 0x13)  ; SWP_NOSIZE, SWP_NOMOVE, SWP_NOACTIVATE
-            Gui, %GuiName%:Show, NoActivate x%X% y%Y%, NoActivate %GuiName%
-        }
-    }
 }
 
 ; Global variable to track the current JSON file
