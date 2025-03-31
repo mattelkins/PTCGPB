@@ -100,13 +100,13 @@ Loop {
     catch {
         RetryCount++
         if (RetryCount >= MaxRetries) {
-            CreateStatusMessage("Failed to create button gui.")
+            LogToFile("Failed to create button GUI.")
             break
         }
         Sleep, 1000
     }
     Sleep, %Delay%
-    CreateStatusMessage("Trying to create button gui...")
+    CreateStatusMessage("Creating button GUI...")
 }
 
 rerollTime := A_TickCount
@@ -208,7 +208,7 @@ Loop {
                 if (GPTest)
                     break
                 failSafeTime := (A_TickCount - failSafe) // 1000
-                CreateStatusMessage("Failsafe " . failSafeTime "/180 seconds")
+                CreateStatusMessage("Failsafe " . failSafeTime . "/180 seconds")
             }
         }
         if(done || fullList|| GPTest)
@@ -224,7 +224,7 @@ FindOrLoseImage(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", E
     imagePath := A_ScriptDir . "\" . defaultLanguage . "\"
     confirmed := false
 
-    CreateStatusMessage(imageName)
+    CreateStatusMessage("Finding " . imageName . "...")
     pBitmap := from_window(WinExist(winTitle))
     Path = %imagePath%%imageName%.png
     pNeedle := GetNeedle(Path)
@@ -267,8 +267,8 @@ FindOrLoseImage(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", E
     vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 15, 155, 270, 420, searchVariation)
     Gdip_DisposeImage(pBitmap)
     if (vRet = 1) {
-        CreateStatusMessage("At home page. Opening app..." )
-        restartGameInstance("At the home page during: `n" imageName)
+        LogToFile("Stuck at home while looking for " . imageName . "...")
+        restartGameInstance("Stuck at " . imageName . "...")
     }
     if(imageName = "Country" || imageName = "Social")
         FSTime := 90
@@ -277,8 +277,8 @@ FindOrLoseImage(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", E
     else
         FSTime := 180
     if (safeTime >= FSTime) {
-        CreateStatusMessage("Instance " . scriptName . " has been `nstuck " . imageName . " for 90s. EL: " . EL . " sT: " . safeTime . " Killing it...")
-        restartGameInstance("Instance " . scriptName . " has been stuck " . imageName)
+        LogToFile("Instance " . scriptName . " has been stuck at " . imageName . " for 90s. (EL: " . EL . ", sT: " . safeTime . ") Killing it...")
+        restartGameInstance("Stuck at " . imageName . "...")
         failSafe := A_TickCount
     }
     return confirmed
@@ -325,7 +325,7 @@ FindImageAndClick(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT",
         adbClick(clickx, clicky)
         clickTime := A_TickCount
     }
-    CreateStatusMessage(imageName)
+    CreateStatusMessage("Finding and clicking " . imageName . "...")
 
     Loop { ; Main loop
         Sleep, 10
@@ -355,8 +355,8 @@ FindImageAndClick(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT",
                 ElapsedTime := (A_TickCount - StartSkipTime) // 1000
                 FSTime := 45
                 if (ElapsedTime >= FSTime || safeTime >= FSTime) {
-                    CreateStatusMessage("Instance " . scriptName . " has been stuck for 90s. Killing it...")
-                    restartGameInstance("Instance " . scriptName . " has been stuck at " . imageName) ; change to reset the instance and delete data then reload script
+                    LogToFile("Instance " . scriptName . " has been stuck at " . imageName . " for 90s. (EL: " . ElapsedTime . ", sT: " . safeTime . ") Killing it...")
+                    restartGameInstance("Stuck at " . imageName . "...") ; change to reset the instance and delete data then reload script
                     StartSkipTime := A_TickCount
                     failSafe := A_TickCount
                 }
@@ -370,8 +370,8 @@ FindImageAndClick(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT",
         vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 15, 155, 270, 420, searchVariation)
         Gdip_DisposeImage(pBitmap)
         if (vRet = 1) {
-            CreateStatusMessage("Error message in " scriptName " Clicking retry..." )
-            LogToFile("Error message in " scriptName " Clicking retry..." )
+            CreateStatusMessage("Error message in " . scriptName . ". Clicking retry...")
+            LogToFile("Error message in " . scriptName . ". Clicking retry...")
             adbClick(82, 389)
             Sleep, %Delay%
             adbClick(139, 386)
@@ -384,8 +384,8 @@ FindImageAndClick(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT",
         vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 15, 155, 270, 420, searchVariation)
         Gdip_DisposeImage(pBitmap)
         if (vRet = 1) {
-            CreateStatusMessage("At home page. Opening app..." )
-            restartGameInstance("Found myself at the home page during: `n" imageName)
+            LogToFile("At the home page while looking for " . imageName . "...")
+            restartGameInstance("At the home page while looking for " . imageName . "...")
         }
 
         if(skip) {
@@ -441,7 +441,7 @@ resetWindows(){
 restartGameInstance(reason, RL := true){
     global Delay, scriptName, adbShell, adbPath, adbPort
     initializeAdbShell()
-    CreateStatusMessage("Restarting game reason: " reason)
+    CreateStatusMessage("Restarting game: " . reason)
 
     adbShell.StdIn.WriteLine("am force-stop jp.pokemon.pokemontcgp")
     ;adbShell.StdIn.WriteLine("rm -rf /data/data/jp.pokemon.pokemontcgp/cache/*") ; clear cache
@@ -450,7 +450,7 @@ restartGameInstance(reason, RL := true){
 
     Sleep, 3000
     if(RL) {
-        LogToFile("Restarted game for instance " scriptName " Reason: " reason, "Restart.txt")
+        LogToFile("Restarted game for instance " . scriptName . ". Reason: " reason, "Restart.txt")
         Reload
     }
 }
