@@ -52,8 +52,6 @@ IniRead, FriendID, Settings.ini, UserSettings, FriendID
 IniRead, waitTime, Settings.ini, UserSettings, waitTime, 5
 IniRead, Delay, Settings.ini, UserSettings, Delay, 250
 IniRead, folderPath, Settings.ini, UserSettings, folderPath, C:\Program Files\Netease
-IniRead, discordWebhookURL, Settings.ini, UserSettings, discordWebhookURL, ""
-IniRead, discordUserId, Settings.ini, UserSettings, discordUserId, ""
 IniRead, Columns, Settings.ini, UserSettings, Columns, 5
 IniRead, godPack, Settings.ini, UserSettings, godPack, Continue
 IniRead, Instances, Settings.ini, UserSettings, Instances, 1
@@ -693,14 +691,12 @@ Start:
                 if(onlineAHK = "Online: ")
                     onlineAHK := "Online: none."
 
-
-
-                discMessage := "\n" . onlineAHK . "\n" . offlineAHK . "\n" . packStatus . "\nVersion: " . RegExReplace(githubUser, "-.*$") . "-" . localVersion
+                discMessage := heartBeatName ? "\n" . heartBeatName : ""
+                discMessage .= "\n" . onlineAHK . "\n" . offlineAHK . "\n" . packStatus . "\nVersion: " . RegExReplace(githubUser, "-.*$") . "-" . localVersion
                 discMessage .= typeMsg
                 discMessage .= selectMsg
-                if(heartBeatName)
-                    discordUserID := heartBeatName
-                LogToDiscord(discMessage, , discordUserID)
+
+                LogToDiscord(discMessage, , false, , , heartBeatWebhookURL)
             }
     }
 Return
@@ -721,47 +717,6 @@ MonthToDays(year, month) {
 
 IsLeapYear(year) {
     return (Mod(year, 4) = 0 && Mod(year, 100) != 0) || Mod(year, 400) = 0
-}
-
-LogToDiscord(message, screenshotFile := "", ping := false, xmlFile := "") {
-    global discordUserId, discordWebhookURL, friendCode, heartBeatWebhookURL
-    discordPing := discordUserId
-    if(heartBeatWebhookURL)
-        discordWebhookURL := heartBeatWebhookURL
-
-    if (discordWebhookURL != "") {
-        MaxRetries := 10
-        RetryCount := 0
-        Loop {
-            try {
-                ; If an image file is provided, send it
-                if (screenshotFile != "") {
-                    ; Check if the file exists
-                    if (FileExist(screenshotFile)) {
-                        ; Send the image using curl
-                        curlCommand := "curl -k "
-                            . "-F ""payload_json={\""content\"":\""" . discordPing . message . "\""};type=application/json;charset=UTF-8"" " . discordWebhookURL
-                        RunWait, %curlCommand%,, Hide
-                    }
-                }
-                else {
-                    curlCommand := "curl -k "
-                        . "-F ""payload_json={\""content\"":\""" . discordPing . message . "\""};type=application/json;charset=UTF-8"" " . discordWebhookURL
-                    RunWait, %curlCommand%,, Hide
-                }
-                break
-            }
-            catch {
-                RetryCount++
-                if (RetryCount >= MaxRetries) {
-                    CreateStatusMessage("Failed to send discord message.")
-                    break
-                }
-                Sleep, 250
-            }
-            sleep, 250
-        }
-    }
 }
 
 DownloadFile(url, filename) {
@@ -1125,6 +1080,22 @@ VersionCompare(v1, v2) {
         return 1 ; Alpha version is older
 
     return 0 ; Versions are equal
+}
+
+ReadFile(filename, numbers := false) {
+    FileRead, content, %A_ScriptDir%\%filename%.txt
+
+    if (!content)
+        return false
+
+    values := []
+    for _, val in StrSplit(Trim(content), "`n") {
+        cleanVal := RegExReplace(val, "[^a-zA-Z0-9]") ; Remove non-alphanumeric characters
+        if (cleanVal != "")
+            values.Push(cleanVal)
+    }
+
+    return values.MaxIndex() ? values : false
 }
 
 ~+F7::ExitApp

@@ -18,8 +18,8 @@ CoordMode, Pixel, Screen
 DllCall("AllocConsole")
 WinHide % "ahk_id " DllCall("GetConsoleWindow", "ptr")
 
-global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, scriptName, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, discordUserId, discordWebhookURL, deleteMethod, packs, FriendID, friendIDs, Instances, username, friendCode, stopToggle, friended, runMain, Mains, showStatus, injectMethod, packMethod, loadDir, loadedAccount, nukeAccount, CheckShiningPackOnly, TrainerCheck, FullArtCheck, RainbowCheck, ShinyCheck, dateChange, foundGP, foundTS, friendsAdded, minStars, PseudoGodPack, Palkia, Dialga, Mew, Pikachu, Charizard, Mewtwo, packArray, CrownCheck, ImmersiveCheck, InvalidCheck, slowMotion, screenShot, accountFile, invalid, starCount, gpFound, foundTS, minStarsA1Charizard, minStarsA1Mewtwo, minStarsA1Pikachu, minStarsA1a, minStarsA2Dialga, minStarsA2Palkia, minStarsA2a, minStarsA2b
-global DeadCheck, sendAccountXml
+global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, scriptName, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, deleteMethod, packs, FriendID, friendIDs, Instances, username, friendCode, stopToggle, friended, runMain, Mains, showStatus, injectMethod, packMethod, loadDir, loadedAccount, nukeAccount, CheckShiningPackOnly, TrainerCheck, FullArtCheck, RainbowCheck, ShinyCheck, dateChange, foundGP, foundTS, friendsAdded, minStars, PseudoGodPack, Palkia, Dialga, Mew, Pikachu, Charizard, Mewtwo, packArray, CrownCheck, ImmersiveCheck, InvalidCheck, slowMotion, screenShot, accountFile, invalid, starCount, gpFound, foundTS, minStarsA1Charizard, minStarsA1Mewtwo, minStarsA1Pikachu, minStarsA1a, minStarsA2Dialga, minStarsA2Palkia, minStarsA2a, minStarsA2b
+global DeadCheck
 
 scriptName := StrReplace(A_ScriptName, ".ahk")
 winTitle := scriptName
@@ -34,8 +34,6 @@ IniRead, FriendID, %A_ScriptDir%\..\Settings.ini, UserSettings, FriendID
 IniRead, waitTime, %A_ScriptDir%\..\Settings.ini, UserSettings, waitTime, 5
 IniRead, Delay, %A_ScriptDir%\..\Settings.ini, UserSettings, Delay, 250
 IniRead, folderPath, %A_ScriptDir%\..\Settings.ini, UserSettings, folderPath, C:\Program Files\Netease
-IniRead, discordWebhookURL, %A_ScriptDir%\..\Settings.ini, UserSettings, discordWebhookURL, ""
-IniRead, discordUserId, %A_ScriptDir%\..\Settings.ini, UserSettings, discordUserId, ""
 IniRead, Columns, %A_ScriptDir%\..\Settings.ini, UserSettings, Columns, 5
 IniRead, godPack, %A_ScriptDir%\..\Settings.ini, UserSettings, godPack, Continue
 IniRead, Instances, %A_ScriptDir%\..\Settings.ini, UserSettings, Instances, 1
@@ -45,9 +43,6 @@ IniRead, swipeSpeed, %A_ScriptDir%\..\Settings.ini, UserSettings, swipeSpeed, 30
 IniRead, deleteMethod, %A_ScriptDir%\..\Settings.ini, UserSettings, deleteMethod, 3 Pack
 IniRead, runMain, %A_ScriptDir%\..\Settings.ini, UserSettings, runMain, 1
 IniRead, Mains, %A_ScriptDir%\..\Settings.ini, UserSettings, Mains, 1
-IniRead, heartBeat, %A_ScriptDir%\..\Settings.ini, UserSettings, heartBeat, 0
-IniRead, heartBeatWebhookURL, %A_ScriptDir%\..\Settings.ini, UserSettings, heartBeatWebhookURL, ""
-IniRead, heartBeatName, %A_ScriptDir%\..\Settings.ini, UserSettings, heartBeatName, ""
 IniRead, nukeAccount, %A_ScriptDir%\..\Settings.ini, UserSettings, nukeAccount, 0
 IniRead, packMethod, %A_ScriptDir%\..\Settings.ini, UserSettings, packMethod, 0
 IniRead, CheckShiningPackOnly, %A_ScriptDir%\..\Settings.ini, UserSettings, CheckShiningPackOnly, 0
@@ -71,7 +66,6 @@ IniRead, Mewtwo, %A_ScriptDir%\..\Settings.ini, UserSettings, Mewtwo, 0
 IniRead, slowMotion, %A_ScriptDir%\..\Settings.ini, UserSettings, slowMotion, 0
 IniRead, DeadCheck, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck, 0
 IniRead, ocrLanguage, %A_ScriptDir%\..\Settings.ini, UserSettings, ocrLanguage, en
-IniRead, sendAccountXml, %A_ScriptDir%\..\Settings.ini, UserSettings, sendAccountXml, 0
 
 IniRead, minStarsA1Charizard, %A_ScriptDir%\..\Settings.ini, UserSettings, minStarsA1Charizard, 0
 IniRead, minStarsA1Mewtwo, %A_ScriptDir%\..\Settings.ini, UserSettings, minStarsA1Mewtwo, 0
@@ -197,7 +191,6 @@ adbSwipeY := Round((327 - 44) / 489 * 960)
 global adbSwipeParams := adbSwipeX1 . " " . adbSwipeY . " " . adbSwipeX2 . " " . adbSwipeY . " " . swipeSpeed
 
 if(DeadCheck==1) {
-    ;LogToDiscord("Sup dudes. Not sure what happened, but a script died and I'm doing a menu delete and starting over.")
     friended:= true
     menuDeleteStart()
     IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
@@ -271,10 +264,10 @@ if(DeadCheck==1) {
 
         if(wonderPicked) {
 
-            ;    SquallTCGP 2025.03.12 -     Added a check to not add friends if the delete method is 5 Pack (Fast). When using this method (5 Pack (Fast)),
-            ;                                                            it goes to the social menu and clicks the home button to exit (instead of opening all packs directly)
-            ;                                                         just to get around the checking for a level after opening a pack. This change is made based on the
-            ;                                                            5p-no delete community mod created by DietPepperPhD in the discord server.
+            ; SquallTCGP 2025.03.12 - Added a check to not add friends if the delete method is 5 Pack (Fast). When using this method (5 Pack (Fast)),
+            ;                         it goes to the social menu and clicks the home button to exit (instead of opening all packs directly)
+            ;                         just to get around the checking for a level after opening a pack. This change is made based on the
+            ;                         5p-no delete community mod created by DietPepperPhD in the discord server.
 
             if(deleteMethod != "5 Pack (Fast)") {
                 friendsAdded := AddFriends(true)
@@ -1069,7 +1062,7 @@ restartGameInstance(reason, RL := true){
             IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
             logMessage := "\n" . username . "\n[" . starCount . "/5][" . packs . "P][" . openPack . " Booster] " . invalid . " God pack found in instance: " . scriptName . "\nFile name: " . accountFile . "\nGot stuck getting friend code."
             LogToFile(logMessage, "GPlog.txt")
-            LogToDiscord(logMessage, screenShot, discordUserId, accountFullPath, fcScreenshot)
+            LogToDiscord(logMessage, screenShot, true, accountFullPath, fcScreenshot)
         }
         LogToFile("Restarted game for instance " scriptName " Reason: " reason, "Restart.txt")
 
@@ -1109,7 +1102,8 @@ menuDelete() {
         Loop {
             clickButton := FindOrLoseImage(75, 340, 195, 530, 40, "Button2", 0, failSafeTime)
             if(!clickButton) {
-                clickImage := FindOrLoseImage(200, 340, 250, 530, 60, "DeleteAll", 0, failSafeTime) ; fix https://discord.com/channels/1330305075393986703/1354775917288882267/1355090394307887135
+                ; fix https://discord.com/channels/1330305075393986703/1354775917288882267/1355090394307887135
+                clickImage := FindOrLoseImage(200, 340, 250, 530, 60, "DeleteAll", 0, failSafeTime)
                 if(clickImage) {
                     StringSplit, pos, clickImage, `,  ; Split at ", "
                     if (scaleParam = 287) {
@@ -1380,7 +1374,7 @@ FoundStars(star) {
     logMessage := star . " found by " . username . " (" . friendCode . ") in instance: " . scriptName . " (" . packs . " packs, " . openPack . " booster)\nFile name: " . accountFile . "\nBacking up to the Accounts\\SpecificCards folder and continuing..."
     CreateStatusMessage(logMessage)
     LogToFile(logMessage, "GPlog.txt")
-    LogToDiscord(logMessage, screenShot, discordUserId, accountFullPath, fcScreenshot)
+    LogToDiscord(logMessage, screenShot, true, accountFullPath, fcScreenshot)
     if(star != "Crown" && star != "Immersive" && star != "Shiny")
         ChooseTag()
 }
@@ -1434,7 +1428,7 @@ FindBorders(prefix) {
 }
 
 FindGodPack() {
-    global winTitle, discordUserId, Delay, username, packs, minStars, minStarsA1Charizard, minStarsA1Mewtwo, minStarsA1Pikachu, minStarsA1a, minStarsA2Dialga, minStarsA2Palkia, minStarsA2a, minStarsA2b, openPack, scriptName, DeadCheck, deleteMethod
+    global winTitle, Delay, username, packs, minStars, minStarsA1Charizard, minStarsA1Mewtwo, minStarsA1Pikachu, minStarsA1a, minStarsA2Dialga, minStarsA2Palkia, minStarsA2a, minStarsA2b, openPack, scriptName, DeadCheck, deleteMethod
     packMinStars := minStars
     if(openPack = "Shining") {
         packMinStars := minStarsA2b
@@ -1591,7 +1585,7 @@ GodPackFound(validity) {
 
     ; Adjust the below to only send a 'ping' to Discord friends on Valid packs
     if(validity = "Valid") {
-        LogToDiscord(logMessage, screenShot, discordUserId, accountFullPath, fcScreenshot)
+        LogToDiscord(logMessage, screenShot, true, accountFullPath, fcScreenshot)
         ChooseTag()
     } else {
         LogToDiscord(logMessage, screenShot, false, accountFullPath, fcScreenshot)
@@ -1719,7 +1713,7 @@ saveAccount(file := "Valid", ByRef filePath := "") {
 
         if(count > 10 && file != "All") {
             CreateStatusMessage("Attempted to save the account XML`n10 times, but was unsuccesful.`nPausing...")
-            LogToDiscord("Attempted to save account in " . scriptName . " but was unsuccessful. Pausing. You will need to manually extract.", Screenshot(), discordUserId)
+            LogToDiscord("Attempted to save account in " . scriptName . " but was unsuccessful. Pausing. You will need to manually extract.", Screenshot(), true)
             Pause, On
         } else if(count > 10) {
             LogToDiscord("Couldnt save this regular account skipping it.")
@@ -1796,75 +1790,6 @@ Screenshot(filename := "Valid") {
     return screenshotFile
 }
 
-LogToDiscord(message, screenshotFile := "", ping := false, xmlFile := "", screenshotFile2 := "") {
-    global discordUserId, discordWebhookURL, friendCode, sendAccountXml
-    discordPing := "<@" . discordUserId . "> "
-    discordFriends := ReadFile("discord")
-
-    if(ping != false && discordFriends) {
-        for index, value in discordFriends {
-            if(value = discordUserId)
-                continue
-            discordPing .= "<@" . value . "> "
-        }
-    }
-
-    if (discordWebhookURL != "") {
-        if (!sendAccountXml)
-            xmlFile := ""
-        MaxRetries := 10
-        RetryCount := 0
-        Loop {
-            try {
-                ; Base command
-                curlCommand := "curl -k "
-                    . "-F ""payload_json={\""content\"":\""" . discordPing . message . "\""};type=application/json;charset=UTF-8"" "
-
-                ; If an screenshot or xml file is provided, send it
-                sendScreenshot1 := screenshotFile != "" && FileExist(screenshotFile)
-                sendScreenshot2 := screenshotFile2 != "" && FileExist(screenshotFile2)
-                sendAccountXml := xmlFile != "" && FileExist(xmlFile)
-                if (sendScreenshot1 + sendScreenshot2 + sendAccountXml > 1) {
-                    fileIndex := 0
-                    if (sendScreenshot1) {
-                        fileIndex++
-                        curlCommand := curlCommand . "-F ""file" . fileIndex . "=@" . screenshotFile . """ "
-                    }
-                    if (sendScreenshot2) {
-                        fileIndex++
-                        curlCommand := curlCommand . "-F ""file" . fileIndex . "=@" . screenshotFile2 . """ "
-                    }
-                    if (sendAccountXml) {
-                        fileIndex++
-                        curlCommand := curlCommand . "-F ""file" . fileIndex . "=@" . xmlFile . """ "
-                    }
-                }
-                else if (sendScreenshot1 + sendScreenshot2 + sendAccountXml == 1) {
-                    if (sendScreenshot1)
-                        curlCommand := curlCommand . "-F ""file=@" . screenshotFile . """ "
-                    if (sendScreenshot2)
-                        curlCommand := curlCommand . "-F ""file=@" . screenshotFile2 . """ "
-                    if (sendAccountXml)
-                        curlCommand := curlCommand . "-F ""file=@" . xmlFile . """ "
-                }
-                ; Add the webhook
-                curlCommand := curlCommand . discordWebhookURL
-                ; Send the message using curl
-                RunWait, %curlCommand%,, Hide
-                break
-            }
-            catch {
-                RetryCount++
-                if (RetryCount >= MaxRetries) {
-                    CreateStatusMessage("Failed to send discord message.")
-                    break
-                }
-                Sleep, 250
-            }
-            sleep, 250
-        }
-    }
-}
 ; Pause Script
 PauseScript:
     CreateStatusMessage("Pausing...")
