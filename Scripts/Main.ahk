@@ -21,7 +21,7 @@ CoordMode, Pixel, Screen
 DllCall("AllocConsole")
 WinHide % "ahk_id " DllCall("GetConsoleWindow", "ptr")
 
-global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, scriptName, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, discordUserId, discordWebhookURL, skipInvalidGP, deleteXML, packs, FriendID, AddFriend, Instances, showStatus
+global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, scriptName, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, skipInvalidGP, deleteXML, packs, FriendID, AddFriend, Instances, showStatus
 global triggerTestNeeded, testStartTime, firstRun, minStars, minStarsA2b, vipIdsURL
 
 deleteAccount := false
@@ -43,8 +43,6 @@ IniRead, SelectedMonitorIndex, %A_ScriptDir%\..\Settings.ini, UserSettings, Sele
 IniRead, swipeSpeed, %A_ScriptDir%\..\Settings.ini, UserSettings, swipeSpeed, 350
 IniRead, skipInvalidGP, %A_ScriptDir%\..\Settings.ini, UserSettings, skipInvalidGP, No
 IniRead, godPack, %A_ScriptDir%\..\Settings.ini, UserSettings, godPack, Continue
-IniRead, discordWebhookURL, %A_ScriptDir%\..\Settings.ini, UserSettings, discordWebhookURL, ""
-IniRead, discordUserId, %A_ScriptDir%\..\Settings.ini, UserSettings, discordUserId, ""
 IniRead, deleteMethod, %A_ScriptDir%\..\Settings.ini, UserSettings, deleteMethod, Hoard
 IniRead, sendXML, %A_ScriptDir%\..\Settings.ini, UserSettings, sendXML, 0
 IniRead, heartBeat, %A_ScriptDir%\..\Settings.ini, UserSettings, heartBeat, 1
@@ -453,7 +451,6 @@ restartGameInstance(reason, RL := true){
     Sleep, 3000
     if(RL) {
         LogToFile("Restarted game for instance " scriptName " Reason: " reason, "Restart.txt")
-        LogToDiscord("Restarted game for instance " scriptName " Reason: " reason, , discordUserId)
         Reload
     }
 }
@@ -553,55 +550,6 @@ Screenshot(filename := "Valid") {
     return screenshotFile
 }
 
-LogToDiscord(message, screenshotFile := "", ping := false, xmlFile := "") {
-    global discordUserId, discordWebhookURL, sendXML
-    if (discordWebhookURL != "") {
-        MaxRetries := 10
-        RetryCount := 0
-        Loop {
-            try {
-                ; Prepare the message data
-                if (ping && discordUserId != "") {
-                    data := "{""content"": ""<@" discordUserId "> " message """}"
-                } else {
-                    data := "{""content"": """ message """}"
-                }
-
-                ; Create the HTTP request object
-                whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
-                whr.Open("POST", discordWebhookURL, false)
-                whr.SetRequestHeader("Content-Type", "application/json")
-                whr.Send(data)
-
-                ; If an image file is provided, send it
-                if (screenshotFile != "") {
-                    ; Check if the file exists
-                    if (FileExist(screenshotFile)) {
-                        ; Send the image using curl
-                        RunWait, curl -k -F "file=@%screenshotFile%" %discordWebhookURL%,, Hide
-                    }
-                }
-                if (xmlFile != "" && sendXML > 0) {
-                    ; Check if the file exists
-                    if (FileExist(xmlFile)) {
-                        ; Send the image using curl
-                        RunWait, curl -k -F "file=@%xmlFile%" %discordWebhookURL%,, Hide
-                    }
-                }
-                break
-            }
-            catch {
-                RetryCount++
-                if (RetryCount >= MaxRetries) {
-                    CreateStatusMessage("Failed to send discord message.")
-                    break
-                }
-                Sleep, 250
-            }
-            sleep, 250
-        }
-    }
-}
 ; Pause Script
 PauseScript:
     CreateStatusMessage("Pausing...")
@@ -844,6 +792,22 @@ MonthToDays(year, month) {
 
 IsLeapYear(year) {
     return (Mod(year, 4) = 0 && Mod(year, 100) != 0) || Mod(year, 400) = 0
+}
+
+ReadFile(filename, numbers := false) {
+    FileRead, content, %A_ScriptDir%\..\%filename%.txt
+
+    if (!content)
+        return false
+
+    values := []
+    for _, val in StrSplit(Trim(content), "`n") {
+        cleanVal := RegExReplace(val, "[^a-zA-Z0-9]") ; Remove non-alphanumeric characters
+        if (cleanVal != "")
+            values.Push(cleanVal)
+    }
+
+    return values.MaxIndex() ? values : false
 }
 
 ; ^e::
