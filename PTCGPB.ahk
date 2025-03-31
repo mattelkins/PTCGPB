@@ -618,23 +618,35 @@ Start:
     if(nukeAccount && !injectMethod)
         typeMsg .= " (Menu Delete)"
 
-    selectMsg := "\nSelect: "
+    Selected := []
+    selectMsg := "\nOpening: "
     if(Shining)
-        selectMsg .= "Shining, "
+        Selected.push("Shining")
     if(Arceus)
-        selectMsg .= "Arceus, "
+        Selected.push("Arceus")
     if(Palkia)
-        selectMsg .= "Palkia, "
+        Selected.push("Palkia")
     if(Dialga)
-        selectMsg .= "Dialga, "
+        Selected.push("Dialga")
     if(Mew)
-        selectMsg .= "Mew, "
+        Selected.push("Mew")
     if(Pikachu)
-        selectMsg .= "Pikachu, "
+        Selected.push("Pikachu")
     if(Charizard)
-        selectMsg .= "Charizard, "
+        Selected.push("Charizard")
     if(Mewtwo)
-        selectMsg .= "Mewtwo, "
+        Selected.push("Mewtwo")
+
+    for index, value in Selected {
+        if(index = Selected.MaxIndex())
+            commaSeparate := ""
+        else
+            commaSeparate := ", "
+        if(value)
+            selectMsg .= value . commaSeparate
+        else
+            selectMsg .= value . commaSeparate
+    }
 
     Loop {
         Sleep, 30000
@@ -649,25 +661,18 @@ Start:
         totalSeconds := Round((A_TickCount - rerollTime) / 1000) ; Total time in seconds
         mminutes := Floor(totalSeconds / 60)
 
-        packStatus := "Time: " . mminutes . "m Packs: " . total
-        packStatus .= "   |   Avg: " . Round(total / mminutes, 2) . " packs/min"
+        packStatus := "Time: " . mminutes . "m | Packs: " . total
+        packStatus .= " | Avg: " . Round(total / mminutes, 2) . " packs/min"
 
         ; Display pack status at the bottom of the first reroll instance
         CreateStatusMessage(packStatus, "PackStatus", ((Mains * scaleParam) + 5), 490)
 
         if(heartBeat)
             if((A_Index = 1 || (Mod(A_Index, (heartBeatDelay // 0.5)) = 0))) {
-                onlineAHK := "Online: "
-                offlineAHK := "Offline: "
+                onlineAHK := ""
+                offlineAHK := ""
                 Online := []
-                if(runMain) {
-                    IniRead, value, HeartBeat.ini, HeartBeat, Main
-                    if(value)
-                        onlineAHK := "Online: Main, "
-                    else
-                        offlineAHK := "Offline: Main, "
-                    IniWrite, 0, HeartBeat.ini, HeartBeat, Main
-                }
+
                 Loop %Instances% {
                     IniRead, value, HeartBeat.ini, HeartBeat, Instance%A_Index%
                     if(value)
@@ -676,9 +681,10 @@ Start:
                         Online.Push(0)
                     IniWrite, 0, HeartBeat.ini, HeartBeat, Instance%A_Index%
                 }
+
                 for index, value in Online {
                     if(index = Online.MaxIndex())
-                        commaSeparate := "."
+                        commaSeparate := ""
                     else
                         commaSeparate := ", "
                     if(value)
@@ -686,10 +692,32 @@ Start:
                     else
                         offlineAHK .= A_Index . commaSeparate
                 }
-                if(offlineAHK = "Offline: ")
-                    offlineAHK := "Offline: none."
-                if(onlineAHK = "Online: ")
-                    onlineAHK := "Online: none."
+
+                if(runMain) {
+                    IniRead, value, HeartBeat.ini, HeartBeat, Main
+                    if(value) {
+                        if (onlineAHK)
+                            onlineAHK := "Main, " . onlineAHK
+                        else
+                            onlineAHK := "Main"
+                    }
+                    else {
+                        if (offlineAHK)
+                            offlineAHK := "Main, " . offlineAHK
+                        else
+                            offlineAHK := "Main"
+                    }
+                    IniWrite, 0, HeartBeat.ini, HeartBeat, Main
+                }
+
+                if(offlineAHK = "")
+                    offlineAHK := "Offline: none"
+                else
+                    offlineAHK := "Offline: " . RTrim(offlineAHK, ", ")
+                if(onlineAHK = "")
+                    onlineAHK := "Online: none"
+                else
+                    onlineAHK := "Online: " . RTrim(onlineAHK, ", ")
 
                 discMessage := heartBeatName ? "\n" . heartBeatName : ""
                 discMessage .= "\n" . onlineAHK . "\n" . offlineAHK . "\n" . packStatus . "\nVersion: " . RegExReplace(githubUser, "-.*$") . "-" . localVersion
