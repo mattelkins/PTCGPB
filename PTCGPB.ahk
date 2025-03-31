@@ -1,4 +1,4 @@
-#Include %A_ScriptDir%\Scripts\Include\Logging.ahk
+﻿#Include %A_ScriptDir%\Scripts\Include\Logging.ahk
 #Include %A_ScriptDir%\Scripts\Include\ADB.ahk
 
 version = Arturos PTCGP Bot
