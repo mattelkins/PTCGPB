@@ -105,6 +105,14 @@ IniRead, minStarsA2b, Settings.ini, UserSettings, minStarsA2b, 0
 IniRead, heartBeatDelay, Settings.ini, UserSettings, heartBeatDelay, 30
 IniRead, sendAccountXml, Settings.ini, UserSettings, sendAccountXml, 0
 
+IniRead, s4tEnabled, Settings.ini, UserSettings, s4tEnabled, 0
+IniRead, s4tSilent, Settings.ini, UserSettings, s4tSilent, 0
+IniRead, s4t3Dmnd, Settings.ini, UserSettings, s4t3Dmnd, 0
+IniRead, s4t4Dmnd, Settings.ini, UserSettings, s4t4Dmnd, 0
+IniRead, s4t1Star, Settings.ini, UserSettings, s4t1Star, 0
+IniRead, s4tWP, Settings.ini, UserSettings, s4tWP, 0
+IniRead, s4tWPMinCards, Settings.ini, UserSettings, s4tWPMinCards, 1
+
 ; Create a stylish GUI with custom colors and modern look
 Gui, Color, 1E1E1E, 333333 ; Dark theme background
 Gui, Font, s10 cWhite, Segoe UI ; Modern font
@@ -314,16 +322,22 @@ if (heartBeat) {
     Gui, Add, Edit, vheartBeatDelay w50 x660 y260 h20 Hidden -E0x200 Background2A2A2A cWhite Center, %heartBeatDelay%
 }
 
-; ========== Action Buttons ==========
-Gui, Add, Button, gOpenLink x505 y370 w77 h35, Buy Me a Coffee
-Gui, Add, Button, gCheckForUpdates x587 y370 w77 h35, Check Updates
-Gui, Add, Button, gOpenDiscord x669 y370 w77 h35, Join Discord
-Gui, Add, Button, gStart x505 y300 w240 h30, START BOT
-Gui, Add, Button, gArrangeWindows x628 y335 w117 h30, Arrange Windows
-Gui, Add, Button, gLaunchAllMumu x505 y335 w118 h30, Launch All Mumu
+; ========== Save For Trade Settings Section ==========
+sectionColor := "cFFA500" ; Orange
+Gui, Add, GroupBox, x505 y290 w240 h115 %sectionColor%, Save For Trade Settings
+Gui, Add, Checkbox, % "vs4tEnabled gs4tSettings x520 y315 " . (s4tEnabled ? "Checked " : "") . sectionColor, Enable S4T
+Gui, Add, Checkbox, % "vs4tSilent x+5 " . (!s4tEnabled ? "Hidden " : "") . (s4tSilent ? "Checked " : "") . sectionColor, Silent (No Ping)
 
+Gui, Add, Checkbox, % "vs4t3Dmnd x520 y+2 " . (!s4tEnabled ? "Hidden " : "") . (s4t3Dmnd ? "Checked " : "") . sectionColor, 3 ◆◆◆
+Gui, Add, Checkbox, % "vs4t4Dmnd x+5 " . (!s4tEnabled ? "Hidden " : "") . (s4t4Dmnd ? "Checked " : "") . sectionColor, 4 ◆◆◆◆
+Gui, Add, Checkbox, % "vs4t1Star x+5 " . (!s4tEnabled ? "Hidden " : "") . (s4t1Star ? "Checked " : "") . sectionColor, 1 ★
 
-; ========== Download Settings Section (Bottom right) ==========
+Gui, Add, Checkbox, % "vs4tWP gs4tWPSettings x520 y+2 " . (!s4tEnabled ? "Hidden " : "") . (s4tWP ? "Checked " : "") . sectionColor, Wonder Pick
+
+Gui, Add, Text, % "vs4tWPMinCardsLabel y+2 " . (!s4tEnabled || !s4tWP ? "Hidden " : "") . sectionColor, Min. Cards:
+Gui, Add, Edit, % "vs4tWPMinCards w25 x+7 h20 -E0x200 Background2A2A2A cWhite Center " . (!s4tEnabled || !s4tWP ? "Hidden" : ""), %s4tWPMinCards%
+
+; ========== Download Settings Section ==========
 sectionColor := "cWhite"
 Gui, Add, GroupBox, x255 y405 w490 h110 %sectionColor%, Download Settings ;
 
@@ -336,6 +350,15 @@ Gui, Add, Text, x270 y425 %sectionColor%, ids.txt API:
 Gui, Add, Edit, vmainIdsURL w460 x270 y445 h20 -E0x200 Background2A2A2A cWhite, %mainIdsURL%
 Gui, Add, Text, x270 y465 %sectionColor%, vip_ids.txt (GP Test Mode) API:
 Gui, Add, Edit, vvipIdsURL w460 x270 y485 h20 -E0x200 Background2A2A2A cWhite, %vipIdsURL%
+
+; ========== Action Buttons ==========
+Gui, Add, Button, gOpenLink x5 y522 w117, Buy Me a Coffee
+Gui, Add, Button, gOpenDiscord x+7 w117, Join Discord
+Gui, Add, Button, gArrangeWindows x+7 w118, Arrange Windows
+Gui, Add, Button, gLaunchAllMumu x+7 w118, Launch All Mumu
+Gui, Add, Button, gSaveReload x+7 w117, Reload
+Gui, Add, Button, gCheckForUpdates x+7 w117, Check Updates
+Gui, Add, Button, gStart x5 y+7 w740, START BOT
 
 Gui, Show, , %localVersion% PTCGPB Bot Setup [Non-Commercial 4.0 International License]
 Return
@@ -374,6 +397,43 @@ discordSettings:
         GuiControl, Hide, hbName
         GuiControl, Hide, hbURL
         GuiControl, Hide, hbDelay
+    }
+return
+
+s4tSettings:
+    Gui, Submit, NoHide
+
+    if (s4tEnabled) {
+        GuiControl, Show, s4tSilent
+        GuiControl, Show, s4t3Dmnd
+        GuiControl, Show, s4t4Dmnd
+        GuiControl, Show, s4t1Star
+        GuiControl, Show, s4tWP
+
+        if (s4tWP) {
+            GuiControl, Show, s4tWPMinCardsLabel
+            GuiControl, Show, s4tWPMinCards
+        }
+    } else {
+        GuiControl, Hide, s4tSilent
+        GuiControl, Hide, s4t3Dmnd
+        GuiControl, Hide, s4t4Dmnd
+        GuiControl, Hide, s4t1Star
+        GuiControl, Hide, s4tWP
+        GuiControl, Hide, s4tWPMinCardsLabel
+        GuiControl, Hide, s4tWPMinCards
+    }
+return
+
+s4tWPSettings:
+    Gui, Submit, NoHide
+
+    if (s4tWP) {
+        GuiControl, Show, s4tWPMinCardsLabel
+        GuiControl, Show, s4tWPMinCards
+    } else {
+        GuiControl, Hide, s4tWPMinCardsLabel
+        GuiControl, Hide, s4tWPMinCards
     }
 return
 
@@ -443,6 +503,90 @@ return
 
 OpenDiscord:
     Run, https://discord.gg/C9Nyf7P4sT
+return
+
+SaveReload:
+    Gui, Submit
+
+    IniWrite, %FriendID%, Settings.ini, UserSettings, FriendID
+    IniWrite, %waitTime%, Settings.ini, UserSettings, waitTime
+    IniWrite, %Delay%, Settings.ini, UserSettings, Delay
+    IniWrite, %folderPath%, Settings.ini, UserSettings, folderPath
+    IniWrite, %discordWebhookURL%, Settings.ini, UserSettings, discordWebhookURL
+    IniWrite, %discordUserId%, Settings.ini, UserSettings, discordUserId
+    IniWrite, %Columns%, Settings.ini, UserSettings, Columns
+    IniWrite, %openPack%, Settings.ini, UserSettings, openPack
+    IniWrite, %godPack%, Settings.ini, UserSettings, godPack
+    IniWrite, %Instances%, Settings.ini, UserSettings, Instances
+    IniWrite, %instanceStartDelay%, Settings.ini, UserSettings, instanceStartDelay
+    ;IniWrite, %setSpeed%, Settings.ini, UserSettings, setSpeed
+    IniWrite, %defaultLanguage%, Settings.ini, UserSettings, defaultLanguage
+    IniWrite, %SelectedMonitorIndex%, Settings.ini, UserSettings, SelectedMonitorIndex
+    IniWrite, %swipeSpeed%, Settings.ini, UserSettings, swipeSpeed
+    IniWrite, %deleteMethod%, Settings.ini, UserSettings, deleteMethod
+    IniWrite, %runMain%, Settings.ini, UserSettings, runMain
+    IniWrite, %Mains%, Settings.ini, UserSettings, Mains
+    IniWrite, %heartBeat%, Settings.ini, UserSettings, heartBeat
+    IniWrite, %heartBeatWebhookURL%, Settings.ini, UserSettings, heartBeatWebhookURL
+    IniWrite, %heartBeatName%, Settings.ini, UserSettings, heartBeatName
+    IniWrite, %nukeAccount%, Settings.ini, UserSettings, nukeAccount
+    IniWrite, %packMethod%, Settings.ini, UserSettings, packMethod
+    IniWrite, %CheckShiningPackOnly%, Settings.ini, UserSettings, CheckShiningPackOnly
+    IniWrite, %TrainerCheck%, Settings.ini, UserSettings, TrainerCheck
+    IniWrite, %FullArtCheck%, Settings.ini, UserSettings, FullArtCheck
+    IniWrite, %RainbowCheck%, Settings.ini, UserSettings, RainbowCheck
+    IniWrite, %ShinyCheck%, Settings.ini, UserSettings, ShinyCheck
+    IniWrite, %CrownCheck%, Settings.ini, UserSettings, CrownCheck
+    IniWrite, %InvalidCheck%, Settings.ini, UserSettings, InvalidCheck
+    IniWrite, %ImmersiveCheck%, Settings.ini, UserSettings, ImmersiveCheck
+    IniWrite, %PseudoGodPack%, Settings.ini, UserSettings, PseudoGodPack
+    IniWrite, %minStars%, Settings.ini, UserSettings, minStars
+    IniWrite, %Palkia%, Settings.ini, UserSettings, Palkia
+    IniWrite, %Dialga%, Settings.ini, UserSettings, Dialga
+    IniWrite, %Arceus%, Settings.ini, UserSettings, Arceus
+    IniWrite, %Shining%, Settings.ini, UserSettings, Shining
+    IniWrite, %Mew%, Settings.ini, UserSettings, Mew
+    IniWrite, %Pikachu%, Settings.ini, UserSettings, Pikachu
+    IniWrite, %Charizard%, Settings.ini, UserSettings, Charizard
+    IniWrite, %Mewtwo%, Settings.ini, UserSettings, Mewtwo
+    IniWrite, %slowMotion%, Settings.ini, UserSettings, slowMotion
+
+    IniWrite, %ocrLanguage%, Settings.ini, UserSettings, ocrLanguage
+    IniWrite, %clientLanguage%, Settings.ini, UserSettings, clientLanguage
+    IniWrite, %mainIdsURL%, Settings.ini, UserSettings, mainIdsURL
+    IniWrite, %vipIdsURL%, Settings.ini, UserSettings, vipIdsURL
+    IniWrite, %autoLaunchMonitor%, Settings.ini, UserSettings, autoLaunchMonitor
+    IniWrite, %instanceLaunchDelay%, Settings.ini, UserSettings, instanceLaunchDelay
+
+    minStarsA1Charizard := minStars
+    minStarsA1Mewtwo := minStars
+    minStarsA1Pikachu := minStars
+    minStarsA1a := minStars
+    minStarsA2Dialga := minStars
+    minStarsA2Palkia := minStars
+    minStarsA2a := minStars
+
+    IniWrite, %minStarsA1Charizard%, Settings.ini, UserSettings, minStarsA1Charizard
+    IniWrite, %minStarsA1Mewtwo%, Settings.ini, UserSettings, minStarsA1Mewtwo
+    IniWrite, %minStarsA1Pikachu%, Settings.ini, UserSettings, minStarsA1Pikachu
+    IniWrite, %minStarsA1a%, Settings.ini, UserSettings, minStarsA1a
+    IniWrite, %minStarsA2Dialga%, Settings.ini, UserSettings, minStarsA2Dialga
+    IniWrite, %minStarsA2Palkia%, Settings.ini, UserSettings, minStarsA2Palkia
+    IniWrite, %minStarsA2a%, Settings.ini, UserSettings, minStarsA2a
+    IniWrite, %minStarsA2b%, Settings.ini, UserSettings, minStarsA2b
+
+    IniWrite, %heartBeatDelay%, Settings.ini, UserSettings, heartBeatDelay
+    IniWrite, %sendAccountXml%, Settings.ini, UserSettings, sendAccountXml
+
+    IniWrite, %s4tEnabled%, Settings.ini, UserSettings, s4tEnabled
+    IniWrite, %s4tSilent%, Settings.ini, UserSettings, s4tSilent
+    IniWrite, %s4t3Dmnd%, Settings.ini, UserSettings, s4t3Dmnd
+    IniWrite, %s4t4Dmnd%, Settings.ini, UserSettings, s4t4Dmnd
+    IniWrite, %s4t1Star%, Settings.ini, UserSettings, s4t1Star
+    IniWrite, %s4tWP%, Settings.ini, UserSettings, s4tWP
+    IniWrite, %s4tWPMinCards%, Settings.ini, UserSettings, s4tWPMinCards
+
+    Reload
 return
 
 Start:
@@ -521,6 +665,14 @@ Start:
 
     IniWrite, %heartBeatDelay%, Settings.ini, UserSettings, heartBeatDelay
     IniWrite, %sendAccountXml%, Settings.ini, UserSettings, sendAccountXml
+
+    IniWrite, %s4tEnabled%, Settings.ini, UserSettings, s4tEnabled
+    IniWrite, %s4tSilent%, Settings.ini, UserSettings, s4tSilent
+    IniWrite, %s4t3Dmnd%, Settings.ini, UserSettings, s4t3Dmnd
+    IniWrite, %s4t4Dmnd%, Settings.ini, UserSettings, s4t4Dmnd
+    IniWrite, %s4t1Star%, Settings.ini, UserSettings, s4t1Star
+    IniWrite, %s4tWP%, Settings.ini, UserSettings, s4tWP
+    IniWrite, %s4tWPMinCards%, Settings.ini, UserSettings, s4tWPMinCards
 
     ; Using FriendID field to provide a URL to download ids.txt is deprecated.
     if (inStr(FriendID, "http")) {
