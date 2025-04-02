@@ -18,7 +18,7 @@ CoordMode, Pixel, Screen
 DllCall("AllocConsole")
 WinHide % "ahk_id " DllCall("GetConsoleWindow", "ptr")
 
-global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, scriptName, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, deleteMethod, packs, FriendID, friendIDs, Instances, username, friendCode, stopToggle, friended, runMain, Mains, showStatus, injectMethod, packMethod, loadDir, loadedAccount, nukeAccount, CheckShiningPackOnly, TrainerCheck, FullArtCheck, RainbowCheck, ShinyCheck, dateChange, foundGP, foundTS, friendsAdded, minStars, PseudoGodPack, Palkia, Dialga, Mew, Pikachu, Charizard, Mewtwo, packArray, CrownCheck, ImmersiveCheck, InvalidCheck, slowMotion, screenShot, accountFile, invalid, starCount, gpFound, foundTS, minStarsA1Charizard, minStarsA1Mewtwo, minStarsA1Pikachu, minStarsA1a, minStarsA2Dialga, minStarsA2Palkia, minStarsA2a, minStarsA2b
+global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, scriptName, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, deleteMethod, packs, FriendID, friendIDs, Instances, username, friendCode, stopToggle, friended, runMain, Mains, showStatus, injectMethod, packMethod, loadDir, loadedAccount, nukeAccount, CheckShiningPackOnly, TrainerCheck, FullArtCheck, RainbowCheck, ShinyCheck, dateChange, foundGP, friendsAdded, minStars, PseudoGodPack, Palkia, Dialga, Mew, Pikachu, Charizard, Mewtwo, packArray, CrownCheck, ImmersiveCheck, InvalidCheck, slowMotion, screenShot, accountFile, invalid, starCount, gpFound, minStarsA1Charizard, minStarsA1Mewtwo, minStarsA1Pikachu, minStarsA1a, minStarsA2Dialga, minStarsA2Palkia, minStarsA2a, minStarsA2b
 global DeadCheck
 
 scriptName := StrReplace(A_ScriptName, ".ahk")
@@ -564,7 +564,7 @@ AddFriends(renew := false, getFC := false) {
                     }
                     Sleep, 750
                     failSafeTime := (A_TickCount - failSafe) // 1000
-                    CreateStatusMessage("Waiting for AddFriends2`n(" . failSafeTime . "/ seconds)")
+                    CreateStatusMessage("Waiting for AddFriends2`n(" . failSafeTime . "/45 seconds)")
                 }
                 n := 1 ;how many friends added needed to return number for remove friends
             }
@@ -597,7 +597,7 @@ AddFriends(renew := false, getFC := false) {
                             break
                         }
                         failSafeTime := (A_TickCount - failSafe) // 1000
-                        CreateStatusMessage("Waiting for AddFriends3`n(" . failSafeTime . "/ seconds)")
+                        CreateStatusMessage("Waiting for AddFriends3`n(" . failSafeTime . "/45 seconds)")
                     }
                     failSafe := A_TickCount
                     failSafeTime := 0
@@ -1060,7 +1060,7 @@ restartGameInstance(reason, RL := true){
     } else if(RL) {
         if(menuDeleteStart()) {
             IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
-            logMessage := "\n" . username . "\n[" . starCount . "/5][" . packs . "P][" . openPack . " Booster] " . invalid . " God pack found in instance: " . scriptName . "\nFile name: " . accountFile . "\nGot stuck getting friend code."
+            logMessage := "\n" . username . "\n[" . starCount . "/5][" . packs . "P][" . openPack . "] " . invalid . " God pack found in instance: " . scriptName . "\nFile name: " . accountFile . "\nGot stuck getting friend code."
             LogToFile(logMessage, "GPlog.txt")
             LogToDiscord(logMessage, , true)
         }
@@ -1294,17 +1294,16 @@ FoundStars(star) {
     else {
         ; If we're doing the inject method, try to OCR our Username
         try {
-            if(injectMethod && IsFunc("ocr"))
-            {
-                    ocrText := Func("ocr").Call(fcScreenshot, ocrLanguage)
-                    ocrLines := StrSplit(ocrText, "`n")
-                    len := ocrLines.MaxIndex()
-                    if(len > 1) {
-                        playerName := ocrLines[1]
-                        playerID := RegExReplace(ocrLines[2], "[^0-9]", "")
-                        ; playerID := SubStr(ocrLines[2], 1, 19)
-                        username := playerName
-                    }
+            if (injectMethod && IsFunc("ocr")) {
+                ocrText := Func("ocr").Call(fcScreenshot, ocrLanguage)
+                ocrLines := StrSplit(ocrText, "`n")
+                len := ocrLines.MaxIndex()
+                if(len > 1) {
+                    playerName := ocrLines[1]
+                    playerID := RegExReplace(ocrLines[2], "[^0-9]", "")
+                    ; playerID := SubStr(ocrLines[2], 1, 19)
+                    username := playerName
+                }
             }
         } catch e {
             LogToFile("Failed to OCR the friend code: " . e.message, "BC.txt")
@@ -1313,7 +1312,7 @@ FoundStars(star) {
 
     statusMessage := star . " found by " . username . " (" . friendCode . ")"
     CreateStatusMessage(statusMessage)
-    logMessage := statusMessage . " in instance: " . scriptName . " (" . packs . " packs, " . openPack . " booster)\nFile name: " . accountFile . "\nBacking up to the Accounts\\SpecificCards folder and continuing..."
+    logMessage := statusMessage . " in instance: " . scriptName . " (" . packs . " packs, " . openPack . ")\nFile name: " . accountFile . "\nBacking up to the Accounts\\SpecificCards folder and continuing..."
     LogToDiscord(logMessage, screenShot, true, accountFullPath, fcScreenshot)
     LogToFile(StrReplace(logMessage, "\n", " "), "GPlog.txt")
     if(star != "Crown" && star != "Immersive" && star != "Shiny")
@@ -1500,24 +1499,23 @@ GodPackFound(validity) {
 
     ; If we're doing the inject method, try to OCR our Username
     try {
-        if(injectMethod && IsFunc("ocr"))
-        {
-                ocrText := Func("ocr").Call(fcScreenshot, ocrLanguage)
-                ocrLines := StrSplit(ocrText, "`n")
-                len := ocrLines.MaxIndex()
-                if(len > 1) {
-                    playerName := ocrLines[1]
-                    playerID := RegExReplace(ocrLines[2], "[^0-9]", "")
-                    ; playerID := SubStr(ocrLines[2], 1, 19)
-                    username := playerName
-                }
+        if (injectMethod && IsFunc("ocr")) {
+            ocrText := Func("ocr").Call(fcScreenshot, ocrLanguage)
+            ocrLines := StrSplit(ocrText, "`n")
+            len := ocrLines.MaxIndex()
+            if(len > 1) {
+                playerName := ocrLines[1]
+                playerID := RegExReplace(ocrLines[2], "[^0-9]", "")
+                ; playerID := SubStr(ocrLines[2], 1, 19)
+                username := playerName
+            }
         }
     } catch e {
         LogToFile("Failed to OCR the friend code: " . e.message, "BC.txt")
     }
 
-    CreateStatusMessage(Interjection . " God pack found!")
-    logMessage := Interjection . "\n" . username . " (" . friendCode . ")\n[" . starCount . "/5][" . packs . "P][" . openPack . " Booster] " . invalid . " God pack found in instance: " . scriptName . "\nFile name: " . accountFile . "\nBacking up to the Accounts\\GodPacks folder and continuing..."
+    CreateStatusMessage(Interjection . (invalid ? " " . invalid : "") . " God Pack found!")
+    logMessage := Interjection . "\n" . username . " (" . friendCode . ")\n[" . starCount . "/5][" . packs . "P][" . openPack . "] " . invalid . " God Pack found in instance: " . scriptName . "\nFile name: " . accountFile . "\nBacking up to the Accounts\\GodPacks folder and continuing..."
     LogToFile(StrReplace(logMessage, "\n", " "), "GPlog.txt")
 
     ; Adjust the below to only send a 'ping' to Discord friends on Valid packs
@@ -1614,7 +1612,7 @@ saveAccount(file := "Valid", ByRef filePath := "") {
     if (file = "All") {
         saveDir := A_ScriptDir "\..\Accounts\Saved\" . remainder . "\" . winTitle
         filePath := saveDir . "\" . A_Now . "_" . winTitle . ".xml"
-    } else if(file = "Valid" || file = "Invalid") {
+    } else if (file = "Valid" || file = "Invalid") {
         saveDir := A_ScriptDir "\..\Accounts\GodPacks\"
         xmlFile := A_Now . "_" . winTitle . "_" . file . "_" . packs . "_packs.xml"
         filePath := saveDir . xmlFile
@@ -1778,18 +1776,6 @@ ToggleTestScript()
     }
 }
 
-; Function to create or select the JSON file
-InitializeJsonFile() {
-    global jsonFileName
-    fileName := A_ScriptDir . "\..\json\Packs.json"
-    if !FileExist(fileName) {
-        ; Create a new file with an empty JSON array
-        FileAppend, [], %fileName%  ; Write an empty JSON array
-        jsonFileName := fileName
-        return
-    }
-}
-
 ; Function to append a time and variable pair to the JSON file
 AppendToJsonFile(variableValue) {
     global jsonFileName
@@ -1812,41 +1798,6 @@ AppendToJsonFile(variableValue) {
     ; Write the updated JSON back to the file
     FileDelete, %jsonFileName%
     FileAppend, %jsonContent%, %jsonFileName%
-}
-
-; Function to sum all variable values in the JSON file
-SumVariablesInJsonFile() {
-    global jsonFileName
-    if (jsonFileName = "") {
-        return 0
-    }
-
-    ; Read the file content
-    FileRead, jsonContent, %jsonFileName%
-    if (jsonContent = "") {
-        return 0
-    }
-
-    ; Parse the JSON and calculate the sum
-    sum := 0
-    ; Clean and parse JSON content
-    jsonContent := StrReplace(jsonContent, "[", "") ; Remove starting bracket
-    jsonContent := StrReplace(jsonContent, "]", "") ; Remove ending bracket
-    Loop, Parse, jsonContent, {, }
-    {
-        ; Match each variable value
-        if (RegExMatch(A_LoopField, """variable"":\s*(-?\d+)", match)) {
-            sum += match1
-        }
-    }
-
-    ; Write the total sum to a file called "total.json"
-    totalFile := A_ScriptDir . "\json\total.json"
-    totalContent := "{""total_sum"": " sum "}"
-    FileDelete, %totalFile%
-    FileAppend, %totalContent%, %totalFile%
-
-    return sum
 }
 
 from_window(ByRef image) {
@@ -2024,7 +1975,7 @@ DoTutorial() {
         adbClick(142, 159)
         Delay(1)
         failSafeTime := (A_TickCount - failSafe) // 1000
-        CreateStatusMessage("Waiting for Year`n(" . failSafeTime . "/ seconds)")
+        CreateStatusMessage("Waiting for Year`n(" . failSafeTime . "/45 seconds)")
         LogToFile("Waiting for Year (" . failSafeTime . "/45 seconds)")
     } ;select month and year and click
 
@@ -2084,7 +2035,7 @@ DoTutorial() {
         Delay(1)
         adbClick(261, 374)
         failSafeTime := (A_TickCount - failSafe) // 1000
-        CreateStatusMessage("Waiting for Save`n(" . failSafeTime . "/ seconds)")
+        CreateStatusMessage("Waiting for Save`n(" . failSafeTime . "/45 seconds)")
         LogToFile("Waiting for Save (" . failSafeTime . "/45 seconds)")
     }
 
@@ -2172,8 +2123,8 @@ DoTutorial() {
         Delay(1)
         EraseInput() ; incase the random pokemon is not accepted
         failSafeTime := (A_TickCount - failSafe) // 1000
-        CreateStatusMessage("Waiting for Trace`n(" . failSafeTime . "/ seconds)")
-        CreateStatusMessage("Waiting for Trace`n(" . failSafeTime . "/ seconds)")
+        CreateStatusMessage("Waiting for Trace`n(" . failSafeTime . "/45 seconds)")
+        CreateStatusMessage("Waiting for Trace`n(" . failSafeTime . "/45 seconds)")
         if(failSafeTime > 45)
             restartGameInstance("Stuck at name")
     }
@@ -2204,7 +2155,7 @@ DoTutorial() {
                 break
         }
         failSafeTime := (A_TickCount - failSafe) // 1000
-        CreateStatusMessage("Waiting for Pack`n(" . failSafeTime . "/ seconds)")
+        CreateStatusMessage("Waiting for Pack`n(" . failSafeTime . "/45 seconds)")
     }
 
     FindImageAndClick(34, 99, 74, 131, , "Swipe", 140, 375) ;click through cards until needing to swipe up
@@ -2299,7 +2250,7 @@ DoTutorial() {
                 break
             }
         failSafeTime := (A_TickCount - failSafe) // 1000
-        CreateStatusMessage("Waiting for Pack`n(" . failSafeTime . "/ seconds)")
+        CreateStatusMessage("Waiting for Pack`n(" . failSafeTime . "/45 seconds)")
         Delay(1)
     }
 
@@ -2375,7 +2326,7 @@ DoTutorial() {
         ; Delay(1)
         ; adbClick(187, 345)
         failSafeTime := (A_TickCount - failSafe) // 1000
-        CreateStatusMessage("Waiting for End`n(" . failSafeTime . "/ seconds)")
+        CreateStatusMessage("Waiting for End`n(" . failSafeTime . "/45 seconds)")
         LogToFile("Waiting for End (" . failSafeTime . "/45 seconds)")
     }
 
@@ -2431,7 +2382,7 @@ SelectPack(HG := false) {
             adbClick(146, 439)
             Delay(1)
             failSafeTime := (A_TickCount - failSafe) // 1000
-            CreateStatusMessage("Waiting for HourglassPack3`n(" . failSafeTime . "/ seconds)")
+            CreateStatusMessage("Waiting for HourglassPack3`n(" . failSafeTime . "/45 seconds)")
         }
         failSafe := A_TickCount
         failSafeTime := 0
@@ -2442,7 +2393,7 @@ SelectPack(HG := false) {
             adbClick(205, 458)
             Delay(1)
             failSafeTime := (A_TickCount - failSafe) // 1000
-            CreateStatusMessage("Waiting for HourglassPack4`n(" . failSafeTime . "/ seconds)")
+            CreateStatusMessage("Waiting for HourglassPack4`n(" . failSafeTime . "/45 seconds)")
         }
     }
     ;if(HG != "Tutorial")
@@ -2454,7 +2405,7 @@ SelectPack(HG := false) {
             Delay(1)
             adbClick(200, 451)
             failSafeTime := (A_TickCount - failSafe) // 1000
-            CreateStatusMessage("Waiting for Skip2`n(" . failSafeTime . "/ seconds)")
+            CreateStatusMessage("Waiting for Skip2`n(" . failSafeTime . "/45 seconds)")
         }
 }
 
@@ -2469,7 +2420,7 @@ PackOpening() {
         else
             adbClick(239, 497)
         failSafeTime := (A_TickCount - failSafe) // 1000
-        CreateStatusMessage("Waiting for Pack`n(" . failSafeTime . "/ seconds)")
+        CreateStatusMessage("Waiting for Pack`n(" . failSafeTime . "/45 seconds)")
         if(failSafeTime > 45)
             restartGameInstance("Stuck at Pack")
     }
@@ -2495,7 +2446,7 @@ PackOpening() {
             break
         }
         failSafeTime := (A_TickCount - failSafe) // 1000
-        CreateStatusMessage("Waiting for Trace`n(" . failSafeTime . "/ seconds)")
+        CreateStatusMessage("Waiting for Trace`n(" . failSafeTime . "/45 seconds)")
         Delay(1)
     }
 
@@ -2521,7 +2472,7 @@ PackOpening() {
             break
         }
         failSafeTime := (A_TickCount - failSafe) // 1000
-        CreateStatusMessage("Waiting for Home`n(" . failSafeTime . "/ seconds)")
+        CreateStatusMessage("Waiting for Home`n(" . failSafeTime . "/45 seconds)")
         LogToFile("Waiting for Home (" . failSafeTime . "/45 seconds)")
         if(failSafeTime > 45)
             restartGameInstance("Stuck at Home")
@@ -2561,7 +2512,7 @@ HourglassOpening(HG := false) {
             adbClick(146, 439)
             Delay(1)
             failSafeTime := (A_TickCount - failSafe) // 1000
-            CreateStatusMessage("Waiting for HourglassPack`n(" . failSafeTime . "/ seconds)")
+            CreateStatusMessage("Waiting for HourglassPack`n(" . failSafeTime . "/45 seconds)")
         }
         failSafe := A_TickCount
         failSafeTime := 0
@@ -2572,7 +2523,7 @@ HourglassOpening(HG := false) {
             adbClick(205, 458)
             Delay(1)
             failSafeTime := (A_TickCount - failSafe) // 1000
-            CreateStatusMessage("Waiting for HourglassPack2`n(" . failSafeTime . "/ seconds)")
+            CreateStatusMessage("Waiting for HourglassPack2`n(" . failSafeTime . "/45 seconds)")
         }
     }
     Loop {
@@ -2591,7 +2542,7 @@ HourglassOpening(HG := false) {
             adbClick(pos1, pos2)
         }
         failSafeTime := (A_TickCount - failSafe) // 1000
-        CreateStatusMessage("Waiting for Pack`n(" . failSafeTime . "/ seconds)")
+        CreateStatusMessage("Waiting for Pack`n(" . failSafeTime . "/45 seconds)")
         if(failSafeTime > 45)
             restartGameInstance("Stuck at Pack")
     }
@@ -2617,7 +2568,7 @@ HourglassOpening(HG := false) {
             break
         }
         failSafeTime := (A_TickCount - failSafe) // 1000
-        CreateStatusMessage("Waiting for Trace`n(" . failSafeTime . "/ seconds)")
+        CreateStatusMessage("Waiting for Trace`n(" . failSafeTime . "/45 seconds)")
         Delay(1)
     }
 
@@ -2641,7 +2592,7 @@ HourglassOpening(HG := false) {
             break
         }
         failSafeTime := (A_TickCount - failSafe) // 1000
-        CreateStatusMessage("Waiting for ConfirmPack`n(" . failSafeTime . "/ seconds)")
+        CreateStatusMessage("Waiting for ConfirmPack`n(" . failSafeTime . "/45 seconds)")
         LogToFile("Waiting for ConfirmPack (" . failSafeTime . "/45 seconds)")
         if(failSafeTime > 45)
             restartGameInstance("Stuck at ConfirmPack")
@@ -2670,7 +2621,7 @@ getFriendCode() {
             break
         }
         failSafeTime := (A_TickCount - failSafe) // 1000
-        CreateStatusMessage("Waiting for Home`n(" . failSafeTime . "/ seconds)")
+        CreateStatusMessage("Waiting for Home`n(" . failSafeTime . "/45 seconds)")
         LogToFile("Waiting for Home (" . failSafeTime . "/45 seconds)")
         if(failSafeTime > 45)
             restartGameInstance("Stuck at Home")
@@ -2736,7 +2687,7 @@ DoWonderPick() {
         }
         Delay(1)
         failSafeTime := (A_TickCount - failSafe) // 1000
-        CreateStatusMessage("Waiting for WonderPick`n(" . failSafeTime . "/ seconds)")
+        CreateStatusMessage("Waiting for WonderPick`n(" . failSafeTime . "/45 seconds)")
         LogToFile("Waiting for WonderPick (" . failSafeTime . "/45 seconds)")
     }
     Sleep, 300
@@ -2751,7 +2702,7 @@ DoWonderPick() {
         }
         Delay(1)
         failSafeTime := (A_TickCount - failSafe) // 1000
-        CreateStatusMessage("Waiting for Card`n(" . failSafeTime . "/ seconds)")
+        CreateStatusMessage("Waiting for Card`n(" . failSafeTime . "/45 seconds)")
         LogToFile("Waiting for Card (" . failSafeTime . "/45 seconds)")
     }
     failSafe := A_TickCount
@@ -2762,7 +2713,7 @@ DoWonderPick() {
             break
         delay(1)
         failSafeTime := (A_TickCount - failSafe) // 1000
-        CreateStatusMessage("Waiting for Shop`n(" . failSafeTime . "/ seconds)")
+        CreateStatusMessage("Waiting for Shop`n(" . failSafeTime . "/45 seconds)")
         LogToFile("Waiting for Shop (" . failSafeTime . "/45 seconds)")
     }
     failSafe := A_TickCount
@@ -2776,7 +2727,7 @@ DoWonderPick() {
         else
             adbInputEvent("111") ;send ESC
         failSafeTime := (A_TickCount - failSafe) // 1000
-        CreateStatusMessage("Waiting for Shop`n(" . failSafeTime . "/ seconds)")
+        CreateStatusMessage("Waiting for Shop`n(" . failSafeTime . "/45 seconds)")
         LogToFile("Waiting for Shop (" . failSafeTime . "/45 seconds)")
     }
     FindImageAndClick(2, 85, 34, 120, , "Missions", 261, 478, 500)
@@ -2797,7 +2748,7 @@ DoWonderPick() {
         else
             break
         failSafeTime := (A_TickCount - failSafe) // 1000
-        CreateStatusMessage("Waiting for WonderPick`n(" . failSafeTime . "/ seconds)")
+        CreateStatusMessage("Waiting for WonderPick`n(" . failSafeTime . "/45 seconds)")
         LogToFile("Waiting for WonderPick (" . failSafeTime . "/45 seconds)")
     }
     return true
