@@ -1736,7 +1736,7 @@ loadAccount() {
     return loadDir
 }
 
-saveAccount(file := "Valid", ByRef filePath := "") {
+saveAccount(file := "Valid", ByRef filePath := "", packDetails := "") {
     currentDate := A_Now
     year := SubStr(currentDate, 1, 4)
     month := SubStr(currentDate, 5, 2)
@@ -1756,6 +1756,10 @@ saveAccount(file := "Valid", ByRef filePath := "") {
     } else if (file = "Valid" || file = "Invalid") {
         saveDir := A_ScriptDir "\..\Accounts\GodPacks\"
         xmlFile := A_Now . "_" . winTitle . "_" . file . "_" . packs . "_packs.xml"
+        filePath := saveDir . xmlFile
+    } else if (file = "Tradeable") {
+        saveDir := A_ScriptDir "\..\Accounts\Trades\"
+        xmlFile := A_Now . "_" . winTitle . "_" . file . (packDetails ? "_" . packDetails : "") . "_" . packs . "_packs.xml"
         filePath := saveDir . xmlFile
     } else {
         saveDir := A_ScriptDir "\..\Accounts\SpecificCards\"
