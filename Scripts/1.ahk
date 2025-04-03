@@ -1230,68 +1230,245 @@ menuDeleteStart() {
 }
 
 CheckPack() {
-    global scriptName, DeadCheck, CheckShiningPackOnly, InvalidCheck
-    foundGP := false ;check card border to find godpacks
+    ; Wait for cards to render before checking.
+    Loop {
+        if (FindBorders("lag") = 0)
+            break
+        Delay(1)
+    }
+
+    ; Update pack count.
+
+    ; SquallTCGP 2025.03.12 - Just checking the packs count and setting them to 0 if it's number of packs is 3.
+    ;                         This applies to any Delete Method except 5 Pack (Fast). This change is made based
+    ;                         on the 5p-no delete community mod created by DietPepperPhD in the discord server.
+    if (deleteMethod != "5 Pack (Fast)") {
+        if (packs = 3)
+            packs := 0
+    }
+
+    packs += 1
+    if (packMethod)
+        packs := 1
+
+    ; Define a variable to contain whatever is found based on settings.
+    foundLabel := false
+
+    ; Before doing anything else, check if the current pack is valid.
+    foundShiny := FindBorders("shiny2star") + FindBorders("shiny1star")
+    foundCrown := FindBorders("crown")
+    foundImmersive := FindBorders("immersive")
+    foundInvalid := foundShiny + foundCrown + foundImmersive
+
+    if (foundInvalid) {
+        ; Pack is invalid...
+        if (!InvalidCheck) {
+            ; Check if the current pack could have been a god pack.
+            foundInvalidGP := FindGodPack(true)
+        } else {
+            ; If required, check what cards the current pack contains which make it invalid.
+            if (ShinyCheck && foundShiny && !foundLabel)
+                foundLabel := "Shiny"
+            if (ImmersiveCheck && foundImmersive && !foundLabel)
+                foundLabel := "Immersive"
+            if (CrownCheck && foundCrown && !foundLabel)
+                foundLabel := "Crown"
+
+            ; Report invalid cards found.
+            if (foundLabel) {
+                FoundStars(foundLabel)
+                restartGameInstance(foundLabel . " found. Continuing...", "GodPack")
+            }
+
+            ; Removing friends is the default action for an invalid pack.
+            IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
+        }
+
+        return
+    }
+
+    ; Check for god pack.
+    foundGP := FindGodPack()
+
+    if (foundGP) {
+        if (loadedAccount) {
+            FileDelete, %loadedAccount%
+            IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
+        }
+
+        restartGameInstance("God Pack found. Continuing...", "GodPack")
+        return
+    }
+
+    ; Check for 2-star cards.
     foundTrainer := false
     foundRainbow := false
     foundFullArt := false
-    foundShiny := false
-    foundCrown := false
-    foundImmersive := false
-    foundTS := false
-    foundGP := FindGodPack()
-    ;msgbox 1 foundGP:%foundGP%, TC:%TrainerCheck%, RC:%RainbowCheck%, FAC:%FullArtCheck%, FTS:%foundTS%
-    if(!CheckShiningPackOnly || openPack = "Shining") {
-        if(TrainerCheck && !foundTS) {
-            foundTrainer := FindBorders("trainer")
-            if(foundTrainer)
-                foundTS := "Trainer"
-        }
-        if(RainbowCheck && !foundTS) {
-            foundRainbow := FindBorders("rainbow")
-            if(foundRainbow)
-                foundTS := "Rainbow"
-        }
-        if(FullArtCheck && !foundTS) {
-            foundFullArt := FindBorders("fullart")
-            if(foundFullArt)
-                foundTS := "Full Art"
-        }
-        if((ShinyCheck && !foundTS) || InvalidCheck) {
-            foundShiny := FindBorders("shiny2star") + FindBorders("shiny1star")
-            if(foundShiny)
-                foundTS := "Shiny"
-        }
-        if((ImmersiveCheck && !foundTS) || InvalidCheck) {
-            foundImmersive := FindBorders("immersive")
-            if(foundImmersive)
-                foundTS := "Immersive"
-        }
-        If((CrownCheck && !foundTS) || InvalidCheck) {
-            foundCrown := FindBorders("crown")
-            if(foundCrown)
-                foundTS := "Crown"
-        }
-        If(PseudoGodPack && !foundTS) {
-            2starCount := FindBorders("trainer") + FindBorders("rainbow") + FindBorders("fullart")
-            if(2starCount > 1)
-                foundTS := "Double two star"
-        }
+    2starCount := false
+
+    if (TrainerCheck && !foundLabel) {
+        foundTrainer := FindBorders("trainer")
+        if (foundTrainer)
+            foundLabel := "Trainer"
     }
-    if(foundGP || foundTrainer || foundRainbow || foundFullArt || foundShiny || foundImmersive || foundCrown || 2starCount > 1) {
-        if(!(InvalidCheck && (foundShiny || foundImmersive || foundCrown)) || foundGP) {
-            if(loadedAccount) {
-                FileDelete, %loadedAccount% ;delete xml file from folder if using inject method
-                IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
+    if (RainbowCheck && !foundLabel) {
+        foundRainbow := FindBorders("rainbow")
+        if (foundRainbow)
+            foundLabel := "Rainbow"
+    }
+    if (FullArtCheck && !foundLabel) {
+        foundFullArt := FindBorders("fullart")
+        if (foundFullArt)
+            foundLabel := "Full Art"
+    }
+    if (PseudoGodPack && !foundLabel) {
+        2starCount := FindBorders("trainer") + FindBorders("rainbow") + FindBorders("fullart")
+        if (2starCount > 1)
+            foundLabel := "Double two star"
+    }
+
+    if (foundLabel) {
+        if (loadedAccount) {
+            FileDelete, %loadedAccount% ;delete xml file from folder if using inject method
+            IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
+        }
+
+        FoundStars(foundLabel)
+        restartGameInstance(foundLabel . " found. Continuing...", "GodPack")
+    }
+
+    ; Check for tradeable cards.
+    if (s4tEnabled) {
+        found3Dmnd := 0
+        found4Dmnd := 0
+        found1Star := 0
+
+        if (s4t3Dmnd) {
+            found3Dmnd += FindBorders("3diamond")
+        }
+        if (s4t1Star) {
+            found1Star += FindBorders("1star")
+        }
+
+        if (s4t4Dmnd) {
+            ; Detecting a 4-diamond EX card isn't possible using a needle.
+            ; Start with 5 and substract other card types as efficiently as possible.
+            found4Dmnd := 5 - FindBorders("normal")
+
+            if (found4Dmnd > 0) {
+                if (s4t3Dmnd)
+                    found4Dmnd -= found3Dmnd
+                else
+                    found4Dmnd -= FindBorders("3diamond")
             }
-            if(foundGP)
-                restartGameInstance("God Pack found. Continuing...", "GodPack") ; restarts to backup and delete xml file with account info.
-            else {
-                FoundStars(foundTS)
-                restartGameInstance(foundTS . " found. Continuing...", "GodPack") ; restarts to backup and delete xml file with account info.
+            if (found4Dmnd > 0) {
+                if (s4t1Star)
+                    found4Dmnd -= found1Star
+                else
+                    found4Dmnd -= FindBorders("1star")
+            }
+
+            if (found4Dmnd > 0 && PseudoGodPack) {
+                found4Dmnd -= 2starCount
+            } else {
+                if (found4Dmnd > 0) {
+                    if (TrainerCheck)
+                        found4Dmnd -= foundTrainer
+                    else
+                        found4Dmnd -= FindBorders("trainer")
+                }
+                if (found4Dmnd > 0) {
+                    if (RainbowCheck)
+                        found4Dmnd -= foundRainbow
+                    else
+                        found4Dmnd -= FindBorders("rainbow")
+                }
+                if (found4Dmnd > 0) {
+                    if (FullArtCheck)
+                        found4Dmnd -= foundFullArt
+                    else
+                        found4Dmnd -= FindBorders("fullart")
+                }
             }
         }
+
+        foundTradeable := found3Dmnd + found4Dmnd + found1Star
+        if (foundTradeable > 0)
+            FoundTradeable(found3Dmnd, found4Dmnd, found1Star)
     }
+}
+
+FoundTradeable(found3Dmnd := 0, found4Dmnd := 0, found1Star := 0) {
+    IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
+
+    foundTradeable := found3Dmnd + found4Dmnd + found1Star
+
+    packDetails := ""
+    if (found3Dmnd > 0)
+        packDetails .= "3DmndX" . found3Dmnd . "_"
+    if (found4Dmnd > 0)
+        packDetails .= "4DmndX" . found4Dmnd . "_"
+    if (found1Star > 0)
+        packDetails .= "1StarX" . found1Star . "_"
+    packDetails := RTrim(packDetails, "_")
+
+    accountFile := saveAccount("Tradeable", accountFullPath, packDetails)
+    screenShot := Screenshot("Tradeable", screenShotFileName)
+
+    statusMessage := "Tradeable cards found"
+    if (username)
+        statusMessage .= " by " . username
+
+    if (s4tSilent) {
+        CreateStatusMessage(statusMessage)
+        LogToFile(statusMessage . " in instance: " . scriptName . " (" . packs . " packs, " . openPack . ") File name: " . accountFile . " Screenshot file: " . screenShotFileName . " Backing up to the Accounts\\Trades folder and continuing...", "S4T.txt")
+        return
+    }
+
+    if (!s4tWP || (s4tWP && foundTradeable < s4tWPMinCards)) {
+        discordMessage := statusMessage . " in instance: " . scriptName . " (" . packs . " packs, " . openPack . ")\nFile name: " . accountFile . "\nBacking up to the Accounts\\Trades folder and continuing..."
+        logMessage := statusMessage . " in instance: " . scriptName . " (" . packs . " packs, " . openPack . ")\nFile name: " . accountFile . "\nScreenshot file: " . screenShotFileName . "\nBacking up to the Accounts\\Trades folder and continuing..."
+
+        LogToDiscord(discordMessage, screenShot, true, accountFullPath)
+        LogToFile(StrReplace(logMessage, "\n", " "), "S4T.txt")
+        return
+    }
+
+    friendCode := getFriendCode()
+
+    Sleep, 8000
+    fcScreenshot := Screenshot("FRIENDCODE")
+
+    ; If we're doing the inject method, try to OCR our Username
+    try {
+        if (injectMethod && IsFunc("ocr")) {
+            ocrText := Func("ocr").Call(fcScreenshot, ocrLanguage)
+            ocrLines := StrSplit(ocrText, "`n")
+            len := ocrLines.MaxIndex()
+            if(len > 1) {
+                playerName := ocrLines[1]
+                playerID := RegExReplace(ocrLines[2], "[^0-9]", "")
+                ; playerID := SubStr(ocrLines[2], 1, 19)
+                username := playerName
+            }
+        }
+    } catch e {
+        LogToFile("Failed to OCR the friend code: " . e.message, "BC.txt")
+    }
+
+    statusMessage := "Tradeable cards found"
+    if (username)
+        statusMessage .= " by " . username
+    if (friendCode)
+        statusMessage .= " (" . friendCode . ")"
+
+    discordMessage := statusMessage . " in instance: " . scriptName . " (" . packs . " packs, " . openPack . ")\nFile name: " . accountFile . "\nBacking up to the Accounts\\Trades folder and continuing..."
+    logMessage := statusMessage . " in instance: " . scriptName . " (" . packs . " packs, " . openPack . ")\nFile name: " . accountFile . "\nScreenshot file: " . screenShotFileName . "\nBacking up to the Accounts\\Trades folder and continuing..."
+
+    LogToDiscord(discordMessage, screenShot, true, accountFullPath, fcScreenshot)
+    LogToFile(StrReplace(logMessage, "\n", " "), "S4T.txt")
+
+    restartGameInstance("Tradeable cards found. Continuing...", "GodPack")
 }
 
 FoundStars(star) {
@@ -1383,109 +1560,57 @@ FindBorders(prefix) {
     return count
 }
 
-FindGodPack() {
-    global winTitle, Delay, username, packs, minStars, minStarsA1Charizard, minStarsA1Mewtwo, minStarsA1Pikachu, minStarsA1a, minStarsA2Dialga, minStarsA2Palkia, minStarsA2a, minStarsA2b, openPack, scriptName, DeadCheck, deleteMethod
+FindGodPack(invalidPack := false) {
+    gpFound := false
+    searchVariation := 5
+
+    ; Check for normal borders.
+    normalBorders := FindBorders("normal")
+    if (normalBorders) {
+        CreateStatusMessage("Not a God Pack...")
+        return gpFound
+    }
+
+    ; A god pack (although possibly invalid) has been found.
+    gpFound := true
+
+    ; Count stars if required.
     packMinStars := minStars
-    if(openPack = "Shining") {
+    if (openPack = "Shining") {
         packMinStars := minStarsA2b
-    }
-    if (openPack = "Arceus") {
+    } else if (openPack = "Arceus") {
         packMinStars := minStarsA2a
-    }
-    if (openPack = "Palkia") {
+    } else if (openPack = "Palkia") {
         packMinStars := minStarsA2Palkia
-    }
-    if (openPack = "Dialga") {
+    } else if (openPack = "Dialga") {
         packMinStars := minStarsA2Dialga
-    }
-    if (openPack = "Mew") {
+    } else if (openPack = "Mew") {
         packMinStars := minStarsA1a
-    }
-    if (openPack = "Pikachu") {
+    } else if (openPack = "Pikachu") {
         packMinStars := minStarsA1Pikachu
-    }
-    if (openPack = "Charizard") {
+    } else if (openPack = "Charizard") {
         packMinStars := minStarsA1Charizard
-    }
-    if (openPack = "Mewtwo") {
+    } else if (openPack = "Mewtwo") {
         packMinStars := minStarsA1Mewtwo
     }
 
-    gpFound := false
-    invalidGP := false
-    searchVariation := 5
-    confirm := false
-    Loop {
-        if(FindBorders("lag") = 0)
-            break
-        Delay(1)
-    }
-    borderCoords := [[20, 284, 90, 286]
-        ,[103, 284, 173, 286]]
-
-    ; Change borderCoords if scaleParam is 287 for 100%
-    if (scaleParam = 287) {
-        borderCoords := [[21, 278, 91, 280]
-            ,[105, 278, 175, 280]]
-    }
-
-    ;    SquallTCGP 2025.03.12 -     Just checking the packs count and setting them to 0 if it's number of packs is 3.
-    ;                                                            This applies to any Delete Method except 5 Pack (Fast). This change is made based
-    ;                                                            on the 5p-no delete community mod created by DietPepperPhD in the discord server.
-    if(deleteMethod != "5 Pack (Fast)") {
-        if(packs = 3)
-            packs := 0
-    }
-
-    Loop {
-        normalBorders := false
-        pBitmap := from_window(WinExist(winTitle))
-        Path = %A_ScriptDir%\%defaultLanguage%\Border.png
-        pNeedle := GetNeedle(Path)
-        for index, value in borderCoords {
-            coords := borderCoords[A_Index]
-            vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, coords[1], coords[2], coords[3], coords[4], searchVariation)
-            if (vRet = 1) {
-                normalBorders := true
-                break
-            }
-        }
-        Gdip_DisposeImage(pBitmap)
-        if(normalBorders) {
-            CreateStatusMessage("Not a God Pack...")
-            packs += 1
-            break
-        } else {
-            packs += 1
-            if(packMethod)
-                packs := 1
-            foundShiny := FindBorders("shiny2star") + FindBorders("shiny1star")
-            foundImmersive := FindBorders("immersive")
-            foundCrown := FindBorders("crown")
-            if(foundImmersive || foundCrown || foundShiny) {
-                invalidGP := true
-            }
-            if(!invalidGP && packMinStars > 0) {
-                starCount := 5 - FindBorders("1star")
-                if(starCount < packMinStars) {
-                    CreateStatusMessage("Pack doesn't contain enough 2 stars...")
-                    invalidGP := true
-                }
-            }
-            if(invalidGP) {
-                gpFound := true
-                GodPackFound("Invalid")
-                RemoveFriends()
-                IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
-                break
-            }
-            else {
-                gpFound := true
-                GodPackFound("Valid")
-                break
-            }
+    if (!invalidPack && packMinStars > 0) {
+        starCount := 5 - FindBorders("1star")
+        if (starCount < packMinStars) {
+            CreateStatusMessage("Pack doesn't contain enough 2 stars...")
+            invalidPack := true
         }
     }
+
+    if (invalidPack) {
+        GodPackFound("Invalid")
+
+        RemoveFriends()
+        IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
+    } else {
+        GodPackFound("Valid")
+    }
+
     return gpFound
 }
 
