@@ -303,19 +303,11 @@ if(DeadCheck==1) {
         if(injectMethod)
             loadedAccount := loadAccount()
 
-        if(!injectMethod || !loadedAccount) {
-            if(!nukeAccount) {
-                saveAccount("All")
-                restartGameInstance("New Run", false)
-            }
-        }
-
-        CreateStatusMessage("New Run")
         rerolls++
         if(!loadedAccount)
             if(deleteMethod = "5 Pack" || packMethod)
                 packs := 5
-        AppendToJsonFile(packs)
+
         totalSeconds := Round((A_TickCount - rerollTime) / 1000) ; Total time in seconds
         avgtotalSeconds := Round(totalSeconds / rerolls) ; Total time in seconds
         minutes := Floor(avgtotalSeconds / 60) ; Total minutes
@@ -324,8 +316,23 @@ if(DeadCheck==1) {
         sseconds := Mod(totalSeconds, 60) ; Remaining seconds within the minute
         CreateStatusMessage("Avg: " . minutes . "m " . seconds . "s | Runs: " . rerolls, "AvgRuns", 0, 510)
         LogToFile("Packs: " . packs . " | Total time: " . mminutes . "m " . sseconds . "s | Avg: " . minutes . "m " . seconds . "s | Runs: " . rerolls)
-        if(stopToggle)
-            ExitApp
+
+        if ((!injectMethod || !loadedAccount) && !nukeAccount) {
+            saveAccount("All")
+
+            if (stopToggle) {
+                AppendToJsonFile(packs)
+                ExitApp
+            } else {
+                restartGameInstance("New Run", false)
+            }
+        } else {
+            AppendToJsonFile(packs)
+            CreateStatusMessage("New Run")
+
+            if (stopToggle)
+                ExitApp
+        }
     }
 }
 return
@@ -1037,8 +1044,8 @@ killGodPackInstance(){
 }
 
 restartGameInstance(reason, RL := true){
-    global Delay, scriptName, friended, loadedAccount, DeadCheck, openPack
-    ;initializeAdbShell()
+    AppendToJsonFile(packs)
+
     CreateStatusMessage("Restarting game reason:`n" . reason)
 
     if(!RL || RL != "GodPack") {
@@ -1779,7 +1786,7 @@ ToggleTestScript()
 ; Function to append a time and variable pair to the JSON file
 AppendToJsonFile(variableValue) {
     global jsonFileName
-    if (jsonFileName = "") {
+    if (!jsonFileName || !variableValue) {
         return
     }
 
