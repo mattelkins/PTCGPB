@@ -2113,6 +2113,7 @@ DoTutorial() {
         username := name[randomIndex]
         username := SubStr(username, 1, 14)  ;max character limit
         adbInput(username)
+        Delay(1)
         if(FindImageAndClick(121, 490, 161, 520, , "Return", 185, 372, , 10)) ;click through until return button on open pack
             break
         adbClick(90, 370)
