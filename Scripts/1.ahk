@@ -1704,17 +1704,19 @@ ReadFile(filename, numbers := false) {
     return values.MaxIndex() ? values : false
 }
 
-Screenshot(filename := "Valid") {
+Screenshot(fileType := "Valid", ByRef fileName := "") {
     global packs
     SetWorkingDir %A_ScriptDir%  ; Ensures the working directory is the script's directory
 
     ; Define folder and file paths
-    screenshotsDir := A_ScriptDir "\..\Screenshots"
-    if !FileExist(screenshotsDir)
-        FileCreateDir, %screenshotsDir%
+    fileDir := A_ScriptDir "\..\Screenshots"
+    if !FileExist(fileDir)
+        FileCreateDir, fileDir
 
     ; File path for saving the screenshot locally
-    screenshotFile := screenshotsDir "\" . A_Now . "_" . winTitle . "_" . filename . "_" . packs . "_packs.png"
+    fileName := A_Now . "_" . winTitle . "_" . fileType . "_" . packs . "_packs.png"
+    filePath := fileDir "\" . fileName
+
     pBitmapW := from_window(WinExist(winTitle))
     pBitmap := Gdip_CloneBitmapArea(pBitmapW, 18, 175, 240, 227)
     ;scale 100%
@@ -1722,11 +1724,10 @@ Screenshot(filename := "Valid") {
     pBitmap := Gdip_CloneBitmapArea(pBitmapW, 17, 168, 245, 230)
     }
     Gdip_DisposeImage(pBitmapW)
-
-    Gdip_SaveBitmapToFile(pBitmap, screenshotFile)
-
+    Gdip_SaveBitmapToFile(pBitmap, filePath)
     Gdip_DisposeImage(pBitmap)
-    return screenshotFile
+
+    return filePath
 }
 
 ; Pause Script
