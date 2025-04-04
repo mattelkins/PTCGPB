@@ -314,16 +314,7 @@ if (heartBeat) {
     Gui, Add, Edit, vheartBeatDelay w50 x660 y260 h20 Hidden -E0x200 Background2A2A2A cWhite Center, %heartBeatDelay%
 }
 
-; ========== Action Buttons ==========
-Gui, Add, Button, gOpenLink x505 y370 w77 h35, Buy Me a Coffee
-Gui, Add, Button, gCheckForUpdates x587 y370 w77 h35, Check Updates
-Gui, Add, Button, gOpenDiscord x669 y370 w77 h35, Join Discord
-Gui, Add, Button, gStart x505 y300 w240 h30, START BOT
-Gui, Add, Button, gArrangeWindows x628 y335 w117 h30, Arrange Windows
-Gui, Add, Button, gLaunchAllMumu x505 y335 w118 h30, Launch All Mumu
-
-
-; ========== Download Settings Section (Bottom right) ==========
+; ========== Download Settings Section ==========
 sectionColor := "cWhite"
 Gui, Add, GroupBox, x255 y405 w490 h110 %sectionColor%, Download Settings ;
 
@@ -336,6 +327,15 @@ Gui, Add, Text, x270 y425 %sectionColor%, ids.txt API:
 Gui, Add, Edit, vmainIdsURL w460 x270 y445 h20 -E0x200 Background2A2A2A cWhite, %mainIdsURL%
 Gui, Add, Text, x270 y465 %sectionColor%, vip_ids.txt (GP Test Mode) API:
 Gui, Add, Edit, vvipIdsURL w460 x270 y485 h20 -E0x200 Background2A2A2A cWhite, %vipIdsURL%
+
+; ========== Action Buttons ==========
+Gui, Add, Button, gOpenLink x5 y522 w117, Buy Me a Coffee
+Gui, Add, Button, gOpenDiscord x+7 w117, Join Discord
+Gui, Add, Button, gArrangeWindows x+7 w118, Arrange Windows
+Gui, Add, Button, gLaunchAllMumu x+7 w118, Launch All Mumu
+Gui, Add, Button, gSaveReload x+7 w117, Reload
+Gui, Add, Button, gCheckForUpdates x+7 w117, Check Updates
+Gui, Add, Button, gStart x5 y+7 w740, START BOT
 
 Gui, Show, , %localVersion% PTCGPB Bot Setup [Non-Commercial 4.0 International License]
 Return
@@ -443,6 +443,82 @@ return
 
 OpenDiscord:
     Run, https://discord.gg/C9Nyf7P4sT
+return
+
+SaveReload:
+    Gui, Submit
+
+    IniWrite, %FriendID%, Settings.ini, UserSettings, FriendID
+    IniWrite, %waitTime%, Settings.ini, UserSettings, waitTime
+    IniWrite, %Delay%, Settings.ini, UserSettings, Delay
+    IniWrite, %folderPath%, Settings.ini, UserSettings, folderPath
+    IniWrite, %discordWebhookURL%, Settings.ini, UserSettings, discordWebhookURL
+    IniWrite, %discordUserId%, Settings.ini, UserSettings, discordUserId
+    IniWrite, %Columns%, Settings.ini, UserSettings, Columns
+    IniWrite, %openPack%, Settings.ini, UserSettings, openPack
+    IniWrite, %godPack%, Settings.ini, UserSettings, godPack
+    IniWrite, %Instances%, Settings.ini, UserSettings, Instances
+    IniWrite, %instanceStartDelay%, Settings.ini, UserSettings, instanceStartDelay
+    ;IniWrite, %setSpeed%, Settings.ini, UserSettings, setSpeed
+    IniWrite, %defaultLanguage%, Settings.ini, UserSettings, defaultLanguage
+    IniWrite, %SelectedMonitorIndex%, Settings.ini, UserSettings, SelectedMonitorIndex
+    IniWrite, %swipeSpeed%, Settings.ini, UserSettings, swipeSpeed
+    IniWrite, %deleteMethod%, Settings.ini, UserSettings, deleteMethod
+    IniWrite, %runMain%, Settings.ini, UserSettings, runMain
+    IniWrite, %Mains%, Settings.ini, UserSettings, Mains
+    IniWrite, %heartBeat%, Settings.ini, UserSettings, heartBeat
+    IniWrite, %heartBeatWebhookURL%, Settings.ini, UserSettings, heartBeatWebhookURL
+    IniWrite, %heartBeatName%, Settings.ini, UserSettings, heartBeatName
+    IniWrite, %nukeAccount%, Settings.ini, UserSettings, nukeAccount
+    IniWrite, %packMethod%, Settings.ini, UserSettings, packMethod
+    IniWrite, %CheckShiningPackOnly%, Settings.ini, UserSettings, CheckShiningPackOnly
+    IniWrite, %TrainerCheck%, Settings.ini, UserSettings, TrainerCheck
+    IniWrite, %FullArtCheck%, Settings.ini, UserSettings, FullArtCheck
+    IniWrite, %RainbowCheck%, Settings.ini, UserSettings, RainbowCheck
+    IniWrite, %ShinyCheck%, Settings.ini, UserSettings, ShinyCheck
+    IniWrite, %CrownCheck%, Settings.ini, UserSettings, CrownCheck
+    IniWrite, %InvalidCheck%, Settings.ini, UserSettings, InvalidCheck
+    IniWrite, %ImmersiveCheck%, Settings.ini, UserSettings, ImmersiveCheck
+    IniWrite, %PseudoGodPack%, Settings.ini, UserSettings, PseudoGodPack
+    IniWrite, %minStars%, Settings.ini, UserSettings, minStars
+    IniWrite, %Palkia%, Settings.ini, UserSettings, Palkia
+    IniWrite, %Dialga%, Settings.ini, UserSettings, Dialga
+    IniWrite, %Arceus%, Settings.ini, UserSettings, Arceus
+    IniWrite, %Shining%, Settings.ini, UserSettings, Shining
+    IniWrite, %Mew%, Settings.ini, UserSettings, Mew
+    IniWrite, %Pikachu%, Settings.ini, UserSettings, Pikachu
+    IniWrite, %Charizard%, Settings.ini, UserSettings, Charizard
+    IniWrite, %Mewtwo%, Settings.ini, UserSettings, Mewtwo
+    IniWrite, %slowMotion%, Settings.ini, UserSettings, slowMotion
+
+    IniWrite, %ocrLanguage%, Settings.ini, UserSettings, ocrLanguage
+    IniWrite, %clientLanguage%, Settings.ini, UserSettings, clientLanguage
+    IniWrite, %mainIdsURL%, Settings.ini, UserSettings, mainIdsURL
+    IniWrite, %vipIdsURL%, Settings.ini, UserSettings, vipIdsURL
+    IniWrite, %autoLaunchMonitor%, Settings.ini, UserSettings, autoLaunchMonitor
+    IniWrite, %instanceLaunchDelay%, Settings.ini, UserSettings, instanceLaunchDelay
+
+    minStarsA1Charizard := minStars
+    minStarsA1Mewtwo := minStars
+    minStarsA1Pikachu := minStars
+    minStarsA1a := minStars
+    minStarsA2Dialga := minStars
+    minStarsA2Palkia := minStars
+    minStarsA2a := minStars
+
+    IniWrite, %minStarsA1Charizard%, Settings.ini, UserSettings, minStarsA1Charizard
+    IniWrite, %minStarsA1Mewtwo%, Settings.ini, UserSettings, minStarsA1Mewtwo
+    IniWrite, %minStarsA1Pikachu%, Settings.ini, UserSettings, minStarsA1Pikachu
+    IniWrite, %minStarsA1a%, Settings.ini, UserSettings, minStarsA1a
+    IniWrite, %minStarsA2Dialga%, Settings.ini, UserSettings, minStarsA2Dialga
+    IniWrite, %minStarsA2Palkia%, Settings.ini, UserSettings, minStarsA2Palkia
+    IniWrite, %minStarsA2a%, Settings.ini, UserSettings, minStarsA2a
+    IniWrite, %minStarsA2b%, Settings.ini, UserSettings, minStarsA2b
+
+    IniWrite, %heartBeatDelay%, Settings.ini, UserSettings, heartBeatDelay
+    IniWrite, %sendAccountXml%, Settings.ini, UserSettings, sendAccountXml
+
+    Reload
 return
 
 Start:
