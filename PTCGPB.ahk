@@ -8,7 +8,7 @@ SetTitleMatchMode, 3
 
 githubUser := "Arturo-1212"
 repoName := "PTCGPB"
-localVersion := "v6.3.X-s4tmod.001"
+localVersion := "v6.3.X-s4tmod.002"
 scriptFolder := A_ScriptDir
 zipPath := A_Temp . "\update.zip"
 extractPath := A_Temp . "\update"
@@ -112,6 +112,8 @@ IniRead, s4t4Dmnd, Settings.ini, UserSettings, s4t4Dmnd, 0
 IniRead, s4t1Star, Settings.ini, UserSettings, s4t1Star, 0
 IniRead, s4tWP, Settings.ini, UserSettings, s4tWP, 0
 IniRead, s4tWPMinCards, Settings.ini, UserSettings, s4tWPMinCards, 1
+IniRead, s4tDiscordWebhookURL, %sSettingsPath%, UserSettings, s4tDiscordWebhookURL
+IniRead, s4tDiscordUserId, %sSettingsPath%, UserSettings, s4tDiscordUserId
 
 ; Create a stylish GUI with custom colors and modern look
 Gui, Color, 1E1E1E, 333333 ; Dark theme background
@@ -229,15 +231,48 @@ Gui, Add, Checkbox, % (autoLaunchMonitor ? "Checked" : "") " vautoLaunchMonitor 
 ; ========== Column 2 ==========
 ; ==============================
 
+; ========== Pack Selection Section ==========
+sectionColor := "cFFD700" ; Gold
+Gui, Add, GroupBox, x255 y0 w240 h130 %sectionColor%, Pack Selection
+Gui, Add, Checkbox, % (Shining ? "Checked" : "") " vShining x270 y25 " . sectionColor, Shining
+Gui, Add, Checkbox, % (Arceus ? "Checked" : "") " vArceus x270 y45 " . sectionColor, Arceus
+Gui, Add, Checkbox, % (Palkia ? "Checked" : "") " vPalkia x270 y65 " . sectionColor, Palkia
+Gui, Add, Checkbox, % (Dialga ? "Checked" : "") " vDialga x270 y85 " . sectionColor, Dialga
+Gui, Add, Checkbox, % (Pikachu ? "Checked" : "") " vPikachu x355 y25 " . sectionColor, Pikachu
+Gui, Add, Checkbox, % (Charizard ? "Checked" : "") " vCharizard x355 y45 " . sectionColor, Charizard
+Gui, Add, Checkbox, % (Mewtwo ? "Checked" : "") " vMewtwo x355 y65 " . sectionColor, Mewtwo
+Gui, Add, Checkbox, % (Mew ? "Checked" : "") " vMew x355 y85 " . sectionColor, Mew
+
+; ========== Card Detection Section ==========
+sectionColor := "cFF4500" ; Orange Red
+Gui, Add, GroupBox, x255 y130 w240 h175 %sectionColor%, Card Detection ; Orange Red
+Gui, Add, Checkbox, % (FullArtCheck ? "Checked" : "") " vFullArtCheck x270 y155 " . sectionColor, Single Full Art
+Gui, Add, Checkbox, % (TrainerCheck ? "Checked" : "") " vTrainerCheck x385 y155 " . sectionColor, Single Trainer
+Gui, Add, Checkbox, % (RainbowCheck ? "Checked" : "") " vRainbowCheck x270 y175 " . sectionColor, Single Rainbow
+Gui, Add, Checkbox, % (PseudoGodPack ? "Checked" : "") " vPseudoGodPack x385 y175 " . sectionColor, Double 2 Star
+
+Gui, Add, Checkbox, % (CheckShiningPackOnly ? "Checked" : "") " vCheckShiningPackOnly x300 y200 " . sectionColor, Only for Shining Booster
+Gui, Add, Checkbox, % (InvalidCheck ? "Checked" : "") " vInvalidCheck x300 y220 " . sectionColor, Ignore Invalid Packs
+
+Gui, Add, Text, x270 y245 w210 h2 +0x10 ; Creates a horizontal line
+Gui, Add, Checkbox, % (CrownCheck ? "Checked" : "") " vCrownCheck x270 y255 " . sectionColor, Save Crowns
+Gui, Add, Checkbox, % (ShinyCheck ? "Checked" : "") " vShinyCheck x385 y255 " . sectionColor, Save Shiny
+Gui, Add, Checkbox, % (ImmersiveCheck ? "Checked" : "") " vImmersiveCheck x270 y275 " . sectionColor, Save Immersives
+
+
+
+; ========== Column 3 ==========
+; ==============================
+
 ; ========== God Pack Settings Section ==========
 sectionColor := "c39FF14" ; Neon green
-Gui, Add, GroupBox, x255 y0 w240 h130 %sectionColor%, God Pack Settings
-Gui, Add, Text, x270 y25 %sectionColor%, Min. 2 Stars:
-Gui, Add, Edit, vminStars w25 x350 y23 h20 -E0x200 Background2A2A2A cWhite Center, %minStars%
-Gui, Add, Text, x390 y25 %sectionColor%, 2* for SR:
-Gui, Add, Edit, vminStarsA2b w25 x450 y23 h20 -E0x200 Background2A2A2A cWhite Center, %minStarsA2b%
+Gui, Add, GroupBox, x505 y0 w240 h130 %sectionColor%, God Pack Settings
+Gui, Add, Text, x520 y25 %sectionColor%, Min. 2 Stars:
+Gui, Add, Edit, vminStars w25 x600 y23 h20 -E0x200 Background2A2A2A cWhite Center, %minStars%
+Gui, Add, Text, x640 y25 %sectionColor%, 2* for SR:
+Gui, Add, Edit, vminStarsA2b w25 x700 y23 h20 -E0x200 Background2A2A2A cWhite Center, %minStarsA2b%
 
-Gui, Add, Text, x270 y53 %sectionColor%, Method:
+Gui, Add, Text, x520 y53 %sectionColor%, Method:
 if (deleteMethod = "5 Pack")
     defaultDelete := 1
 else if (deleteMethod = "3 Pack")
@@ -247,109 +282,94 @@ else if (deleteMethod = "Inject")
 else if (deleteMethod = "5 Pack (Fast)")
     defaultDelete := 4
 ;    SquallTCGP 2025.03.12 -     Adding the delete method 5 Pack (Fast) to the delete method dropdown list.
-Gui, Add, DropDownList, vdeleteMethod gdeleteSettings choose%defaultDelete% x325 y48 w100 Background2A2A2A cWhite, 5 Pack|3 Pack|Inject|5 Pack (Fast)
-Gui, Add, Checkbox, % (packMethod ? "Checked" : "") " vpackMethod x280 y80 " . sectionColor, 1 Pack Method
-Gui, Add, Checkbox, % (nukeAccount ? "Checked" : "") " vnukeAccount x280 y100 " . sectionColor, Menu Delete Account
-
-; ========== Pack Selection Section ==========
-sectionColor := "cFFD700" ; Gold
-Gui, Add, GroupBox, x255 y130 w240 h115 %sectionColor%, Pack Selection
-Gui, Add, Checkbox, % (Shining ? "Checked" : "") " vShining x280 y155 " . sectionColor, Shining
-Gui, Add, Checkbox, % (Arceus ? "Checked" : "") " vArceus x280 y175 " . sectionColor, Arceus
-Gui, Add, Checkbox, % (Palkia ? "Checked" : "") " vPalkia x280 y195 " . sectionColor, Palkia
-Gui, Add, Checkbox, % (Dialga ? "Checked" : "") " vDialga x280 y215 " . sectionColor, Dialga
-Gui, Add, Checkbox, % (Pikachu ? "Checked" : "") " vPikachu x365 y155 " . sectionColor, Pikachu
-Gui, Add, Checkbox, % (Charizard ? "Checked" : "") " vCharizard x365 y175 " . sectionColor, Charizard
-Gui, Add, Checkbox, % (Mewtwo ? "Checked" : "") " vMewtwo x365 y195 " . sectionColor, Mewtwo
-Gui, Add, Checkbox, % (Mew ? "Checked" : "") " vMew x365 y215 " . sectionColor, Mew
-
-; ========== Card Detection Section ==========
-sectionColor := "cFF4500" ; Orange Red
-Gui, Add, GroupBox, x255 y245 w240 h160 %sectionColor%, Card Detection ; Orange Red
-Gui, Add, Checkbox, % (FullArtCheck ? "Checked" : "") " vFullArtCheck x270 y270 " . sectionColor, Single Full Art
-Gui, Add, Checkbox, % (TrainerCheck ? "Checked" : "") " vTrainerCheck x385 y270 " . sectionColor, Single Trainer
-Gui, Add, Checkbox, % (RainbowCheck ? "Checked" : "") " vRainbowCheck x270 y290 " . sectionColor, Single Rainbow
-Gui, Add, Checkbox, % (PseudoGodPack ? "Checked" : "") " vPseudoGodPack x385 y290 " . sectionColor, Double 2 Star
-
-Gui, Add, Checkbox, % (CheckShiningPackOnly ? "Checked" : "") " vCheckShiningPackOnly x300 y310 " . sectionColor, Only for Shining Booster
-Gui, Add, Checkbox, % (InvalidCheck ? "Checked" : "") " vInvalidCheck x300 y330 " . sectionColor, Ignore Invalid Packs
-
-Gui, Add, Text, x270 y350 w210 h2 +0x10 ; Creates a horizontal line
-Gui, Add, Checkbox, % (CrownCheck ? "Checked" : "") " vCrownCheck x270 y355 " . sectionColor, Save Crowns
-Gui, Add, Checkbox, % (ShinyCheck ? "Checked" : "") " vShinyCheck x385 y355 " . sectionColor, Save Shiny
-Gui, Add, Checkbox, % (ImmersiveCheck ? "Checked" : "") " vImmersiveCheck x270 y375 " . sectionColor, Save Immersives
-
-
-; ========== Column 3 ==========
-; ==============================
-
-; ========== Discord Settings Section ==========
-sectionColor := "cFF69B4" ; Hot pink
-Gui, Add, GroupBox, x505 y0 w240 h130 %sectionColor%, Discord Settings
-if(StrLen(discordUserID) < 3)
-    discordUserID =
-if(StrLen(discordWebhookURL) < 3)
-    discordWebhookURL =
-Gui, Add, Text, x520 y20 %sectionColor%, Discord ID:
-Gui, Add, Edit, vdiscordUserId w210 x520 y40 h20 -E0x200 Background2A2A2A cWhite, %discordUserId%
-Gui, Add, Text, x520 y60 %sectionColor%, Webhook URL:
-Gui, Add, Edit, vdiscordWebhookURL w210 x520 y80 h20 -E0x200 Background2A2A2A cWhite, %discordWebhookURL%
-Gui, Add, Checkbox, % (sendAccountXml ? "Checked" : "") " vsendAccountXml x520 y105 " . sectionColor, Send Account XML
-
-; ========== Heartbeat Settings Section ==========
-sectionColor := "c00FFFF" ; Cyan
-Gui, Add, GroupBox, x505 y130 w240 h160 %sectionColor%, Heartbeat Settings
-Gui, Add, Checkbox, % (heartBeat ? "Checked" : "") " vheartBeat x520 y155 gdiscordSettings " . sectionColor, Discord Heartbeat
-
-if(StrLen(heartBeatName) < 3)
-    heartBeatName =
-if(StrLen(heartBeatWebhookURL) < 3)
-    heartBeatWebhookURL =
-
-if (heartBeat) {
-    Gui, Add, Text, vhbName x520 y175 %sectionColor%, Name:
-    Gui, Add, Edit, vheartBeatName w210 x520 y195 h20 -E0x200 Background2A2A2A cWhite, %heartBeatName%
-    Gui, Add, Text, vhbURL x520 y215 %sectionColor%, Webhook URL:
-    Gui, Add, Edit, vheartBeatWebhookURL w210 x520 y235 h20 -E0x200 Background2A2A2A cWhite, %heartBeatWebhookURL%
-    Gui, Add, Text, vhbDelay x520 y260 %sectionColor%, Heartbeat Delay (min):
-    Gui, Add, Edit, vheartBeatDelay w50 x660 y260 h20 -E0x200 Background2A2A2A cWhite Center, %heartBeatDelay%
-} else {
-    Gui, Add, Text, vhbName x520 y175 Hidden %sectionColor%, Name:
-    Gui, Add, Edit, vheartBeatName w210 x520 y195 h20 Hidden -E0x200 Background2A2A2A cWhite, %heartBeatName%
-    Gui, Add, Text, vhbURL x520 y215 Hidden %sectionColor%, Webhook URL:
-    Gui, Add, Edit, vheartBeatWebhookURL w210 x520 y235 h20 Hidden -E0x200 Background2A2A2A cWhite, %heartBeatWebhookURL%
-    Gui, Add, Text, vhbDelay x520 y260 Hidden %sectionColor%, Heartbeat Delay (min):
-    Gui, Add, Edit, vheartBeatDelay w50 x660 y260 h20 Hidden -E0x200 Background2A2A2A cWhite Center, %heartBeatDelay%
-}
+Gui, Add, DropDownList, vdeleteMethod gdeleteSettings choose%defaultDelete% x575 y48 w100 Background2A2A2A cWhite, 5 Pack|3 Pack|Inject|5 Pack (Fast)
+Gui, Add, Checkbox, % (packMethod ? "Checked" : "") " vpackMethod x520 y80 " . sectionColor, 1 Pack Method
+Gui, Add, Checkbox, % (nukeAccount ? "Checked" : "") " vnukeAccount x520 y100 " . sectionColor, Menu Delete Account
 
 ; ========== Save For Trade Settings Section ==========
 sectionColor := "cFFA500" ; Orange
-Gui, Add, GroupBox, x505 y290 w240 h115 %sectionColor%, Save For Trade Settings
-Gui, Add, Checkbox, % "vs4tEnabled gs4tSettings x520 y315 " . (s4tEnabled ? "Checked " : "") . sectionColor, Enable S4T
+Gui, Add, GroupBox, x505 y130 w240 h175 %sectionColor%, Save For Trade Settings
+Gui, Add, Checkbox, % "vs4tEnabled gs4tSettings x520 y155 " . (s4tEnabled ? "Checked " : "") . sectionColor, Enable S4T
 Gui, Add, Checkbox, % "vs4tSilent x+5 " . (!s4tEnabled ? "Hidden " : "") . (s4tSilent ? "Checked " : "") . sectionColor, Silent (No Ping)
 
-Gui, Add, Checkbox, % "vs4t3Dmnd x520 y+2 " . (!s4tEnabled ? "Hidden " : "") . (s4t3Dmnd ? "Checked " : "") . sectionColor, 3 ◆◆◆
-Gui, Add, Checkbox, % "vs4t4Dmnd x+5 " . (!s4tEnabled ? "Hidden " : "") . (s4t4Dmnd ? "Checked " : "") . sectionColor, 4 ◆◆◆◆
-Gui, Add, Checkbox, % "vs4t1Star x+5 " . (!s4tEnabled ? "Hidden " : "") . (s4t1Star ? "Checked " : "") . sectionColor, 1 ★
+Gui, Add, Checkbox, % "vs4t3Dmnd x520 y+5 " . (!s4tEnabled ? "Hidden " : "") . (s4t3Dmnd ? "Checked " : "") . sectionColor, 3 ◆◆◆
+Gui, Add, Checkbox, % "vs4t4Dmnd y+5 " . (!s4tEnabled ? "Hidden " : "") . (s4t4Dmnd ? "Checked " : "") . sectionColor, 4 ◆◆◆◆
+Gui, Add, Checkbox, % "vs4t1Star y+5 " . (!s4tEnabled ? "Hidden " : "") . (s4t1Star ? "Checked " : "") . sectionColor, 1 ★
 
-Gui, Add, Checkbox, % "vs4tWP gs4tWPSettings x520 y+2 " . (!s4tEnabled ? "Hidden " : "") . (s4tWP ? "Checked " : "") . sectionColor, Wonder Pick
+Gui, Add, Text, y+10 w210 h2 +0x10 ; Creates a horizontal line
 
-Gui, Add, Text, % "vs4tWPMinCardsLabel y+2 " . (!s4tEnabled || !s4tWP ? "Hidden " : "") . sectionColor, Min. Cards:
+Gui, Add, Checkbox, % "vs4tWP gs4tWPSettings y+10 " . (!s4tEnabled ? "Hidden " : "") . (s4tWP ? "Checked " : "") . sectionColor, Wonder Pick
+
+Gui, Add, Text, % "vs4tWPMinCardsLabel x+9 " . (!s4tEnabled || !s4tWP ? "Hidden " : "") . sectionColor, Min. Cards:
 Gui, Add, Edit, % "vs4tWPMinCards w25 x+7 h20 -E0x200 Background2A2A2A cWhite Center " . (!s4tEnabled || !s4tWP ? "Hidden" : ""), %s4tWPMinCards%
 
-; ========== Download Settings Section ==========
+
+
+; ============ Tabs ============
+; ==============================
 sectionColor := "cWhite"
-Gui, Add, GroupBox, x255 y405 w490 h110 %sectionColor%, Download Settings ;
+Gui, Add, Tab3, x255 y315 w490 h200, Download Settings|GP Discord|Heartbeat Discord|S4T Discord
+
+; Download Settings
+Gui, Tab, 1
+sectionColor := "cWhite"
 
 if(StrLen(mainIdsURL) < 3)
     mainIdsURL =
 if(StrLen(vipIdsURL) < 3)
     vipIdsURL =
 
-Gui, Add, Text, x270 y425 %sectionColor%, ids.txt API:
-Gui, Add, Edit, vmainIdsURL w460 x270 y445 h20 -E0x200 Background2A2A2A cWhite, %mainIdsURL%
-Gui, Add, Text, x270 y465 %sectionColor%, vip_ids.txt (GP Test Mode) API:
-Gui, Add, Edit, vvipIdsURL w460 x270 y485 h20 -E0x200 Background2A2A2A cWhite, %vipIdsURL%
+Gui, Add, Text, x270 y350 %sectionColor%, ids.txt API:
+Gui, Add, Edit, vmainIdsURL w460 h20 y+5  -E0x200 Background2A2A2A cWhite, %mainIdsURL%
+Gui, Add, Text, y+5 %sectionColor%, vip_ids.txt (GP Test Mode) API:
+Gui, Add, Edit, vvipIdsURL w460 h20 y+5 -E0x200 Background2A2A2A cWhite, %vipIdsURL%
+
+; GP Discord
+Gui, Tab, 2
+sectionColor := "cFF69B4" ; Hot pink
+
+if(StrLen(discordUserID) < 3)
+    discordUserID =
+if(StrLen(discordWebhookURL) < 3)
+    discordWebhookURL =
+
+Gui, Add, Text, x270 y350 %sectionColor%, Discord ID:
+Gui, Add, Edit, vdiscordUserId w460 h20 y+5 -E0x200 Background2A2A2A cWhite, %discordUserId%
+Gui, Add, Text, y+5 %sectionColor%, Webhook URL:
+Gui, Add, Edit, vdiscordWebhookURL w460 h20 y+5 -E0x200 Background2A2A2A cWhite, %discordWebhookURL%
+Gui, Add, Checkbox, % (sendAccountXml ? "Checked" : "") " vsendAccountXml y+7 " . sectionColor, Send Account XML
+
+; Heartbeat Discord
+Gui, Tab, 3
+sectionColor := "c00FFFF" ; Cyan
+
+Gui, Add, Checkbox, % (heartBeat ? "Checked" : "") " vheartBeat x270 y350 gdiscordSettings " . sectionColor, Discord Heartbeat
+
+if(StrLen(heartBeatName) < 3)
+    heartBeatName =
+if(StrLen(heartBeatWebhookURL) < 3)
+    heartBeatWebhookURL =
+
+Gui, Add, Text, % (!heartBeat ? "Hidden " : "") . "vhbName y+5 " . sectionColor, Name:
+Gui, Add, Edit, % (!heartBeat ? "Hidden " : "") . "vheartBeatName x+105 w315 h20 -E0x200 Background2A2A2A cWhite", %heartBeatName%
+Gui, Add, Text, % (!heartBeat ? "Hidden " : "") . "vhbDelay x270 y+5 " . sectionColor, Heartbeat Delay (min):
+Gui, Add, Edit, % (!heartBeat ? "Hidden " : "") . "vheartBeatDelay x+7 w50 h20 -E0x200 Background2A2A2A cWhite Center", %heartBeatDelay%
+Gui, Add, Text, % (!heartBeat ? "Hidden " : "") . "vhbURL x270 y+7 " . sectionColor, Webhook URL:
+Gui, Add, Edit, % (!heartBeat ? "Hidden " : "") . "vheartBeatWebhookURL y+5 w460 h20 -E0x200 Background2A2A2A cWhite", %heartBeatWebhookURL%
+
+; S4T Discord
+Gui, Tab, 4
+sectionColor := "cFFA500" ; Orange
+
+Gui, Add, Text, x270 y350 %sectionColor%, Discord ID:
+Gui, Add, Edit, vs4tDiscordUserId w460 h20 y+5 -E0x200 Background2A2A2A cWhite, %s4tDiscordUserId%
+Gui, Add, Text, y+5 %sectionColor%, Webhook URL:
+Gui, Add, Edit, vs4tDiscordWebhookURL w460 h20 y+5 -E0x200 Background2A2A2A cWhite, %s4tDiscordWebhookURL%
+
+; End tabs
+Gui, Tab
+
+
 
 ; ========== Action Buttons ==========
 Gui, Add, Button, gOpenLink x5 y522 w117, Buy Me a Coffee
@@ -362,6 +382,7 @@ Gui, Add, Button, gStart x5 y+7 w740, START BOT
 
 Gui, Show, , %localVersion% PTCGPB Bot Setup [Non-Commercial 4.0 International License]
 Return
+
 
 
 CheckForUpdates:
@@ -585,6 +606,8 @@ SaveReload:
     IniWrite, %s4t1Star%, Settings.ini, UserSettings, s4t1Star
     IniWrite, %s4tWP%, Settings.ini, UserSettings, s4tWP
     IniWrite, %s4tWPMinCards%, Settings.ini, UserSettings, s4tWPMinCards
+    IniWrite, %s4tDiscordUserId%, Settings.ini, UserSettings, s4tDiscordUserId
+    IniWrite, %s4tDiscordWebhookURL%, Settings.ini, UserSettings, s4tDiscordWebhookURL
 
     Reload
 return
@@ -673,6 +696,8 @@ Start:
     IniWrite, %s4t1Star%, Settings.ini, UserSettings, s4t1Star
     IniWrite, %s4tWP%, Settings.ini, UserSettings, s4tWP
     IniWrite, %s4tWPMinCards%, Settings.ini, UserSettings, s4tWPMinCards
+    IniWrite, %s4tDiscordUserId%, Settings.ini, UserSettings, s4tDiscordUserId
+    IniWrite, %s4tDiscordWebhookURL%, Settings.ini, UserSettings, s4tDiscordWebhookURL
 
     ; Using FriendID field to provide a URL to download ids.txt is deprecated.
     if (inStr(FriendID, "http")) {

@@ -84,6 +84,8 @@ IniRead, s4t4Dmnd, %A_ScriptDir%\..\Settings.ini, UserSettings, s4t4Dmnd, 0
 IniRead, s4t1Star, %A_ScriptDir%\..\Settings.ini, UserSettings, s4t1Star, 0
 IniRead, s4tWP, %A_ScriptDir%\..\Settings.ini, UserSettings, s4tWP, 0
 IniRead, s4tWPMinCards, %A_ScriptDir%\..\Settings.ini, UserSettings, s4tWPMinCards, 1
+IniRead, s4tDiscordWebhookURL, %sSettingsPath%, UserSettings, s4tDiscordWebhookURL
+IniRead, s4tDiscordUserId, %sSettingsPath%, UserSettings, s4tDiscordUserId
 
 pokemonList := ["Palkia", "Dialga", "Mew", "Pikachu", "Charizard", "Mewtwo", "Arceus", "Shining"]
 
@@ -1409,18 +1411,17 @@ FoundTradeable(found3Dmnd := 0, found4Dmnd := 0, found1Star := 0) {
     if (username)
         statusMessage .= " by " . username
 
-    if (s4tSilent) {
-        CreateStatusMessage(statusMessage)
-        LogToFile(statusMessage . " in instance: " . scriptName . " (" . packs . " packs, " . openPack . ") File name: " . accountFile . " Screenshot file: " . screenShotFileName . " Backing up to the Accounts\\Trades folder and continuing...", "S4T.txt")
-        return
-    }
-
     if (!s4tWP || (s4tWP && foundTradeable < s4tWPMinCards)) {
-        discordMessage := statusMessage . " in instance: " . scriptName . " (" . packs . " packs, " . openPack . ")\nFile name: " . accountFile . "\nBacking up to the Accounts\\Trades folder and continuing..."
-        logMessage := statusMessage . " in instance: " . scriptName . " (" . packs . " packs, " . openPack . ")\nFile name: " . accountFile . "\nScreenshot file: " . screenShotFileName . "\nBacking up to the Accounts\\Trades folder and continuing..."
+        CreateStatusMessage("Tradeable cards found. Continuing...")
 
-        LogToDiscord(discordMessage, screenShot, true, accountFullPath)
-        LogToFile(StrReplace(logMessage, "\n", " "), "S4T.txt")
+        if (!s4tSilent && s4tDiscordWebhookURL) {
+            discordMessage := statusMessage . " in instance: " . scriptName . " (" . packs . " packs, " . openPack . ")\nFile name: " . accountFile . "\nBacking up to the Accounts\\Trades folder and continuing..."
+            LogToDiscord(discordMessage, screenShot, true, accountFullPath,, s4tDiscordWebhookURL, s4tDiscordUserId)
+        }
+
+        logMessage := statusMessage . " in instance: " . scriptName . " (" . packs . " packs, " . openPack . ") File name: " . accountFile . " Screenshot file: " . screenShotFileName . " Backing up to the Accounts\\Trades folder and continuing..."
+        LogToFile(logMessage, "S4T.txt")
+
         return
     }
 
@@ -1452,11 +1453,13 @@ FoundTradeable(found3Dmnd := 0, found4Dmnd := 0, found1Star := 0) {
     if (friendCode)
         statusMessage .= " (" . friendCode . ")"
 
-    discordMessage := statusMessage . " in instance: " . scriptName . " (" . packs . " packs, " . openPack . ")\nFile name: " . accountFile . "\nBacking up to the Accounts\\Trades folder and continuing..."
     logMessage := statusMessage . " in instance: " . scriptName . " (" . packs . " packs, " . openPack . ")\nFile name: " . accountFile . "\nScreenshot file: " . screenShotFileName . "\nBacking up to the Accounts\\Trades folder and continuing..."
-
-    LogToDiscord(discordMessage, screenShot, true, accountFullPath, fcScreenshot)
     LogToFile(StrReplace(logMessage, "\n", " "), "S4T.txt")
+
+    if (s4tDiscordWebhookURL) {
+        discordMessage := statusMessage . " in instance: " . scriptName . " (" . packs . " packs, " . openPack . ")\nFile name: " . accountFile . "\nBacking up to the Accounts\\Trades folder and continuing..."
+        LogToDiscord(discordMessage, screenShot, true, accountFullPath, fcScreenshot, s4tDiscordWebhookURL, s4tDiscordUserId)
+    }
 
     restartGameInstance("Tradeable cards found. Continuing...", "GodPack")
 }

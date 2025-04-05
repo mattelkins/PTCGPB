@@ -3,8 +3,8 @@ global discordWebhookURL, discordUserId, sendAccountXml
 
 sSettingsPath := ScriptDir . "\..\..\Settings.ini"
 
-IniRead, discordWebhookURL, %sSettingsPath%, UserSettings, discordWebhookURL, ""
-IniRead, discordUserId, %sSettingsPath%, UserSettings, discordUserId, ""
+IniRead, discordWebhookURL, %sSettingsPath%, UserSettings, discordWebhookURL
+IniRead, discordUserId, %sSettingsPath%, UserSettings, discordUserId
 IniRead, sendAccountXml, %sSettingsPath%, UserSettings, sendAccountXml, 0
 
 CreateStatusMessage(Message, GuiName := "StatusMessage", X := 0, Y := 80) {
@@ -75,15 +75,17 @@ LogToFile(message, logFile := "") {
     FileAppend, % "[" readableTime "] " message "`n", %logFile%
 }
 
-LogToDiscord(message, screenshotFile := "", ping := false, xmlFile := "", screenshotFile2 := "", altWebhookURL := "") {
+LogToDiscord(message, screenshotFile := "", ping := false, xmlFile := "", screenshotFile2 := "", altWebhookURL := "", altUserId := "") {
     discordPing := ""
 
     if (ping) {
-        discordPing := "<@" . discordUserId . "> "
+        userId := (altUserId ? altUserId : discordUserId)
+
+        discordPing := "<@" . userId . "> "
         discordFriends := ReadFile("discord")
         if (discordFriends) {
             for index, value in discordFriends {
-                if(value = discordUserId)
+                if (value = userId)
                     continue
                 discordPing .= "<@" . value . "> "
             }
