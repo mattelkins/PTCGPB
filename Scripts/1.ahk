@@ -1070,9 +1070,19 @@ restartGameInstance(reason, RL := true){
     }
     Sleep, 4500
 
-    if(RL) {
+    if(RL = "GodPack") {
         LogToFile("Restarted game for instance " . scriptName . ". Reason: " reason, "Restart.txt")
         IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
+
+        Reload
+    } else if(RL) {
+        if(menuDeleteStart()) {
+            IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
+            logMessage := "\n" . username . "\n[" . starCount . "/5][" . packs . "P][" . openPack . "] " . invalid . " God pack found in instance: " . scriptName . "\nFile name: " . accountFile . "\nGot stuck getting friend code."
+            LogToFile(logMessage, "GPlog.txt")
+            LogToDiscord(logMessage, , true)
+        }
+        LogToFile("Restarted game for instance " . scriptName . ". Reason: " reason, "Restart.txt")
 
         Reload
     }
