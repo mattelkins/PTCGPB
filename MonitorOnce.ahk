@@ -185,6 +185,11 @@ getMumuInstanceNumFromPlayerName(scriptName := "") {
     }
 }
 
+; Temporary function to avoid an error in Logging.ahk
+ReadFile(filename) {
+    return false
+}
+
 ; Function to run as a NON-adminstrator, since MuMu has issues if run as Administrator
 ; See: https://www.reddit.com/r/AutoHotkey/comments/bfd6o1/how_to_run_without_administrator_privileges/
 /*
