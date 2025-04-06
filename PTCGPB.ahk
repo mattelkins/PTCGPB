@@ -26,7 +26,11 @@ CheckForUpdate()
 
 KillADBProcesses()
 
-global Instances, instanceStartDelay, jsonFileName, PacksText, runMain, Mains, scaleParam
+global scriptName, winTitle, FriendID, Instances, instanceStartDelay, jsonFileName, PacksText, runMain, Mains, scaleParam
+
+scriptName := StrReplace(A_ScriptName, ".ahk")
+winTitle := scriptName
+showStatus := true
 
 totalFile := A_ScriptDir . "\json\total.json"
 backupFile := A_ScriptDir . "\json\total-backup.json"
@@ -46,7 +50,7 @@ if FileExist(packsFile) ; Check if the file exists
         MsgBox, Failed to create %backupFile%. Ensure permissions and paths are correct.
 }
 InitializeJsonFile() ; Create or open the JSON file
-global FriendID
+
 ; Create the main GUI for selecting number of instances
 IniRead, FriendID, Settings.ini, UserSettings, FriendID
 IniRead, waitTime, Settings.ini, UserSettings, waitTime, 5
@@ -842,7 +846,7 @@ Start:
         packStatus .= " | Avg: " . Round(total / mminutes, 2) . " packs/min"
 
         ; Display pack status at the bottom of the first reroll instance
-        CreateStatusMessage(packStatus, "PackStatus", ((Mains * scaleParam) + 5), 490)
+        DisplayPackStatus("packStatus", ((runMain ? Mains * scaleParam : 0) + 5), 490)
 
         if(heartBeat)
             if((A_Index = 1 || (Mod(A_Index, (heartBeatDelay // 0.5)) = 0))) {
@@ -972,6 +976,35 @@ resetWindows(Title, SelectedMonitorIndex) {
         Sleep, 1000
     }
     return true
+}
+
+DisplayPackStatus(Message, X := 0, Y := 80) {
+    global packStatusGuiText, SelectedMonitorIndex
+    MaxRetries := 10
+    RetryCount := 0
+    try {
+        GuiName := "PackStatusPTCGPB"
+        SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
+        SysGet, Monitor, Monitor, %SelectedMonitorIndex%
+        X := MonitorLeft + X
+        Y := MonitorTop + Y
+        Gui %GuiName%:+LastFoundExist
+        if WinExist() {
+            GuiControl, , packStatusGuiText, %Message%
+        } else {
+            OwnerWND := WinExist(1)
+            if(!OwnerWND)
+                Gui, %GuiName%:New, +ToolWindow -Caption +LastFound
+            else
+                Gui, %GuiName%:New, +Owner%OwnerWND% +ToolWindow -Caption +LastFound
+            Gui, %GuiName%:Margin, 2, 2  ; Set margin for the GUI
+            Gui, %GuiName%:Font, s8  ; Set the font size to 8 (adjust as needed)
+            Gui, %GuiName%:Add, Text, vPacksText, %Message%
+            DllCall("SetWindowPos", "Ptr", WinExist(), "Ptr", WinExist("A")  ; set behind active window
+                , "Int", 0, "Int", 0, "Int", 0, "Int", 0, "UInt", 0x13)  ; SWP_NOSIZE, SWP_NOMOVE, SWP_NOACTIVATE
+            Gui, %GuiName%:Show, NoActivate x%X% y%Y%, NoActivate %GuiName%
+        }
+    }
 }
 
 ; Global variable to track the current JSON file
