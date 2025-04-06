@@ -106,7 +106,7 @@ IniRead, heartBeatDelay, Settings.ini, UserSettings, heartBeatDelay, 30
 IniRead, sendAccountXml, Settings.ini, UserSettings, sendAccountXml, 0
 
 IniRead, s4tEnabled, Settings.ini, UserSettings, s4tEnabled, 0
-IniRead, s4tSilent, Settings.ini, UserSettings, s4tSilent, 0
+IniRead, s4tSilent, Settings.ini, UserSettings, s4tSilent, 1
 IniRead, s4t3Dmnd, Settings.ini, UserSettings, s4t3Dmnd, 0
 IniRead, s4t4Dmnd, Settings.ini, UserSettings, s4t4Dmnd, 0
 IniRead, s4t1Star, Settings.ini, UserSettings, s4t1Star, 0
