@@ -850,7 +850,7 @@ Start:
         packStatus .= " | Avg: " . Round(total / mminutes, 2) . " packs/min"
 
         ; Display pack status at the bottom of the first reroll instance
-        DisplayPackStatus("packStatus", ((runMain ? Mains * scaleParam : 0) + 5), 490)
+        DisplayPackStatus(packStatus, ((runMain ? Mains * scaleParam : 0) + 5), 490)
 
         if(heartBeat)
             if((A_Index = 1 || (Mod(A_Index, (heartBeatDelay // 0.5)) = 0))) {
