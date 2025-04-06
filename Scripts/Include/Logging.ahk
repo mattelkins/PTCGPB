@@ -67,7 +67,7 @@ SetTextAndResize(controlHwnd, newText) {
 
 LogToFile(message, logFile := "") {
     if (logFile = "") {
-        logFile := LogsDir . "\Log" . StrReplace(A_ScriptName, ".ahk") . ".txt"
+        logFile := LogsDir . "\Log_" . StrReplace(A_ScriptName, ".ahk") . ".txt"
     }
     else
         logFile := LogsDir . "\" . logFile
