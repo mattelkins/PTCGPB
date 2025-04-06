@@ -1281,10 +1281,9 @@ CheckPack() {
                 FoundStars(foundLabel)
                 restartGameInstance(foundLabel . " found. Continuing...", "GodPack")
             }
-
-            ; Removing friends is the default action for an invalid pack.
-            IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
         }
+
+        IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
 
         return
     }
