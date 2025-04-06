@@ -661,11 +661,11 @@ AddFriends(renew := false, getFC := false) {
 
 ChooseTag() {
     FindImageAndClick(120, 500, 155, 530, , "Social", 143, 518, 500)
-    FindImageAndClick(20, 500, 55, 530, , "Home", 40, 516, 500) 212 276 230 294
-    FindImageAndClick(203, 272, 237, 300, , "Profile", 143, 95, 500)
+    FindImageAndClick(20, 500, 55, 530, , "Home", 40, 516, 500)
+    FindImageAndClick(209, 277, 225, 292, , "Profile", 143, 95, 500)
     FindImageAndClick(205, 310, 220, 319, , "ChosenTag", 143, 306, 1000)
-    FindImageAndClick(203, 272, 237, 300, , "Profile", 143, 505, 1000)
-    if(FindOrLoseImage(145, 140, 157, 155, , "Eevee", 1)) {
+    FindImageAndClick(209, 277, 225, 292, , "Profile", 143, 505, 1000)
+    if (FindOrLoseImage(145, 140, 157, 155, , "Eevee", 1)) {
         FindImageAndClick(163, 200, 173, 207, , "ChooseEevee", 147, 207, 1000)
         FindImageAndClick(53, 218, 63, 228, , "Badge", 143, 466, 500)
     }
