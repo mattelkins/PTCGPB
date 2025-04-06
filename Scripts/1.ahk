@@ -86,6 +86,7 @@ IniRead, s4tWP, %A_ScriptDir%\..\Settings.ini, UserSettings, s4tWP, 0
 IniRead, s4tWPMinCards, %A_ScriptDir%\..\Settings.ini, UserSettings, s4tWPMinCards, 1
 IniRead, s4tDiscordWebhookURL, %A_ScriptDir%\..\Settings.ini, UserSettings, s4tDiscordWebhookURL
 IniRead, s4tDiscordUserId, %A_ScriptDir%\..\Settings.ini, UserSettings, s4tDiscordUserId
+IniRead, s4tSendAccountXml, %A_ScriptDir%\..\Settings.ini, UserSettings, s4tSendAccountXml, 1
 
 pokemonList := ["Palkia", "Dialga", "Mew", "Pikachu", "Charizard", "Mewtwo", "Arceus", "Shining"]
 
@@ -1428,6 +1429,9 @@ FoundTradeable(found3Dmnd := 0, found4Dmnd := 0, found1Star := 0) {
     if (username)
         statusMessage .= " by " . username
 
+    ; Temporarily override the sendAccountXml superglobal.
+    sendAccountXml := s4tSendAccountXml
+
     if (!s4tWP || (s4tWP && foundTradeable < s4tWPMinCards)) {
         CreateStatusMessage("Tradeable cards found. Continuing...")
 
@@ -1438,6 +1442,9 @@ FoundTradeable(found3Dmnd := 0, found4Dmnd := 0, found1Star := 0) {
             discordMessage := statusMessage . " in instance: " . scriptName . " (" . packs . " packs, " . openPack . ")\nFile name: " . accountFile . "\nBacking up to the Accounts\\Trades folder and continuing..."
             LogToDiscord(discordMessage, screenShot, true, accountFullPath,, s4tDiscordWebhookURL, s4tDiscordUserId)
         }
+
+        ; Reset the sendAccountXml superglobal using settings.
+        IniRead, sendAccountXml, %A_ScriptDir%\..\Settings.ini, UserSettings, sendAccountXml, 0
 
         return
     }
@@ -1480,6 +1487,9 @@ FoundTradeable(found3Dmnd := 0, found4Dmnd := 0, found1Star := 0) {
         discordMessage := statusMessage . " in instance: " . scriptName . " (" . packs . " packs, " . openPack . ")\nFile name: " . accountFile . "\nBacking up to the Accounts\\Trades folder and continuing..."
         LogToDiscord(discordMessage, screenShot, true, accountFullPath, fcScreenshot, s4tDiscordWebhookURL, s4tDiscordUserId)
     }
+
+    ; Reset the sendAccountXml superglobal using settings.
+    IniRead, sendAccountXml, %A_ScriptDir%\..\Settings.ini, UserSettings, sendAccountXml, 0
 
     ChooseTag()
 

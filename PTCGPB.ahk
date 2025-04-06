@@ -116,8 +116,9 @@ IniRead, s4t4Dmnd, Settings.ini, UserSettings, s4t4Dmnd, 0
 IniRead, s4t1Star, Settings.ini, UserSettings, s4t1Star, 0
 IniRead, s4tWP, Settings.ini, UserSettings, s4tWP, 0
 IniRead, s4tWPMinCards, Settings.ini, UserSettings, s4tWPMinCards, 1
-IniRead, s4tDiscordWebhookURL, %sSettingsPath%, UserSettings, s4tDiscordWebhookURL
-IniRead, s4tDiscordUserId, %sSettingsPath%, UserSettings, s4tDiscordUserId
+IniRead, s4tDiscordWebhookURL, Settings.ini, UserSettings, s4tDiscordWebhookURL
+IniRead, s4tDiscordUserId, Settings.ini, UserSettings, s4tDiscordUserId
+IniRead, s4tSendAccountXml, Settings.ini, UserSettings, s4tSendAccountXml, 1
 
 ; Create a stylish GUI with custom colors and modern look
 Gui, Color, 1E1E1E, 333333 ; Dark theme background
@@ -369,6 +370,7 @@ Gui, Add, Text, x270 y350 %sectionColor%, Discord ID:
 Gui, Add, Edit, vs4tDiscordUserId w460 h20 y+5 -E0x200 Background2A2A2A cWhite, %s4tDiscordUserId%
 Gui, Add, Text, y+5 %sectionColor%, Webhook URL:
 Gui, Add, Edit, vs4tDiscordWebhookURL w460 h20 y+5 -E0x200 Background2A2A2A cWhite, %s4tDiscordWebhookURL%
+Gui, Add, Checkbox, % (s4tSendAccountXml ? "Checked" : "") " vs4tSendAccountXml y+7 " . sectionColor, Send Account XML
 
 ; End tabs
 Gui, Tab
@@ -612,6 +614,7 @@ SaveReload:
     IniWrite, %s4tWPMinCards%, Settings.ini, UserSettings, s4tWPMinCards
     IniWrite, %s4tDiscordUserId%, Settings.ini, UserSettings, s4tDiscordUserId
     IniWrite, %s4tDiscordWebhookURL%, Settings.ini, UserSettings, s4tDiscordWebhookURL
+    IniWrite, %s4tSendAccountXML%, Settings.ini, UserSettings, s4tSendAccountXML
 
     Reload
 return
@@ -702,6 +705,7 @@ Start:
     IniWrite, %s4tWPMinCards%, Settings.ini, UserSettings, s4tWPMinCards
     IniWrite, %s4tDiscordUserId%, Settings.ini, UserSettings, s4tDiscordUserId
     IniWrite, %s4tDiscordWebhookURL%, Settings.ini, UserSettings, s4tDiscordWebhookURL
+    IniWrite, %s4tSendAccountXML%, Settings.ini, UserSettings, s4tSendAccountXML
 
     ; Using FriendID field to provide a URL to download ids.txt is deprecated.
     if (inStr(FriendID, "http")) {
