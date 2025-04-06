@@ -1415,7 +1415,7 @@ FoundTradeable(found3Dmnd := 0, found4Dmnd := 0, found1Star := 0) {
     packDetails := RTrim(packDetails, "_")
 
     accountFile := saveAccount("Tradeable", accountFullPath, packDetails)
-    screenShot := Screenshot("Tradeable", screenShotFileName)
+    screenShot := Screenshot("Tradeable", "Trades", screenShotFileName)
 
     statusMessage := "Tradeable cards found"
     if (username)
@@ -1845,12 +1845,15 @@ ReadFile(filename, numbers := false) {
     return values.MaxIndex() ? values : false
 }
 
-Screenshot(fileType := "Valid", ByRef fileName := "") {
+Screenshot(fileType := "Valid", subDir := "", ByRef fileName := "") {
     global packs
     SetWorkingDir %A_ScriptDir%  ; Ensures the working directory is the script's directory
 
     ; Define folder and file paths
     fileDir := A_ScriptDir "\..\Screenshots"
+    if (subDir) {
+        fileDir .= "\" . subDir
+    }
     if !FileExist(fileDir)
         FileCreateDir, fileDir
 
