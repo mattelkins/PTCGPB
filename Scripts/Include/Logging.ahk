@@ -95,8 +95,6 @@ LogToDiscord(message, screenshotFile := "", ping := false, xmlFile := "", screen
     webhookURL := (altWebhookURL ? altWebhookURL : discordWebhookURL)
 
     if (webhookURL != "") {
-        if (!sendAccountXml)
-            xmlFile := ""
         MaxRetries := 10
         RetryCount := 0
         Loop {

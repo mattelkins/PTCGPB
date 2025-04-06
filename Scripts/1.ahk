@@ -20,7 +20,7 @@ WinHide % "ahk_id " DllCall("GetConsoleWindow", "ptr")
 
 global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, scriptName, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, deleteMethod, packs, FriendID, friendIDs, Instances, username, friendCode, stopToggle, friended, runMain, Mains, showStatus, injectMethod, packMethod, loadDir, loadedAccount, nukeAccount, CheckShiningPackOnly, TrainerCheck, FullArtCheck, RainbowCheck, ShinyCheck, dateChange, foundGP, friendsAdded, minStars, PseudoGodPack, Palkia, Dialga, Mew, Pikachu, Charizard, Mewtwo, packArray, CrownCheck, ImmersiveCheck, InvalidCheck, slowMotion, screenShot, accountFile, invalid, starCount, gpFound, minStarsA1Charizard, minStarsA1Mewtwo, minStarsA1Pikachu, minStarsA1a, minStarsA2Dialga, minStarsA2Palkia, minStarsA2a, minStarsA2b
 global DeadCheck
-global s4tEnabled, s4tSilent, s4t3Dmnd, s4t4Dmnd, s4t1Star, s4tWP, s4tWPMinCards, s4tDiscordWebhookURL, s4tDiscordUserId
+global s4tEnabled, s4tSilent, s4t3Dmnd, s4t4Dmnd, s4t1Star, s4tWP, s4tWPMinCards, s4tDiscordWebhookURL, s4tDiscordUserId, s4tSendAccountXml
 
 scriptName := StrReplace(A_ScriptName, ".ahk")
 winTitle := scriptName
@@ -1409,6 +1409,8 @@ CheckPack() {
 }
 
 FoundTradeable(found3Dmnd := 0, found4Dmnd := 0, found1Star := 0) {
+    global sendAccountXml
+
     IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
 
     foundTradeable := found3Dmnd + found4Dmnd + found1Star
@@ -1439,9 +1441,6 @@ FoundTradeable(found3Dmnd := 0, found4Dmnd := 0, found1Star := 0) {
     if (username)
         statusMessage .= " by " . username
 
-    ; Temporarily override the sendAccountXml superglobal.
-    sendAccountXml := s4tSendAccountXml
-
     if (!s4tWP || (s4tWP && foundTradeable < s4tWPMinCards)) {
         CreateStatusMessage("Tradeable cards found. Continuing...")
 
@@ -1450,11 +1449,8 @@ FoundTradeable(found3Dmnd := 0, found4Dmnd := 0, found1Star := 0) {
 
         if (!s4tSilent && s4tDiscordWebhookURL) {
             discordMessage := statusMessage . " in instance: " . scriptName . " (" . packs . " packs, " . openPack . ")\nFound: " . packDetailsMessage . "\nFile name: " . accountFile . "\nBacking up to the Accounts\\Trades folder and continuing..."
-            LogToDiscord(discordMessage, screenShot, true, accountFullPath,, s4tDiscordWebhookURL, s4tDiscordUserId)
+            LogToDiscord(discordMessage, screenShot, true, (s4tSendAccountXml ? accountFullPath : ""),, s4tDiscordWebhookURL, s4tDiscordUserId)
         }
-
-        ; Reset the sendAccountXml superglobal using settings.
-        IniRead, sendAccountXml, %A_ScriptDir%\..\Settings.ini, UserSettings, sendAccountXml, 0
 
         return
     }
@@ -1495,11 +1491,8 @@ FoundTradeable(found3Dmnd := 0, found4Dmnd := 0, found1Star := 0) {
 
     if (s4tDiscordWebhookURL) {
         discordMessage := statusMessage . " in instance: " . scriptName . " (" . packs . " packs, " . openPack . ")\nFound: " . packDetailsMessage . "\nFile name: " . accountFile . "\nBacking up to the Accounts\\Trades folder and continuing..."
-        LogToDiscord(discordMessage, screenShot, true, accountFullPath, fcScreenshot, s4tDiscordWebhookURL, s4tDiscordUserId)
+        LogToDiscord(discordMessage, screenShot, true, (s4tSendAccountXml ? accountFullPath : ""), fcScreenshot, s4tDiscordWebhookURL, s4tDiscordUserId)
     }
-
-    ; Reset the sendAccountXml superglobal using settings.
-    IniRead, sendAccountXml, %A_ScriptDir%\..\Settings.ini, UserSettings, sendAccountXml, 0
 
     ChooseTag()
 
@@ -1541,7 +1534,7 @@ FoundStars(star) {
     statusMessage := star . " found by " . username . " (" . friendCode . ")"
     CreateStatusMessage(statusMessage)
     logMessage := statusMessage . " in instance: " . scriptName . " (" . packs . " packs, " . openPack . ")\nFile name: " . accountFile . "\nBacking up to the Accounts\\SpecificCards folder and continuing..."
-    LogToDiscord(logMessage, screenShot, true, accountFullPath, fcScreenshot)
+    LogToDiscord(logMessage, screenShot, true, (sendAccountXml ? accountFullPath : ""), fcScreenshot)
     LogToFile(StrReplace(logMessage, "\n", " "), "GPlog.txt")
     if(star != "Crown" && star != "Immersive" && star != "Shiny")
         ChooseTag()
@@ -1696,10 +1689,10 @@ GodPackFound(validity) {
 
     ; Adjust the below to only send a 'ping' to Discord friends on Valid packs
     if(validity = "Valid") {
-        LogToDiscord(logMessage, screenShot, true, accountFullPath, fcScreenshot)
+        LogToDiscord(logMessage, screenShot, true, (sendAccountXml ? accountFullPath : ""), fcScreenshot)
         ChooseTag()
     } else {
-        LogToDiscord(logMessage, screenShot, false, accountFullPath, fcScreenshot)
+        LogToDiscord(logMessage, screenShot, false, (sendAccountXml ? accountFullPath : ""), fcScreenshot)
     }
 }
 
