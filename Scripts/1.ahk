@@ -1394,8 +1394,16 @@ CheckPack() {
         }
 
         foundTradeable := found3Dmnd + found4Dmnd + found1Star
-        if (foundTradeable > 0)
+
+        if (foundTradeable > 0) {
+            ; Do not delete accounts with tradeable cards.
+            nukeAccount := false
+
             FoundTradeable(found3Dmnd, found4Dmnd, found1Star)
+        } else {
+            ; Reset nukeAccount using settings.
+            IniRead, nukeAccount, %A_ScriptDir%\..\Settings.ini, UserSettings, nukeAccount, 0
+        }
     }
 }
 
@@ -1434,6 +1442,9 @@ FoundTradeable(found3Dmnd := 0, found4Dmnd := 0, found1Star := 0) {
         return
     }
 
+    ; Not a GP, but treat this pack like one from now on for WP purposes.
+    gpFound := true
+
     friendCode := getFriendCode()
 
     Sleep, 8000
@@ -1469,6 +1480,8 @@ FoundTradeable(found3Dmnd := 0, found4Dmnd := 0, found1Star := 0) {
         discordMessage := statusMessage . " in instance: " . scriptName . " (" . packs . " packs, " . openPack . ")\nFile name: " . accountFile . "\nBacking up to the Accounts\\Trades folder and continuing..."
         LogToDiscord(discordMessage, screenShot, true, accountFullPath, fcScreenshot, s4tDiscordWebhookURL, s4tDiscordUserId)
     }
+
+    ChooseTag()
 
     restartGameInstance("Tradeable cards found. Continuing...", "GodPack")
 }
