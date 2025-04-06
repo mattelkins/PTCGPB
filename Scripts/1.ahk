@@ -1413,16 +1413,26 @@ FoundTradeable(found3Dmnd := 0, found4Dmnd := 0, found1Star := 0) {
 
     foundTradeable := found3Dmnd + found4Dmnd + found1Star
 
-    packDetails := ""
-    if (found3Dmnd > 0)
-        packDetails .= "3DmndX" . found3Dmnd . "_"
-    if (found4Dmnd > 0)
-        packDetails .= "4DmndX" . found4Dmnd . "_"
-    if (found1Star > 0)
-        packDetails .= "1StarX" . found1Star . "_"
-    packDetails := RTrim(packDetails, "_")
+    packDetailsFile := ""
+    packDetailsMessage := ""
 
-    accountFile := saveAccount("Tradeable", accountFullPath, packDetails)
+    if (found3Dmnd > 0) {
+        packDetailsFile .= "3DmndX" . found3Dmnd . "_"
+        packDetailsMessage .= "Three Diamond (x" . found3Dmnd . "), "
+    }
+    if (found4Dmnd > 0) {
+        packDetailsFile .= "4DmndX" . found4Dmnd . "_"
+        packDetailsMessage .= "Four Diamond EX (x" . found4Dmnd . "), "
+    }
+    if (found1Star > 0) {
+        packDetailsFile .= "1StarX" . found1Star . "_"
+        packDetailsMessage .= "One Star (x" . found1Star . "), "
+    }
+
+    packDetailsFile := RTrim(packDetailsFile, "_")
+    packDetailsMessage := RTrim(packDetailsMessage, ", ")
+
+    accountFile := saveAccount("Tradeable", accountFullPath, packDetailsFile)
     screenShot := Screenshot("Tradeable", "Trades", screenShotFileName)
 
     statusMessage := "Tradeable cards found"
@@ -1439,7 +1449,7 @@ FoundTradeable(found3Dmnd := 0, found4Dmnd := 0, found1Star := 0) {
         LogToFile(logMessage, "S4T.txt")
 
         if (!s4tSilent && s4tDiscordWebhookURL) {
-            discordMessage := statusMessage . " in instance: " . scriptName . " (" . packs . " packs, " . openPack . ")\nFile name: " . accountFile . "\nBacking up to the Accounts\\Trades folder and continuing..."
+            discordMessage := statusMessage . " in instance: " . scriptName . " (" . packs . " packs, " . openPack . ")\nFound: " . packDetailsMessage . "\nFile name: " . accountFile . "\nBacking up to the Accounts\\Trades folder and continuing..."
             LogToDiscord(discordMessage, screenShot, true, accountFullPath,, s4tDiscordWebhookURL, s4tDiscordUserId)
         }
 
@@ -1484,7 +1494,7 @@ FoundTradeable(found3Dmnd := 0, found4Dmnd := 0, found1Star := 0) {
     LogToFile(StrReplace(logMessage, "\n", " "), "S4T.txt")
 
     if (s4tDiscordWebhookURL) {
-        discordMessage := statusMessage . " in instance: " . scriptName . " (" . packs . " packs, " . openPack . ")\nFile name: " . accountFile . "\nBacking up to the Accounts\\Trades folder and continuing..."
+        discordMessage := statusMessage . " in instance: " . scriptName . " (" . packs . " packs, " . openPack . ")\nFound: " . packDetailsMessage . "\nFile name: " . accountFile . "\nBacking up to the Accounts\\Trades folder and continuing..."
         LogToDiscord(discordMessage, screenShot, true, accountFullPath, fcScreenshot, s4tDiscordWebhookURL, s4tDiscordUserId)
     }
 
