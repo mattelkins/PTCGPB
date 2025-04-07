@@ -1494,8 +1494,6 @@ FoundTradeable(found3Dmnd := 0, found4Dmnd := 0, found1Star := 0) {
         LogToDiscord(discordMessage, screenShot, true, (s4tSendAccountXml ? accountFullPath : ""), fcScreenshot, s4tDiscordWebhookURL, s4tDiscordUserId)
     }
 
-    ChooseTag()
-
     restartGameInstance("Tradeable cards found. Continuing...", "GodPack")
 }
 
