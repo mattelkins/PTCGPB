@@ -9,7 +9,7 @@ IniRead, sendAccountXml, %sSettingsPath%, UserSettings, sendAccountXml, 0
 
 CreateStatusMessage(Message, GuiName := "StatusMessage", X := 0, Y := 80) {
     static hwnds := {}
-    if(!showStatus)
+    if (!showStatus)
         return
     try {
         ; Check if GUI with this name already exists
@@ -76,19 +76,16 @@ LogToFile(message, logFile := "") {
 }
 
 LogToDiscord(message, screenshotFile := "", ping := false, xmlFile := "", screenshotFile2 := "", altWebhookURL := "", altUserId := "") {
-    discordPing := ""
+    pingUserId := (altUserId ? altUserId : discordUserId)
 
-    if (ping) {
-        userId := (altUserId ? altUserId : discordUserId)
+    discordPing := "<@" . pingUserId . "> "
+    discordFriends := ReadFile("discord")
 
-        discordPing := "<@" . userId . "> "
-        discordFriends := ReadFile("discord")
-        if (discordFriends) {
-            for index, value in discordFriends {
-                if (value = userId)
-                    continue
-                discordPing .= "<@" . value . "> "
-            }
+    if (ping != false && discordFriends) {
+        for index, value in discordFriends {
+            if (value = pingUserId)
+                continue
+            discordPing .= "<@" . value . "> "
         }
     }
 
