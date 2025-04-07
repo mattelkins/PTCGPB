@@ -983,31 +983,31 @@ resetWindows(Title, SelectedMonitorIndex) {
 }
 
 DisplayPackStatus(Message, X := 0, Y := 80) {
-    global packStatusGuiText, SelectedMonitorIndex
-    MaxRetries := 10
-    RetryCount := 0
+    global SelectedMonitorIndex
+    static hwnds := {}
+
     try {
         GuiName := "PackStatusPTCGPB"
-        SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
-        SysGet, Monitor, Monitor, %SelectedMonitorIndex%
-        X := MonitorLeft + X
-        Y := MonitorTop + Y
-        Gui %GuiName%:+LastFoundExist
-        if WinExist() {
-            GuiControl, , packStatusGuiText, %Message%
-        } else {
-            OwnerWND := WinExist(1)
-            if(!OwnerWND)
-                Gui, %GuiName%:New, +ToolWindow -Caption +LastFound
-            else
-                Gui, %GuiName%:New, +Owner%OwnerWND% +ToolWindow -Caption +LastFound
+        if !hwnds.HasKey(GuiName) {
+            SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
+            SysGet, Monitor, Monitor, %SelectedMonitorIndex%
+            X := MonitorLeft + X
+            Y := MonitorTop + Y
+
+            ; Create a new GUI with the given name, position, and message
+            Gui, %GuiName%:New, -AlwaysOnTop +ToolWindow -Caption
             Gui, %GuiName%:Margin, 2, 2  ; Set margin for the GUI
             Gui, %GuiName%:Font, s8  ; Set the font size to 8 (adjust as needed)
-            Gui, %GuiName%:Add, Text, vPacksText, %Message%
-            DllCall("SetWindowPos", "Ptr", WinExist(), "Ptr", WinExist("A")  ; set behind active window
+            Gui, %GuiName%:Add, Text, hwndhCtrl vPacksText, %Message%
+            hwnds[GuiName] := hCtrl
+            OwnerWND := WinExist(1)
+            Gui, %GuiName%:+Owner%OwnerWND% +LastFound
+            DllCall("SetWindowPos", "Ptr", WinExist(), "Ptr", 1  ; HWND_BOTTOM
                 , "Int", 0, "Int", 0, "Int", 0, "Int", 0, "UInt", 0x13)  ; SWP_NOSIZE, SWP_NOMOVE, SWP_NOACTIVATE
-            Gui, %GuiName%:Show, NoActivate x%X% y%Y%, NoActivate %GuiName%
+            Gui, %GuiName%:Show, NoActivate x%X% y%Y% AutoSize
         }
+        SetTextAndResize(hwnds[GuiName], Message)
+        Gui, %GuiName%:Show, NoActivate AutoSize
     }
 }
 
