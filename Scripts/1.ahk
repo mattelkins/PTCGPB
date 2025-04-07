@@ -1409,8 +1409,6 @@ CheckPack() {
 }
 
 FoundTradeable(found3Dmnd := 0, found4Dmnd := 0, found1Star := 0) {
-    global sendAccountXml
-
     IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
 
     foundTradeable := found3Dmnd + found4Dmnd + found1Star
@@ -1434,6 +1432,7 @@ FoundTradeable(found3Dmnd := 0, found4Dmnd := 0, found1Star := 0) {
     packDetailsFile := RTrim(packDetailsFile, "_")
     packDetailsMessage := RTrim(packDetailsMessage, ", ")
 
+    accountFullPath := ""
     accountFile := saveAccount("Tradeable", accountFullPath, packDetailsFile)
     screenShot := Screenshot("Tradeable", "Trades", screenShotFileName)
 
@@ -1500,6 +1499,7 @@ FoundTradeable(found3Dmnd := 0, found4Dmnd := 0, found1Star := 0) {
 FoundStars(star) {
     global scriptName, DeadCheck, ocrLanguage, injectMethod, openPack
     screenShot := Screenshot(star)
+    accountFullPath := ""
     accountFile := saveAccount(star, accountFullPath)
     friendCode := getFriendCode()
     IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
@@ -1657,6 +1657,7 @@ GodPackFound(validity) {
     Interjection := Praise[rand]
     starCount := 5 - FindBorders("1star") - FindBorders("shiny1star")
     screenShot := Screenshot(validity)
+    accountFullPath := ""
     accountFile := saveAccount(validity, accountFullPath)
     friendCode := getFriendCode()
 
