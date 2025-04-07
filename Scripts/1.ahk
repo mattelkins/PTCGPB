@@ -18,7 +18,7 @@ CoordMode, Pixel, Screen
 DllCall("AllocConsole")
 WinHide % "ahk_id " DllCall("GetConsoleWindow", "ptr")
 
-global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, scriptName, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, deleteMethod, packs, FriendID, friendIDs, Instances, username, friendCode, stopToggle, friended, runMain, Mains, showStatus, injectMethod, packMethod, loadDir, loadedAccount, nukeAccount, CheckShiningPackOnly, TrainerCheck, FullArtCheck, RainbowCheck, ShinyCheck, dateChange, foundGP, friendsAdded, minStars, PseudoGodPack, Palkia, Dialga, Mew, Pikachu, Charizard, Mewtwo, packArray, CrownCheck, ImmersiveCheck, InvalidCheck, slowMotion, screenShot, accountFile, invalid, starCount, gpFound, minStarsA1Charizard, minStarsA1Mewtwo, minStarsA1Pikachu, minStarsA1a, minStarsA2Dialga, minStarsA2Palkia, minStarsA2a, minStarsA2b
+global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, scriptName, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, deleteMethod, packs, FriendID, friendIDs, Instances, username, friendCode, stopToggle, friended, runMain, Mains, showStatus, injectMethod, packMethod, loadDir, loadedAccount, nukeAccount, CheckShiningPackOnly, TrainerCheck, FullArtCheck, RainbowCheck, ShinyCheck, dateChange, foundGP, friendsAdded, minStars, PseudoGodPack, Palkia, Dialga, Mew, Pikachu, Charizard, Mewtwo, packArray, CrownCheck, ImmersiveCheck, InvalidCheck, slowMotion, screenShot, accountFile, invalid, starCount, keepAccount, minStarsA1Charizard, minStarsA1Mewtwo, minStarsA1Pikachu, minStarsA1a, minStarsA2Dialga, minStarsA2Palkia, minStarsA2a, minStarsA2b
 global DeadCheck
 global s4tEnabled, s4tSilent, s4t3Dmnd, s4t4Dmnd, s4t1Star, s4tWP, s4tWPMinCards, s4tDiscordWebhookURL, s4tDiscordUserId, s4tSendAccountXml
 
@@ -244,7 +244,9 @@ if(DeadCheck==1) {
         Delay(1)
         adbClick(41, 296)
         Delay(1)
+
         packs := 0
+        keepAccount := false
 
         ; BallCity 2025.02.21 - Keep track of additional metrics
         now := A_NowUTC
@@ -299,11 +301,11 @@ if(DeadCheck==1) {
             }
         }
 
-        if(nukeAccount && !injectMethod) {
+        if(nukeAccount && !keepAccount && !injectMethod)
             menuDelete()
-        }else{
+        else
             RemoveFriends()
-        }
+
         IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
 
         ; BallCity 2025.02.21 - Keep track of additional metrics
@@ -1159,8 +1161,8 @@ menuDelete() {
 
 menuDeleteStart() {
     global friended
-    if(gpFound) {
-        return gpFound
+    if(keepAccount) {
+        return keepAccount
     }
     if(friended) {
         FindImageAndClick(65, 195, 100, 215, , "Platin", 18, 109, 2000) ; click mod settings
@@ -1396,20 +1398,17 @@ CheckPack() {
 
         foundTradeable := found3Dmnd + found4Dmnd + found1Star
 
-        if (foundTradeable > 0) {
-            ; Do not delete accounts with tradeable cards.
-            nukeAccount := false
-
+        if (foundTradeable > 0)
             FoundTradeable(found3Dmnd, found4Dmnd, found1Star)
-        } else {
-            ; Reset nukeAccount using settings.
-            IniRead, nukeAccount, %A_ScriptDir%\..\Settings.ini, UserSettings, nukeAccount, 0
-        }
     }
 }
 
 FoundTradeable(found3Dmnd := 0, found4Dmnd := 0, found1Star := 0) {
+    ; Not dead.
     IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
+
+    ; Keep account.
+    keepAccount := true
 
     foundTradeable := found3Dmnd + found4Dmnd + found1Star
 
@@ -1454,13 +1453,10 @@ FoundTradeable(found3Dmnd := 0, found4Dmnd := 0, found1Star := 0) {
         return
     }
 
-    ; Not a GP, but treat this pack like one from now on for WP purposes.
-    gpFound := true
-
     friendCode := getFriendCode()
 
     Sleep, 8000
-    fcScreenshot := Screenshot("FRIENDCODE")
+    fcScreenshot := Screenshot("FRIENDCODE", "Trades")
 
     ; If we're doing the inject method, try to OCR our Username
     try {
@@ -1498,11 +1494,17 @@ FoundTradeable(found3Dmnd := 0, found4Dmnd := 0, found1Star := 0) {
 
 FoundStars(star) {
     global scriptName, DeadCheck, ocrLanguage, injectMethod, openPack
+
+    ; Not dead.
+    IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
+
+    ; Keep account.
+    keepAccount := true
+
     screenShot := Screenshot(star)
     accountFullPath := ""
     accountFile := saveAccount(star, accountFullPath)
     friendCode := getFriendCode()
-    IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
 
     ; Pull back screenshot of the friend code/name (good for inject method)
     Sleep, 8000
@@ -1587,18 +1589,17 @@ FindBorders(prefix) {
 }
 
 FindGodPack(invalidPack := false) {
-    gpFound := false
     searchVariation := 5
 
     ; Check for normal borders.
     normalBorders := FindBorders("normal")
     if (normalBorders) {
         CreateStatusMessage("Not a God Pack...")
-        return gpFound
+        return false
     }
 
     ; A god pack (although possibly invalid) has been found.
-    gpFound := true
+    keepAccount := true
 
     ; Count stars if required.
     packMinStars := minStars
@@ -1637,7 +1638,7 @@ FindGodPack(invalidPack := false) {
         GodPackFound("Valid")
     }
 
-    return gpFound
+    return keepAccount
 }
 
 GodPackFound(validity) {
