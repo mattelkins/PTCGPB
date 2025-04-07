@@ -1079,9 +1079,9 @@ restartGameInstance(reason, RL := true){
     } else if(RL) {
         if(menuDeleteStart()) {
             IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
-            logMessage := "\n" . username . "\n[" . starCount . "/5][" . packs . "P][" . openPack . "] " . invalid . " God pack found in instance: " . scriptName . "\nFile name: " . accountFile . "\nGot stuck getting friend code."
-            LogToFile(logMessage, "GPlog.txt")
-            LogToDiscord(logMessage, , true)
+            logMessage := "\n" . username . "\n[" . (starCount ? starCount : "0") . "/5][" . (packs ? packs : 0) . "P][" . openPack . "] " . (invalid ? invalid . " God Pack" : "Some sort of pack") . " found in instance: " . scriptName . "\nFile name: " . accountFile . "\nGot stuck doing something. Check Logs\Log_" . scriptName . ".txt."
+            LogToFile(logMessage)
+            LogToDiscord(logMessage,, true)
         }
         LogToFile("Restarted game for instance " . scriptName . ". Reason: " reason, "Restart.txt")
 
