@@ -3,6 +3,9 @@ Accounts/*
 json/*
 Logs/*
 Screenshots/*
+Screenshots/Trades/**
+!Screenshots/Trades/
+!Screenshots/Trades/.gitignore
 Scripts/*.ahk
 Scripts/*.ini
 !Scripts/1.ahk
