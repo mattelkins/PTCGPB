@@ -314,13 +314,7 @@ if(DeadCheck==1) {
         EnvSub, now, 1970, seconds
         IniWrite, %now%, %A_ScriptDir%\%scriptName%.ini, Metrics, LastEndEpoch
 
-        if(injectMethod)
-            loadedAccount := loadAccount()
-
         rerolls++
-        if(!loadedAccount)
-            if(deleteMethod = "5 Pack" || packMethod)
-                packs := 5
 
         totalSeconds := Round((A_TickCount - rerollTime) / 1000) ; Total time in seconds
         avgtotalSeconds := Round(totalSeconds / rerolls) ; Total time in seconds
@@ -331,21 +325,23 @@ if(DeadCheck==1) {
         CreateStatusMessage("Avg: " . minutes . "m " . seconds . "s | Runs: " . rerolls, "AvgRuns", 0, 510)
         LogToFile("Packs: " . packs . " | Total time: " . mminutes . "m " . sseconds . "s | Avg: " . minutes . "m " . seconds . "s | Runs: " . rerolls)
 
-        if ((!injectMethod || !loadedAccount) && !nukeAccount) {
+        if (injectMethod)
+            loadedAccount := loadAccount()
+
+        if (!loadedAccount)
+            if(deleteMethod = "5 Pack" || packMethod)
+                packs := 5
+
+        if ((!injectMethod || !loadedAccount) && !nukeAccount)
             saveAccount("All")
 
-            if (stopToggle) {
-                AppendToJsonFile(packs)
-                ExitApp
-            } else {
-                restartGameInstance("New Run", false)
-            }
-        } else {
+        if (stopToggle) {
             AppendToJsonFile(packs)
-            CreateStatusMessage("New Run")
+            ExitApp
+        }
 
-            if (stopToggle)
-                ExitApp
+        if (!injectMethod || !loadedAccount) {
+            restartGameInstance("New Run", false)
         }
     }
 }
