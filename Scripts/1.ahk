@@ -1688,11 +1688,11 @@ GodPackFound(validity) {
     LogToFile(StrReplace(logMessage, "\n", " "), "GPlog.txt")
 
     ; Adjust the below to only send a 'ping' to Discord friends on Valid packs
-    if(validity = "Valid") {
+    if (validity = "Valid") {
         LogToDiscord(logMessage, screenShot, true, (sendAccountXml ? accountFullPath : ""), fcScreenshot)
         ChooseTag()
-    } else {
-        LogToDiscord(logMessage, screenShot, false, (sendAccountXml ? accountFullPath : ""), fcScreenshot)
+    } else if (!InvalidCheck) {
+        LogToDiscord(logMessage, screenShot, true, (sendAccountXml ? accountFullPath : ""), fcScreenshot)
     }
 }
 

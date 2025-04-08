@@ -76,16 +76,19 @@ LogToFile(message, logFile := "") {
 }
 
 LogToDiscord(message, screenshotFile := "", ping := false, xmlFile := "", screenshotFile2 := "", altWebhookURL := "", altUserId := "") {
-    pingUserId := (altUserId ? altUserId : discordUserId)
+    discordPing := ""
 
-    discordPing := "<@" . pingUserId . "> "
-    discordFriends := ReadFile("discord")
+    if (ping) {
+        userId := (altUserId ? altUserId : discordUserId)
 
-    if (ping != false && discordFriends) {
-        for index, value in discordFriends {
-            if (value = pingUserId)
-                continue
-            discordPing .= "<@" . value . "> "
+        discordPing := "<@" . userId . "> "
+        discordFriends := ReadFile("discord")
+        if (discordFriends) {
+            for index, value in discordFriends {
+                if (value = userId)
+                    continue
+                discordPing .= "<@" . value . "> "
+            }
         }
     }
 

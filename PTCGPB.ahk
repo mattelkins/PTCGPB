@@ -909,7 +909,7 @@ Start:
                 discMessage .= typeMsg
                 discMessage .= selectMsg
 
-                LogToDiscord(discMessage, , false, , , heartBeatWebhookURL)
+                LogToDiscord(discMessage,, false,,, heartBeatWebhookURL)
             }
     }
 Return
