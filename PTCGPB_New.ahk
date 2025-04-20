@@ -1,4 +1,4 @@
-#Include %A_ScriptDir%\Scripts\Include\Logging.ahk
+﻿#Include %A_ScriptDir%\Scripts\Include\Logging.ahk
 #Include %A_ScriptDir%\Scripts\Include\ADB.ahk
 
 version = Arturos PTCGP Bot
@@ -127,7 +127,7 @@ HexToRGB(color) {
     ; Check if the color has a # prefix and remove it
     if (SubStr(color, 1, 1) = "#")
         color := SubStr(color, 2)
-    
+
     ; Convert hex to RGB integer
     return "0x" . SubStr(color, 5, 2) . SubStr(color, 3, 2) . SubStr(color, 1, 2)
 }
@@ -136,15 +136,15 @@ HexToRGB(color) {
 WM_CTLCOLORBTN(wParam, lParam) {
     global g_ButtonColors, BTN_BRUSH
     hwnd := lParam
-    
+
     ; If we have a color saved for this button, use it
     if (g_ButtonColors.HasKey(hwnd)) {
         color := g_ButtonColors[hwnd]
-        
+
         ; Delete old brush if exists to prevent memory leaks
         if (BTN_BRUSH)
             DllCall("DeleteObject", "Ptr", BTN_BRUSH)
-        
+
         ; Create new brush with the saved color
         BTN_BRUSH := CreateSolidBrush(HexToRGB(color))
         return BTN_BRUSH
@@ -155,21 +155,21 @@ WM_CTLCOLORBTN(wParam, lParam) {
 ; Message handler for static controls
 WM_CTLCOLORSTATIC(wParam, lParam) {
     global isDarkTheme, STATIC_BRUSH, DARK_TEXT, LIGHT_TEXT, DARK_BG, LIGHT_BG
-    
+
     ; Get the background color based on theme
     bgColor := isDarkTheme ? DARK_BG : LIGHT_BG
     textColor := isDarkTheme ? DARK_TEXT : LIGHT_TEXT
-    
+
     ; Set text color for the static control
     DllCall("SetTextColor", "Ptr", wParam, "UInt", HexToRGB(textColor))
-    
+
     ; Set background color for the static control
     DllCall("SetBkColor", "Ptr", wParam, "UInt", HexToRGB(bgColor))
-    
+
     ; Delete old brush to prevent memory leaks
     if (STATIC_BRUSH)
         DllCall("DeleteObject", "Ptr", STATIC_BRUSH)
-    
+
     ; Create and return a brush with the background color
     STATIC_BRUSH := CreateSolidBrush(HexToRGB(bgColor))
     return STATIC_BRUSH
@@ -179,7 +179,7 @@ WM_CTLCOLORSTATIC(wParam, lParam) {
 SetButtonColor(hwnd, color) {
     global g_ButtonColors
     g_ButtonColors[hwnd] := color
-    
+
     ; Force redraw to apply color immediately
     WinSet, Redraw,, ahk_id %hwnd%
 }
@@ -334,7 +334,7 @@ SetAllTextColors(textColor) {
     GuiControl, +c%textColor%, SaveForTradeLabel
     GuiControl, +c%textColor%, DiscordSettingsLabel
     GuiControl, +c%textColor%, DownloadSettingsLabel
-    
+
     ; Extra Settings
     GuiControl, +c%textColor%, ExtraSettingsHeading
     GuiControl, +c%textColor%, Txt_TesseractPath
@@ -604,7 +604,7 @@ HideAllSections() {
     GuiControl, Hide, Columns
     GuiControl, Hide, runMain
     GuiControl, Hide, Mains
-    
+
 
     ; hide Time Settings section
     GuiControl, Hide, TimeSettingsHeading
@@ -732,14 +732,14 @@ HideAllSections() {
 
     ; hide Reroll Settings separator
     GuiControl, Hide, RerollSettingsSeparator
-    
+
     ; hide Extra Settings section
     GuiControl, Hide, ExtraSettingsHeading
     GuiControl, Hide, Txt_TesseractPath
     GuiControl, Hide, tesseractPath
     GuiControl, Hide, applyRoleFilters
     GuiControl, Hide, debugMode
-    
+
     ; Hide ALL divider elements - this is the key part that was missing!
     GuiControl, Hide, FriendID_Divider
     GuiControl, Hide, Instance_Divider3
@@ -803,7 +803,7 @@ ShowRerollSettingsSection() {
     if (runMain) {
         GuiControl, Show, Mains
     }
-    
+
     GuiControl, Show, Instance_Divider3
 
     ; === Time Settings Section with Heading ===
@@ -935,7 +935,7 @@ ShowSystemSettingsSection() {
         GuiControl, +Background%LIGHT_INPUT_BG% +c%LIGHT_INPUT_TEXT%, folderPath
         GuiControl, +Background%LIGHT_INPUT_BG% +c%LIGHT_INPUT_TEXT%, instanceLaunchDelay
     }
-    
+
     SetHeaderFont()
     GuiControl, Show, ExtraSettingsHeading
     if (isDarkTheme) {
@@ -1153,7 +1153,7 @@ ShowSaveForTradeSection() {
     GuiControl, +c%sectionColor%, SaveForTradeHeading
     GuiControl, Show, s4tEnabled
     GuiControl, +c%sectionColor%, s4tEnabled
-    
+
     ; Always hide the dividers initially
     GuiControl, Hide, SaveForTradeDivider_1
     GuiControl, Hide, SaveForTradeDivider_2
@@ -1566,7 +1566,7 @@ LoadSettingsFromIni() {
 
         ; Background image setting
         IniRead, useBackgroundImage, Settings.ini, UserSettings, useBackgroundImage, 1
-        
+
         ; Extra Settings
         IniRead, tesseractPath, Settings.ini, UserSettings, tesseractPath, C:\Program Files\Tesseract-OCR\tesseract.exe
         IniRead, applyRoleFilters, Settings.ini, UserSettings, applyRoleFilters, 0
@@ -2488,9 +2488,9 @@ ArrangeWindows:
     GuiControlGet, Instances,, Instances
     GuiControlGet, Columns,, Columns
     GuiControlGet, SelectedMonitorIndex,, SelectedMonitorIndex
-    
+
     windowsPositioned := 0
-    
+
     if (runMain && Mains > 0) {
         Loop %Mains% {
             mainInstanceName := "Main" . (A_Index > 1 ? A_Index : "")
@@ -2501,7 +2501,7 @@ ArrangeWindows:
             }
         }
     }
-    
+
     if (Instances > 0) {
         Loop %Instances% {
             if (WinExist(A_Index)) {
@@ -2511,7 +2511,7 @@ ArrangeWindows:
             }
         }
     }
-    
+
     if (debugMode && windowsPositioned == 0) {
         MsgBox, No windows found to arrange
     } else {
@@ -2629,7 +2629,7 @@ SaveReload:
     IniWrite, %s4tDiscordUserId%, Settings.ini, UserSettings, s4tDiscordUserId
     IniWrite, %s4tDiscordWebhookURL%, Settings.ini, UserSettings, s4tDiscordWebhookURL
     IniWrite, %s4tSendAccountXml%, Settings.ini, UserSettings, s4tSendAccountXml
-    
+
     ; Extra Settings
     IniWrite, %tesseractPath%, Settings.ini, UserSettings, tesseractPath
     IniWrite, %applyRoleFilters%, Settings.ini, UserSettings, applyRoleFilters
@@ -2715,7 +2715,7 @@ StartBot:
     IniWrite, %minStarsA2Palkia%, Settings.ini, UserSettings, minStarsA2Palkia
     IniWrite, %minStarsA2a%, Settings.ini, UserSettings, minStarsA2a
     IniWrite, %minStarsA2b%, Settings.ini, UserSettings, minStarsA2b
-    
+
     IniWrite, %heartBeatDelay%, Settings.ini, UserSettings, heartBeatDelay
     IniWrite, %sendAccountXml%, Settings.ini, UserSettings, sendAccountXml
 
@@ -2730,12 +2730,11 @@ StartBot:
     IniWrite, %s4tDiscordWebhookURL%, Settings.ini, UserSettings, s4tDiscordWebhookURL
     IniWrite, %s4tSendAccountXML%, Settings.ini, UserSettings, s4tSendAccountXML
     IniWrite, %s4tGholdengo%, Settings.ini, UserSettings, s4tGholdengo
-    
+
     ; Extra Settings
     IniWrite, %tesseractPath%, Settings.ini, UserSettings, tesseractPath
-    IniWrite, %applyRoleFilters%, Settings.ini, UserSettings, applyRoleFilters
     IniWrite, %debugMode%, Settings.ini, UserSettings, debugMode
-    
+
     IniWrite, %isDarkTheme%, Settings.ini, UserSettings, isDarkTheme
     IniWrite, %useBackgroundImage%, Settings.ini, UserSettings, useBackgroundImage
 
@@ -2873,7 +2872,7 @@ Loop {
         if (mainTestMode != -1) {
             ; Main has toggled test mode, get status and send notification
             IniRead, mainStatus, HeartBeat.ini, HeartBeat, Main, 0
-            
+
             onlineAHK := ""
             offlineAHK := ""
             Online := []
@@ -2925,26 +2924,26 @@ Loop {
             ; Create status message with all regular heartbeat info
             discMessage := heartBeatName ? "\n" . heartBeatName : ""
             discMessage .= "\n" . onlineAHK . "\n" . offlineAHK
-            
+
             total := SumVariablesInJsonFile()
             totalSeconds := Round((A_TickCount - rerollTime) / 1000)
             mminutes := Floor(totalSeconds / 60)
             packStatus := "Time: " . mminutes . "m | Packs: " . total
             packStatus .= " | Avg: " . Round(total / mminutes, 2) . " packs/min"
-            
+
             discMessage .= "\n" . packStatus . "\nVersion: " . RegExReplace(githubUser, "-.*$") . "-" . localVersion
             discMessage .= typeMsg
             discMessage .= selectMsg
-            
+
             ; Add special note about Main's test mode status
             if (mainTestMode == "1")
                 discMessage .= "\n\nMain entered GP Test Mode ✕" ;We can change this later
             else
                 discMessage .= "\n\nMain exited GP Test Mode ✓" ;We can change this later
-                
+
             ; Send the message
             LogToDiscord(discMessage,, false,,, heartBeatWebhookURL)
-            
+
             ; Clear the flag
             IniDelete, HeartBeat.ini, TestMode, Main
         }
@@ -3086,10 +3085,10 @@ return
 SendAllInstancesOfflineStatus() {
     global heartBeatName, heartBeatWebhookURL, localVersion, githubUser, Instances, runMain, Mains
     global typeMsg, selectMsg, rerollTime, scaleParam
-    
+
     ; Display visual feedback that the hotkey was triggered
     DisplayPackStatus("Shift+F7 pressed - Sending offline heartbeat to Discord...", ((runMain ? Mains * scaleParam : 0) + 5), 490)
-    
+
     ; Create message showing all instances as offline
     offlineInstances := ""
     if (runMain) {
@@ -3101,33 +3100,33 @@ SendAllInstancesOfflineStatus() {
         if (Instances > 0)
             offlineInstances .= ", "
     }
-    
+
     Loop, %Instances% {
         offlineInstances .= A_Index
         if (A_Index < Instances)
             offlineInstances .= ", "
     }
-    
+
     ; Create status message with heartbeat info
     discMessage := heartBeatName ? "\n" . heartBeatName : ""
     discMessage .= "\nOnline: none"
     discMessage .= "\nOffline: " . offlineInstances
-    
+
     ; Add pack statistics
     total := SumVariablesInJsonFile()
     totalSeconds := Round((A_TickCount - rerollTime) / 1000)
     mminutes := Floor(totalSeconds / 60)
     packStatus := "Time: " . mminutes . "m | Packs: " . total
     packStatus .= " | Avg: " . Round(total / mminutes, 2) . " packs/min"
-    
+
     discMessage .= "\n" . packStatus . "\nVersion: " . RegExReplace(githubUser, "-.*$") . "-" . localVersion
     discMessage .= typeMsg
     discMessage .= selectMsg
     discMessage .= "\n\n All instances marked as OFFLINE"
-    
+
     ; Send the message
     LogToDiscord(discMessage,, false,,, heartBeatWebhookURL)
-    
+
     ; Display confirmation in the status bar
     DisplayPackStatus("Discord notification sent: All instances marked as OFFLINE", ((runMain ? Mains * scaleParam : 0) + 5), 490)
 }
@@ -3139,10 +3138,10 @@ global jsonFileName := ""
 InitializeJsonFile() {
     global jsonFileName
     fileName := A_ScriptDir . "\json\Packs.json"
-    
+
     ; Add this line to create the directory if it doesn't exist
     FileCreateDir, %A_ScriptDir%\json
-    
+
     if FileExist(fileName)
         FileDelete, %fileName%
     if !FileExist(fileName) {
@@ -3245,11 +3244,11 @@ DownloadFile(url, filename) {
 CheckForUpdate() {
 
 global updateCheckPerformed, githubUser, repoName, localVersion, zipPath, extractPath, scriptFolder
-    
+
     ; Skip if already performed
     if (updateCheckPerformed)
         return
-    
+
     updateCheckPerformed := true
 
     global githubUser, repoName, localVersion, zipPath, extractPath, scriptFolder
