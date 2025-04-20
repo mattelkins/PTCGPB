@@ -1,16 +1,14 @@
 global ScriptDir := RegExReplace(A_LineFile, "\\[^\\]+$"), LogsDir := ScriptDir . "\..\..\Logs"
-global Debug, discordWebhookURL, discordUserId, sendAccountXml
+global debugMode, discordWebhookURL, discordUserId, sendAccountXml
 global DEFAULT_STATUS_MESSAGE := "..."
 
 ; Read settings.
 settingsPath := ScriptDir . "\..\..\Settings.ini"
 
+IniRead, debugMode, %debugMode%, UserSettings, debugMode, 0
 IniRead, discordWebhookURL, %settingsPath%, UserSettings, discordWebhookURL
 IniRead, discordUserId, %settingsPath%, UserSettings, discordUserId
 IniRead, sendAccountXml, %settingsPath%, UserSettings, sendAccountXml, 0
-
-; Enable debugging to get more status messages and logging.
-Debug := false
 
 ResetStatusMessage() {
     CreateStatusMessage(DEFAULT_STATUS_MESSAGE,,,, false, true)
@@ -20,10 +18,10 @@ CreateStatusMessage(Message, GuiName := "StatusMessage", X := 0, Y := 80, debugO
     static hwnds := {}
     static resetStatusFunc := Func("ResetStatusMessage")
 
-    if (!showStatus || (!Debug && debugOnly))
+    if (!showStatus || (!debugMode && debugOnly))
         return
 
-    if (Debug && Message != DEFAULT_STATUS_MESSAGE)
+    if (debugMode && Message != DEFAULT_STATUS_MESSAGE)
         LogToFile(GuiName . ": " . Message)
 
     try {
@@ -56,7 +54,7 @@ CreateStatusMessage(Message, GuiName := "StatusMessage", X := 0, Y := 80, debugO
         ; Clear any previous timers.
         SetTimer, % resetStatusFunc, Off
 
-        if (!Debug && !Persist) {
+        if (!debugMode && !Persist) {
             ; Reset status message to default after 2 seconds.
             SetTimer, % resetStatusFunc, -2000
         }
