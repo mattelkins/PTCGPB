@@ -630,7 +630,7 @@ HideAllSections() {
     GuiControl, Hide, Txt_InstanceLaunchDelay
     GuiControl, Hide, instanceLaunchDelay
     GuiControl, Hide, autoLaunchMonitor
-    GuiControl, Hide, SystemSettingsSeparator
+    GuiControl, Hide, System_Divider1
 
     ; Extra Settings Section
     GuiControl, Hide, ExtraSettingsHeading
@@ -908,7 +908,7 @@ ShowSystemSettingsSection() {
     GuiControl, Show, Txt_InstanceLaunchDelay
     GuiControl, Show, instanceLaunchDelay
     GuiControl, Show, autoLaunchMonitor
-    GuiControl, Show, SystemSettingsSeparator
+    GuiControl, Show, System_Divider1
 
     ; Apply proper text coloring to labels and checkboxes
     if (isDarkTheme) {
@@ -1236,10 +1236,6 @@ ShowSaveForTradeSection() {
             GuiControl, +Background%LIGHT_INPUT_BG% +c%LIGHT_INPUT_TEXT%, s4tDiscordWebhookURL
         }
     }
-
-    ; Show dividers
-    GuiControl, Show, SaveForTradeDivider_1
-    GuiControl, Show, SaveForTradeDivider_2
 
     ; Update section headers with appropriate colors
     UpdateSectionHeaders()
@@ -1786,7 +1782,7 @@ Gui, Add, Checkbox, % "vrunMain gmainSettings x170 y+17 Hidden" . (runMain ? " C
 Gui, Add, Edit, % "vMains w45 x260 y+-17 h25 Center Hidden " . (runMain ? "" : "Hidden"), %Mains%
 
 ; Add dividers for Instance Settings section
-AddSectionDivider(170, "+25", 290, "Instance_Divider3")
+AddSectionDivider(170, "+20", 290, "Instance_Divider3")
 
 ; ========== Time Settings Section ==========
 SetHeaderFont()
@@ -1879,13 +1875,14 @@ Gui, Add, Edit, vinstanceLaunchDelay x285 y+-17 w55 h25 Center Hidden, %instance
 
 Gui, Add, Checkbox, % (autoLaunchMonitor ? "Checked" : "") " vautoLaunchMonitor x170 y+17 Hidden", Auto Launch Monitor
 
+AddSectionDivider(170, "+20", 290, "System_Divider1")
+
 SetHeaderFont()
-Gui, Add, Text, x170 y+30 Hidden vExtraSettingsHeading, Extra Settings
+Gui, Add, Text, x170 y+20 Hidden vExtraSettingsHeading, Extra Settings
 SetNormalFont()
-Gui, Add, Text, x170 y+20 Hidden vTxt_TesseractPath, Tesseract Path:
-Gui, Add, Edit, vtesseractPath w290 x170 y+5 h25 Hidden, %tesseractPath%
-Gui, Add, Checkbox, % (applyRoleFilters ? "Checked" : "") " vapplyRoleFilters x170 y+10 Hidden", Use Role-Based Filters
-Gui, Add, Checkbox, % (debugMode ? "Checked" : "") " vdebugMode x170 y+10 Hidden", Debug Mode
+Gui, Add, Text, y+20 Hidden vTxt_TesseractPath, Tesseract Path:
+Gui, Add, Edit, vtesseractPath w290 y+10 h25 Hidden, %tesseractPath%
+Gui, Add, Checkbox, % (debugMode ? "Checked" : "") " vdebugMode y+10 Hidden", Debug Mode
 
 ; ========== Pack Settings Section (Merged God Pack, Pack Selection and Card Detection) ==========
 SetHeaderFont()
@@ -2002,9 +1999,9 @@ if(StrLen(s4tDiscordWebhookURL) < 3)
     s4tDiscordWebhookURL =
 
 Gui, Add, Text, y+20 Hidden vTxt_S4T_DiscordID, Discord ID:
-Gui, Add, Edit, vs4tDiscordUserId w290 y+10 h25 Center Hidden, %s4tDiscordUserId%
+Gui, Add, Edit, vs4tDiscordUserId w290 y+10 h25 Hidden, %s4tDiscordUserId%
 Gui, Add, Text, y+20 Hidden vTxt_S4T_DiscordWebhook, Webhook URL:
-Gui, Add, Edit, vs4tDiscordWebhookURL w290 y+10 h25 Center Hidden, %s4tDiscordWebhookURL%
+Gui, Add, Edit, vs4tDiscordWebhookURL w290 y+10 h25 Hidden, %s4tDiscordWebhookURL%
 Gui, Add, Checkbox, % (s4tSendAccountXml ? "Checked" : "") " vs4tSendAccountXml y+20 Hidden", Send Account XML
 
 ; ========== Discord Settings Section (with integrated Heartbeat settings) ==========
@@ -2330,8 +2327,6 @@ s4tSettings:
         GuiControl, Show, SaveForTradeDivider_1
         GuiControl, Show, SaveForTradeDivider_2
         GuiControl, Show, SaveForTradeHeading
-        GuiControl, Show, SaveForTradeDivider_1
-        GuiControl, Show, SaveForTradeDivider_2
 
 
         ; Apply theme-specific styling
