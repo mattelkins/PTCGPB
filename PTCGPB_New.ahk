@@ -42,7 +42,6 @@ global System_Divider1, System_Divider2, System_Divider3, System_Divider4
 global Pack_Divider1, Pack_Divider2, Pack_Divider3
 global SaveForTradeDivider_1, SaveForTradeDivider_2
 global Discord_Divider3
-global tesseractPath, applyRoleFilters, debugMode
 
 if not A_IsAdmin
 {
@@ -338,7 +337,6 @@ SetAllTextColors(textColor) {
     ; Extra Settings
     GuiControl, +c%textColor%, ExtraSettingsHeading
     GuiControl, +c%textColor%, Txt_TesseractPath
-    GuiControl, +c%textColor%, applyRoleFilters
     GuiControl, +c%textColor%, debugMode
 }
 
@@ -737,7 +735,6 @@ HideAllSections() {
     GuiControl, Hide, ExtraSettingsHeading
     GuiControl, Hide, Txt_TesseractPath
     GuiControl, Hide, tesseractPath
-    GuiControl, Hide, applyRoleFilters
     GuiControl, Hide, debugMode
 
     ; Hide ALL divider elements - this is the key part that was missing!
@@ -947,17 +944,14 @@ ShowSystemSettingsSection() {
     SetNormalFont()
     GuiControl, Show, Txt_TesseractPath
     GuiControl, Show, tesseractPath
-    GuiControl, Show, applyRoleFilters
     GuiControl, Show, debugMode
 
     if (isDarkTheme) {
         GuiControl, +c%DARK_TEXT%, Txt_TesseractPath
-        GuiControl, +c%DARK_TEXT%, applyRoleFilters
         GuiControl, +c%DARK_TEXT%, debugMode
         GuiControl, +Background%DARK_INPUT_BG% +c%DARK_INPUT_TEXT%, tesseractPath
     } else {
         GuiControl, +c%LIGHT_TEXT%, Txt_TesseractPath
-        GuiControl, +c%LIGHT_TEXT%, applyRoleFilters
         GuiControl, +c%LIGHT_TEXT%, debugMode
         GuiControl, +Background%LIGHT_INPUT_BG% +c%LIGHT_INPUT_TEXT%, tesseractPath
     }
@@ -1569,7 +1563,6 @@ LoadSettingsFromIni() {
 
         ; Extra Settings
         IniRead, tesseractPath, Settings.ini, UserSettings, tesseractPath, C:\Program Files\Tesseract-OCR\tesseract.exe
-        IniRead, applyRoleFilters, Settings.ini, UserSettings, applyRoleFilters, 0
         IniRead, debugMode, Settings.ini, UserSettings, debugMode, 0
 
         ; Validate numeric values
@@ -1611,7 +1604,6 @@ CreateDefaultSettingsFile() {
         IniWrite, "", Settings.ini, UserSettings, heartBeatWebhookURL
         IniWrite, "", Settings.ini, UserSettings, heartBeatName
         IniWrite, C:\Program Files\Tesseract-OCR\tesseract.exe, Settings.ini, UserSettings, tesseractPath
-        IniWrite, 0, Settings.ini, UserSettings, applyRoleFilters
         IniWrite, 0, Settings.ini, UserSettings, debugMode
 
         ; Add the rest of default settings here
@@ -2632,7 +2624,6 @@ SaveReload:
 
     ; Extra Settings
     IniWrite, %tesseractPath%, Settings.ini, UserSettings, tesseractPath
-    IniWrite, %applyRoleFilters%, Settings.ini, UserSettings, applyRoleFilters
     IniWrite, %debugMode%, Settings.ini, UserSettings, debugMode
 
     ; Save theme setting
