@@ -1975,9 +1975,9 @@ Gui, Add, Checkbox, % "vs4tEnabled gs4tSettings y+20 Hidden " . (s4tEnabled ? "C
 
 Gui, Add, Checkbox, % "vs4tSilent y+20 " . (!CurrentVisibleSection = "SaveForTrade" || !s4tEnabled ? "Hidden " : "") . (s4tSilent ? "Checked " : ""), Silent (No Ping)
 
-Gui, Add, Checkbox, % "vs4t3Dmnd y+20 " . (!CurrentVisibleSection = "SaveForTrade" || !s4tEnabled ? "Hidden " : "") . (s4t3Dmnd ? "Checked " : ""), 3 Diamond
-Gui, Add, Checkbox, % "vs4t4Dmnd y+20 " . (!CurrentVisibleSection = "SaveForTrade" || !s4tEnabled ? "Hidden " : "") . (s4t4Dmnd ? "Checked " : ""), 4 Diamond
-Gui, Add, Checkbox, % "vs4t1Star y+20 " . (!CurrentVisibleSection = "SaveForTrade" || !s4tEnabled ? "Hidden " : "") . (s4t1Star ? "Checked " : ""), 1 Star
+Gui, Add, Checkbox, % "vs4t3Dmnd y+20 " . (!CurrentVisibleSection = "SaveForTrade" || !s4tEnabled ? "Hidden " : "") . (s4t3Dmnd ? "Checked " : ""), 3 ◆◆◆
+Gui, Add, Checkbox, % "vs4t4Dmnd y+20 " . (!CurrentVisibleSection = "SaveForTrade" || !s4tEnabled ? "Hidden " : "") . (s4t4Dmnd ? "Checked " : ""), 4 ◆◆◆◆
+Gui, Add, Checkbox, % "vs4t1Star y+20 " . (!CurrentVisibleSection = "SaveForTrade" || !s4tEnabled ? "Hidden " : "") . (s4t1Star ? "Checked " : ""), 1 ★
 
 Gui, Add, Checkbox, % ((!CurrentVisibleSection = "SaveForTrade" || !s4tEnabled || !Shining) ? "Hidden " : "") . "vs4tGholdengo x395 y+-14" . (s4tGholdengo ? "Checked " : ""), % "--->"
 Gui, Add, Picture, % ((!CurrentVisibleSection = "SaveForTrade" || !s4tEnabled || !Shining) ? "Hidden " : "") . "vs4tGholdengoEmblem w25 h25 x+0 y+-18", % A_ScriptDir . "\Scripts\Scale125\GholdengoEmblem.png"
