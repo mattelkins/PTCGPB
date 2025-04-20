@@ -1663,7 +1663,6 @@ if (!settingsLoaded) {
     LoadSettingsFromIni()
 }
 
-CheckForUpdate()
 KillADBProcesses()
 scriptName := StrReplace(A_ScriptName, ".ahk")
 winTitle := scriptName
@@ -1957,7 +1956,7 @@ Gui, Add, Checkbox, % (ImmersiveCheck ? "Checked" : "") " vImmersiveCheck y+10 H
 
 ; Bottom options
 Gui, Add, Checkbox, % (CheckShiningPackOnly ? "Checked" : "") " vCheckShiningPackOnly x170 y+44 Hidden", Only Shining Boost
-Gui, Add, Checkbox, % (InvalidCheck ? "Checked" : "") " vInvalidCheck x320 y+-16 Hidden", Ignore Invalid Packs
+Gui, Add, Checkbox, % (InvalidCheck ? "Checked" : "") " vInvalidCheck x320 y+-13 Hidden", Ignore Invalid Packs
 
 ; Add divider for Card Detection section
 AddSectionDivider(170, "+41", 290, "Pack_Divider3")
