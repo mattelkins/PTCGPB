@@ -35,7 +35,7 @@ global UI_ELEMENT_SCALE := 0.85  ; Scale UI elements to fit smaller dimensions
 ; Added new global variable for background image toggle
 global useBackgroundImage := true
 
-global scriptName, winTitle, FriendID, Instances, instanceStartDelay, jsonFileName, PacksText, runMain, Mains, scaleParam
+global scriptName, winTitle, FriendID, Instances, instanceStartDelay, jsonFileName, PacksText, runMain, Mains, scaleParam, tesseractPath
 global CurrentVisibleSection
 global FriendID_Divider, Instance_Divider3
 global System_Divider1, System_Divider2, System_Divider3, System_Divider4
