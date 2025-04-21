@@ -20,7 +20,7 @@ WinHide % "ahk_id " DllCall("GetConsoleWindow", "ptr")
 
 global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, scriptName, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, deleteMethod, packs, FriendID, friendIDs, Instances, username, friendCode, stopToggle, friended, runMain, Mains, showStatus, injectMethod, packMethod, loadDir, loadedAccount, nukeAccount, CheckShiningPackOnly, TrainerCheck, FullArtCheck, RainbowCheck, ShinyCheck, dateChange, foundGP, friendsAdded, minStars, PseudoGodPack, Palkia, Dialga, Mew, Pikachu, Charizard, Mewtwo, packArray, CrownCheck, ImmersiveCheck, InvalidCheck, slowMotion, screenShot, accountFile, invalid, starCount, keepAccount, minStarsA1Charizard, minStarsA1Mewtwo, minStarsA1Pikachu, minStarsA1a, minStarsA2Dialga, minStarsA2Palkia, minStarsA2a, minStarsA2b
 global tesseractPath, DeadCheck
-global s4tEnabled, s4tSilent, s4t3Dmnd, s4t4Dmnd, s4t1Star, s4tGholdengo, s4tWP, s4tWPMinCards, s4tDiscordWebhookURL, s4tDiscordUserId, s4tSendAccountXml
+global s4tEnabled, s4tSilent, s4t3Dmnd, s4t4Dmnd, s4t1Star, s4tGholdengo, s4tWP, s4tWPMinCards, s4tWPSaveOnly, s4tDiscordWebhookURL, s4tDiscordUserId, s4tSendAccountXml
 
 scriptName := StrReplace(A_ScriptName, ".ahk")
 winTitle := scriptName
@@ -86,6 +86,7 @@ IniRead, s4t1Star, %A_ScriptDir%\..\Settings.ini, UserSettings, s4t1Star, 0
 IniRead, s4tGholdengo, %A_ScriptDir%\..\Settings.ini, UserSettings, s4tGholdengo, 0
 IniRead, s4tWP, %A_ScriptDir%\..\Settings.ini, UserSettings, s4tWP, 0
 IniRead, s4tWPMinCards, %A_ScriptDir%\..\Settings.ini, UserSettings, s4tWPMinCards, 1
+IniRead, s4tWPSaveOnly, %A_ScriptDir%\..\Settings.ini, UserSettings, s4tWPSaveOnly, 0
 IniRead, s4tDiscordWebhookURL, %A_ScriptDir%\..\Settings.ini, UserSettings, s4tDiscordWebhookURL
 IniRead, s4tDiscordUserId, %A_ScriptDir%\..\Settings.ini, UserSettings, s4tDiscordUserId
 IniRead, s4tSendAccountXml, %A_ScriptDir%\..\Settings.ini, UserSettings, s4tSendAccountXml, 1
@@ -1414,10 +1415,16 @@ FoundTradeable(found3Dmnd := 0, found4Dmnd := 0, found1Star := 0, foundGimmighou
     ; Not dead.
     IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
 
-    ; Keep account.
-    keepAccount := true
-
     foundTradeable := found3Dmnd + found4Dmnd + found1Star + foundGimmighoul
+
+    ; Determine if account should be kept
+    if (!s4tWP || !s4tWPSaveOnly || (foundTradeable >= s4tWPMinCards)) {
+        accountFile := saveAccount("Tradeable", accountFullPath, packDetailsFile)
+        keepAccount := true
+    } else {
+        keepAccount := false
+        return
+    }
 
     packDetailsFile := ""
     packDetailsMessage := ""
@@ -1442,15 +1449,13 @@ FoundTradeable(found3Dmnd := 0, found4Dmnd := 0, found1Star := 0, foundGimmighou
     packDetailsFile := RTrim(packDetailsFile, "_")
     packDetailsMessage := RTrim(packDetailsMessage, ", ")
 
-    accountFullPath := ""
-    accountFile := saveAccount("Tradeable", accountFullPath, packDetailsFile)
     screenShot := Screenshot("Tradeable", "Trades", screenShotFileName)
 
     statusMessage := "Tradeable cards found"
     if (username)
         statusMessage .= " by " . username
 
-    if (!s4tWP || (s4tWP && foundTradeable < s4tWPMinCards)) {
+    if (!s4tWP || (foundTradeable < s4tWPMinCards)) {
         CreateStatusMessage("Tradeable cards found! Continuing...",,,, false)
 
         logMessage := statusMessage . " in instance: " . scriptName . " (" . packs . " packs, " . openPack . ") File name: " . accountFile . " Screenshot file: " . screenShotFileName . " Backing up to the Accounts\\Trades folder and continuing..."
@@ -1513,7 +1518,6 @@ FoundStars(star) {
     keepAccount := true
 
     screenShot := Screenshot(star)
-    accountFullPath := ""
     accountFile := saveAccount(star, accountFullPath)
     friendCode := getFriendCode()
 
@@ -1707,7 +1711,6 @@ GodPackFound(validity) {
     Interjection := Praise[rand]
     starCount := 5 - FindBorders("1star") - FindBorders("shiny1star")
     screenShot := Screenshot(validity)
-    accountFullPath := ""
     accountFile := saveAccount(validity, accountFullPath)
     friendCode := getFriendCode()
 

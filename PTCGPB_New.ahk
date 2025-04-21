@@ -691,6 +691,7 @@ HideAllSections() {
     GuiControl, Hide, s4tWP
     GuiControl, Hide, s4tWPMinCardsLabel
     GuiControl, Hide, s4tWPMinCards
+    GuiControl, Hide, s4tWPSaveOnly
 
     ; S4T Discord Settings (now under Save For Trade)
     GuiControl, Hide, S4TDiscordSettingsSubHeading
@@ -1201,6 +1202,7 @@ ShowSaveForTradeSection() {
         if (s4tWP) {
             GuiControl, Show, s4tWPMinCardsLabel
             GuiControl, Show, s4tWPMinCards
+            GuiControl, Show, s4tWPSaveOnly
 
             if (isDarkTheme) {
                 GuiControl, +c%DARK_TEXT%, s4tWPMinCardsLabel
@@ -1535,6 +1537,7 @@ LoadSettingsFromIni() {
         IniRead, s4tGholdengo, Settings.ini, UserSettings, s4tGholdengo, 0
         IniRead, s4tWP, Settings.ini, UserSettings, s4tWP, 0
         IniRead, s4tWPMinCards, Settings.ini, UserSettings, s4tWPMinCards, 1
+        IniRead, s4tWPSaveOnly, Settings.ini, UserSettings, s4tWPSaveOnly, 0
         IniRead, s4tDiscordWebhookURL, Settings.ini, UserSettings, s4tDiscordWebhookURL, ""
         IniRead, s4tDiscordUserId, Settings.ini, UserSettings, s4tDiscordUserId, ""
         IniRead, s4tSendAccountXml, Settings.ini, UserSettings, s4tSendAccountXml, 1
@@ -1973,20 +1976,21 @@ Gui, Add, Checkbox, % "vs4tEnabled gs4tSettings y+20 Hidden " . (s4tEnabled ? "C
 Gui, Add, Checkbox, % "vs4tSilent y+20 " . (!CurrentVisibleSection = "SaveForTrade" || !s4tEnabled ? "Hidden " : "") . (s4tSilent ? "Checked " : ""), Silent (No Ping)
 
 Gui, Add, Checkbox, % "vs4t3Dmnd y+20 " . (!CurrentVisibleSection = "SaveForTrade" || !s4tEnabled ? "Hidden " : "") . (s4t3Dmnd ? "Checked " : ""), 3 ◆◆◆
-Gui, Add, Checkbox, % "vs4t4Dmnd y+20 " . (!CurrentVisibleSection = "SaveForTrade" || !s4tEnabled ? "Hidden " : "") . (s4t4Dmnd ? "Checked " : ""), 4 ◆◆◆◆
-Gui, Add, Checkbox, % "vs4t1Star y+20 " . (!CurrentVisibleSection = "SaveForTrade" || !s4tEnabled ? "Hidden " : "") . (s4t1Star ? "Checked " : ""), 1 ★
+Gui, Add, Checkbox, % "vs4t4Dmnd x+10 y+-15 " . (!CurrentVisibleSection = "SaveForTrade" || !s4tEnabled ? "Hidden " : "") . (s4t4Dmnd ? "Checked " : ""), 4 ◆◆◆◆
+Gui, Add, Checkbox, % "vs4t1Star x+10 " . (!CurrentVisibleSection = "SaveForTrade" || !s4tEnabled ? "Hidden " : "") . (s4t1Star ? "Checked " : ""), 1 ★
 
-Gui, Add, Checkbox, % ((!CurrentVisibleSection = "SaveForTrade" || !s4tEnabled || !Shining) ? "Hidden " : "") . "vs4tGholdengo x395 y+-14" . (s4tGholdengo ? "Checked " : ""), % "--->"
+Gui, Add, Checkbox, % ((!CurrentVisibleSection = "SaveForTrade" || !s4tEnabled || !Shining) ? "Hidden " : "") . "vs4tGholdengo x+10 " . (s4tGholdengo ? "Checked " : ""), % "--->"
 Gui, Add, Picture, % ((!CurrentVisibleSection = "SaveForTrade" || !s4tEnabled || !Shining) ? "Hidden " : "") . "vs4tGholdengoEmblem w25 h25 x+0 y+-18", % A_ScriptDir . "\Scripts\Scale125\GholdengoEmblem.png"
 
 AddSectionDivider(170, "+15", 290, "SaveForTradeDivider_1")
 
 Gui, Add, Checkbox, % "vs4tWP gs4tWPSettings x170 y+20 " . (!CurrentVisibleSection = "SaveForTrade" || !s4tEnabled ? "Hidden " : "") . (s4tWP ? "Checked " : ""), Wonder Pick
 
-Gui, Add, Text, % "vs4tWPMinCardsLabel x280 y+-14 " . (!CurrentVisibleSection = "SaveForTrade" || !s4tEnabled || !s4tWP ? "Hidden " : ""), Min. Cards:
-Gui, Add, Edit, % "vs4tWPMinCards w35 x+20 y+-17 h25 Center " . (!CurrentVisibleSection = "SaveForTrade" || !s4tEnabled || !s4tWP ? "Hidden" : ""), %s4tWPMinCards%
+Gui, Add, Text, % "vs4tWPMinCardsLabel y+20 " . (!CurrentVisibleSection = "SaveForTrade" || !s4tEnabled || !s4tWP ? "Hidden " : ""), Min. Cards:
+Gui, Add, Edit, % "vs4tWPMinCards w35 x+10 y+-17 h25 Center " . (!CurrentVisibleSection = "SaveForTrade" || !s4tEnabled || !s4tWP ? "Hidden" : ""), %s4tWPMinCards%
+Gui, Add, Checkbox, % "vs4tWPSaveOnly x+15 y+-20 " . (!CurrentVisibleSection = "SaveForTrade" || !s4tEnabled || !s4tWP ? "Hidden" : "") . (s4tWPSaveOnly ? "Checked " : ""), Save WP Accounts Only
 
-AddSectionDivider(170, "+15", 290, "SaveForTradeDivider_2")
+AddSectionDivider(170, "+25", 290, "SaveForTradeDivider_2")
 
 ; === S4T Discord Settings (now part of Save For Trade) ===
 SetHeaderFont()
@@ -2385,6 +2389,7 @@ s4tSettings:
         if (s4tWP) {
             GuiControl, Show, s4tWPMinCardsLabel
             GuiControl, Show, s4tWPMinCards
+            GuiControl, Show, s4tWPSaveOnly
 
             if (isDarkTheme) {
                 GuiControl, +c%DARK_TEXT%, s4tWPMinCardsLabel
@@ -2396,6 +2401,7 @@ s4tSettings:
         } else {
             GuiControl, Hide, s4tWPMinCardsLabel
             GuiControl, Hide, s4tWPMinCards
+            GuiControl, Hide, s4tWPSaveOnly
         }
     } else {
         GuiControl, Hide, s4tSilent
@@ -2409,6 +2415,7 @@ s4tSettings:
         GuiControl, Hide, s4tWP
         GuiControl, Hide, s4tWPMinCardsLabel
         GuiControl, Hide, s4tWPMinCards
+        GuiControl, Hide, s4tWPSaveOnly
         GuiControl, Hide, S4TDiscordSettingsSubHeading
         GuiControl, Hide, Txt_S4T_DiscordID
         GuiControl, Hide, s4tDiscordUserId
@@ -2427,6 +2434,7 @@ s4tWPSettings:
     if (s4tWP) {
         GuiControl, Show, s4tWPMinCardsLabel
         GuiControl, Show, s4tWPMinCards
+        GuiControl, Show, s4tWPSaveOnly
 
         if (isDarkTheme) {
             GuiControl, +c%DARK_TEXT%, s4tWPMinCardsLabel
@@ -2438,6 +2446,7 @@ s4tWPSettings:
     } else {
         GuiControl, Hide, s4tWPMinCardsLabel
         GuiControl, Hide, s4tWPMinCards
+        GuiControl, Hide, s4tWPSaveOnly
     }
 return
 
@@ -2613,6 +2622,7 @@ SaveReload:
     IniWrite, %s4tGholdengo%, Settings.ini, UserSettings, s4tGholdengo
     IniWrite, %s4tWP%, Settings.ini, UserSettings, s4tWP
     IniWrite, %s4tWPMinCards%, Settings.ini, UserSettings, s4tWPMinCards
+    IniWrite, %s4tWPSaveOnly%, Settings.ini, UserSettings, s4tWPSaveOnly
     IniWrite, %s4tDiscordUserId%, Settings.ini, UserSettings, s4tDiscordUserId
     IniWrite, %s4tDiscordWebhookURL%, Settings.ini, UserSettings, s4tDiscordWebhookURL
     IniWrite, %s4tSendAccountXml%, Settings.ini, UserSettings, s4tSendAccountXml
@@ -2712,6 +2722,7 @@ StartBot:
     IniWrite, %s4t1Star%, Settings.ini, UserSettings, s4t1Star
     IniWrite, %s4tWP%, Settings.ini, UserSettings, s4tWP
     IniWrite, %s4tWPMinCards%, Settings.ini, UserSettings, s4tWPMinCards
+    IniWrite, %s4tWPSaveOnly%, Settings.ini, UserSettings, s4tWPSaveOnly
     IniWrite, %s4tDiscordUserId%, Settings.ini, UserSettings, s4tDiscordUserId
     IniWrite, %s4tDiscordWebhookURL%, Settings.ini, UserSettings, s4tDiscordWebhookURL
     IniWrite, %s4tSendAccountXML%, Settings.ini, UserSettings, s4tSendAccountXML
