@@ -54,8 +54,8 @@ if not A_IsAdmin
 IniRead, debugMode, Settings.ini, UserSettings, debugMode, 0
 if (!debugMode)
 {
-    MsgBox, 64, The project is now licensed under CC BY-NC 4.0, The original intention of this project was not for it to be used for paid services even those disguised as 'donations.' I hope people respect my wishes and those of the community. `nThe project is now licensed under CC BY-NC 4.0, which allows you to use, modify, and share the software only for non-commercial purposes. Commercial use, including using the software to provide paid services or selling it (even if donations are involved), is not allowed under this license. The new license applies to this and all future releases.
-    CheckForUpdate()
+    ;MsgBox, 64, The project is now licensed under CC BY-NC 4.0, The original intention of this project was not for it to be used for paid services even those disguised as 'donations.' I hope people respect my wishes and those of the community. `nThe project is now licensed under CC BY-NC 4.0, which allows you to use, modify, and share the software only for non-commercial purposes. Commercial use, including using the software to provide paid services or selling it (even if donations are involved), is not allowed under this license. The new license applies to this and all future releases.
+    ;CheckForUpdate()
 }
 
 ; Define refined global color variables for consistent theming
@@ -1611,9 +1611,8 @@ CreateDefaultSettingsFile() {
     return false
 }
 
-; Function to handle window positioning with enhanced error handling
-resetWindows(Title, SelectedMonitorIndex, silent := true) {
-    global Columns, runMain, Mains, scaleParam, debugMode
+resetWindows(Title, SelectedMonitorIndex) {
+    global Columns, runMain, Mains, scaleParam
     RetryCount := 0
     MaxRetries := 10
     Loop
@@ -1636,17 +1635,13 @@ resetWindows(Title, SelectedMonitorIndex, silent := true) {
             rowHeight := 533  ; Adjust the height of each row
             currentRow := Floor((instanceIndex - 1) / Columns)
             y := currentRow * rowHeight
-            x := Mod((instanceIndex - 1), Columns) * scapeParam
-            WinMove, %Title%, , % (MonitorLeft + x), % (MonitorTop + y), scaleParam, 533
+            x := Mod((instanceIndex - 1), Columns) * scaleParam
+            WinMove, %Title%, , % (MonitorLeft + x), % (MonitorTop + y), scaleParam, 537
             break
         }
         catch {
-            RetryCount++
-            if (RetryCount > MaxRetries) {
-                if (!silent && debugMode)
-                    MsgBox, Failed to position window %Title% after %MaxRetries% attempts
-                return false
-            }
+            if (RetryCount > MaxRetries)
+                Pause
         }
         Sleep, 1000
     }
@@ -1946,9 +1941,6 @@ Gui, Add, Checkbox, % (TrainerCheck ? "Checked" : "") " vTrainerCheck y+10 Hidde
 Gui, Add, Checkbox, % (RainbowCheck ? "Checked" : "") " vRainbowCheck y+10 Hidden", Single Rainbow
 Gui, Add, Checkbox, % (PseudoGodPack ? "Checked" : "") " vPseudoGodPack y+10 Hidden", Double 2 Star
 
-; Show the divider between columns
-Gui, Add, Text, x260 y450 w2 h140 Hidden vTxt_vector +0x10  ; Creates a vertical line
-
 ; Right Column
 Gui, Add, Checkbox, % (CrownCheck ? "Checked" : "") " vCrownCheck x320 y+-86 Hidden", Save Crowns
 Gui, Add, Checkbox, % (ShinyCheck ? "Checked" : "") " vShinyCheck y+10 Hidden", Save Shiny
@@ -1956,7 +1948,7 @@ Gui, Add, Checkbox, % (ImmersiveCheck ? "Checked" : "") " vImmersiveCheck y+10 H
 
 ; Bottom options
 Gui, Add, Checkbox, % (CheckShiningPackOnly ? "Checked" : "") " vCheckShiningPackOnly x170 y+44 Hidden", Only Shining Boost
-Gui, Add, Checkbox, % (InvalidCheck ? "Checked" : "") " vInvalidCheck x320 y+-13 Hidden", Ignore Invalid Packs
+Gui, Add, Checkbox, % (InvalidCheck ? "Checked" : "") " vInvalidCheck x320 y+-14 Hidden", Ignore Invalid Packs
 
 ; Add divider for Card Detection section
 AddSectionDivider(170, "+41", 290, "Pack_Divider3")
@@ -2475,14 +2467,11 @@ ArrangeWindows:
     GuiControlGet, Columns,, Columns
     GuiControlGet, SelectedMonitorIndex,, SelectedMonitorIndex
 
-    windowsPositioned := 0
-
     if (runMain && Mains > 0) {
         Loop %Mains% {
             mainInstanceName := "Main" . (A_Index > 1 ? A_Index : "")
             if (WinExist(mainInstanceName)) {
-                resetWindows(mainInstanceName, SelectedMonitorIndex, false)
-                windowsPositioned++
+                resetWindows(mainInstanceName, SelectedMonitorIndex)
                 sleep, 10
             }
         }
@@ -2491,17 +2480,10 @@ ArrangeWindows:
     if (Instances > 0) {
         Loop %Instances% {
             if (WinExist(A_Index)) {
-                resetWindows(A_Index, SelectedMonitorIndex, false)
-                windowsPositioned++
+                resetWindows(A_Index, SelectedMonitorIndex)
                 sleep, 10
             }
         }
-    }
-
-    if (debugMode && windowsPositioned == 0) {
-        MsgBox, No windows found to arrange
-    } else {
-        MsgBox, Arranged %windowsPositioned% windows
     }
 return
 
@@ -2849,91 +2831,10 @@ SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
             selectMsg .= value . commaSeparate
     }
 
-Loop {
+    Loop {
         Sleep, 30000
 
-        ; Check if Main toggled GP Test Mode and send notification if needed
-        IniRead, mainTestMode, HeartBeat.ini, TestMode, Main, -1
-        if (mainTestMode != -1) {
-            ; Main has toggled test mode, get status and send notification
-            IniRead, mainStatus, HeartBeat.ini, HeartBeat, Main, 0
-
-            onlineAHK := ""
-            offlineAHK := ""
-            Online := []
-
-            Loop %Instances% {
-                IniRead, value, HeartBeat.ini, HeartBeat, Instance%A_Index%
-                if(value)
-                    Online.Push(1)
-                else
-                    Online.Push(0)
-                IniWrite, 0, HeartBeat.ini, HeartBeat, Instance%A_Index%
-            }
-
-            for index, value in Online {
-                if(index = Online.MaxIndex())
-                    commaSeparate := ""
-                else
-                    commaSeparate := ", "
-                if(value)
-                    onlineAHK .= A_Index . commaSeparate
-                else
-                    offlineAHK .= A_Index . commaSeparate
-            }
-
-            if (runMain) {
-                if(mainStatus) {
-                    if (onlineAHK)
-                        onlineAHK := "Main, " . onlineAHK
-                    else
-                        onlineAHK := "Main"
-                }
-                else {
-                    if (offlineAHK)
-                        offlineAHK := "Main, " . offlineAHK
-                    else
-                        offlineAHK := "Main"
-                }
-            }
-
-            if(offlineAHK = "")
-                offlineAHK := "Offline: none"
-            else
-                offlineAHK := "Offline: " . RTrim(offlineAHK, ", ")
-            if(onlineAHK = "")
-                onlineAHK := "Online: none"
-            else
-                onlineAHK := "Online: " . RTrim(onlineAHK, ", ")
-
-            ; Create status message with all regular heartbeat info
-            discMessage := heartBeatName ? "\n" . heartBeatName : ""
-            discMessage .= "\n" . onlineAHK . "\n" . offlineAHK
-
-            total := SumVariablesInJsonFile()
-            totalSeconds := Round((A_TickCount - rerollTime) / 1000)
-            mminutes := Floor(totalSeconds / 60)
-            packStatus := "Time: " . mminutes . "m | Packs: " . total
-            packStatus .= " | Avg: " . Round(total / mminutes, 2) . " packs/min"
-
-            discMessage .= "\n" . packStatus . "\nVersion: " . RegExReplace(githubUser, "-.*$") . "-" . localVersion
-            discMessage .= typeMsg
-            discMessage .= selectMsg
-
-            ; Add special note about Main's test mode status
-            if (mainTestMode == "1")
-                discMessage .= "\n\nMain entered GP Test Mode ✕" ;We can change this later
-            else
-                discMessage .= "\n\nMain exited GP Test Mode ✓" ;We can change this later
-
-            ; Send the message
-            LogToDiscord(discMessage,, false,,, heartBeatWebhookURL)
-
-            ; Clear the flag
-            IniDelete, HeartBeat.ini, TestMode, Main
-        }
-
-; Every 5 minutes, pull down the main ID list
+        ; Every 5 minutes, pull down the main ID list
         if(mainIdsURL != "" && Mod(A_Index, 10) = 0) {
             DownloadFile(mainIdsURL, "ids.txt")
         }
@@ -2943,8 +2844,8 @@ Loop {
         totalSeconds := Round((A_TickCount - rerollTime) / 1000) ; Total time in seconds
         mminutes := Floor(totalSeconds / 60)
 
-        packStatus := "Time: " . mminutes . "m Packs: " . total
-        packStatus .= "   |   Avg: " . Round(total / mminutes, 2) . " packs/min"
+        packStatus := "Time: " . mminutes . "m | Packs: " . total
+        packStatus .= " | Avg: " . Round(total / mminutes, 2) . " packs/min"
 
         ; Display pack status at the bottom of the first reroll instance
         DisplayPackStatus(packStatus, ((runMain ? Mains * scaleParam : 0) + 5), 490)
@@ -2958,7 +2859,7 @@ Loop {
                 Loop %Instances% {
                     IniRead, value, HeartBeat.ini, HeartBeat, Instance%A_Index%
                     if(value)
-                        Online.Push(1)
+                        Online.push(1)
                     else
                         Online.Push(0)
                     IniWrite, 0, HeartBeat.ini, HeartBeat, Instance%A_Index%
@@ -3219,16 +3120,10 @@ DownloadFile(url, filename) {
     localPath = %A_ScriptDir%\%filename% ; Change to the folder you want to save the file
 
     URLDownloadToFile, %url%, %localPath%
-
-    ; if ErrorLevel
-    ; MsgBox, Download failed!
-    ; else
-    ; MsgBox, File downloaded successfully!
 }
 
 CheckForUpdate() {
-
-global updateCheckPerformed, githubUser, repoName, localVersion, zipPath, extractPath, scriptFolder
+    global updateCheckPerformed, githubUser, repoName, localVersion, zipPath, extractPath, scriptFolder
 
     ; Skip if already performed
     if (updateCheckPerformed)

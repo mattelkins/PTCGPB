@@ -21,8 +21,8 @@ CoordMode, Pixel, Screen
 DllCall("AllocConsole")
 WinHide % "ahk_id " DllCall("GetConsoleWindow", "ptr")
 
-global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, scriptName, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, skipInvalidGP, deleteXML, packs, FriendID, AddFriend, Instances, showStatus
-global triggerTestNeeded, testStartTime, firstRun, minStars, minStarsA2b, vipIdsURL
+global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, scriptName, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, skipInvalidGP, deleteXML, packs, FriendID, AddFriend, Instances, showStatus
+global GPTest, triggerTestNeeded, testStartTime, firstRun, vipIdsURL
 
 deleteAccount := false
 scriptName := StrReplace(A_ScriptName, ".ahk")
@@ -30,6 +30,7 @@ winTitle := scriptName
 pauseToggle := false
 showStatus := true
 jsonFileName := A_ScriptDir . "\..\json\Packs.json"
+
 IniRead, FriendID, %A_ScriptDir%\..\Settings.ini, UserSettings, FriendID
 IniRead, Instances, %A_ScriptDir%\..\Settings.ini, UserSettings, Instances
 IniRead, Delay, %A_ScriptDir%\..\Settings.ini, UserSettings, Delay, 250
@@ -46,17 +47,12 @@ IniRead, godPack, %A_ScriptDir%\..\Settings.ini, UserSettings, godPack, Continue
 IniRead, deleteMethod, %A_ScriptDir%\..\Settings.ini, UserSettings, deleteMethod, Hoard
 IniRead, sendXML, %A_ScriptDir%\..\Settings.ini, UserSettings, sendXML, 0
 IniRead, heartBeat, %A_ScriptDir%\..\Settings.ini, UserSettings, heartBeat, 1
-if(heartBeat)
-    IniWrite, 1, %A_ScriptDir%\..\HeartBeat.ini, HeartBeat, Main
 IniRead, vipIdsURL, %A_ScriptDir%\..\Settings.ini, UserSettings, vipIdsURL
 IniRead, ocrLanguage, %A_ScriptDir%\..\Settings.ini, UserSettings, ocrLanguage, en
 IniRead, clientLanguage, %A_ScriptDir%\..\Settings.ini, UserSettings, clientLanguage, en
-IniRead, minStars, %A_ScriptDir%\..\Settings.ini, UserSettings, minStars, 0
-IniRead, minStarsA2b, %A_ScriptDir%\..\Settings.ini, UserSettings, minStarsA2b, 0
 
-; connect adb
-instanceSleep := scriptName * 1000
-Sleep, %instanceSleep%
+if (heartBeat)
+    IniWrite, 1, %A_ScriptDir%\..\HeartBeat.ini, HeartBeat, Main
 
 ; Attempt to connect to ADB
 ConnectAdb(folderPath)
@@ -247,7 +243,6 @@ FindOrLoseImage(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", E
             Y2 := 118
         }
     }
-    ;bboxAndPause(X1, Y1, X2, Y2)
 
     ; ImageSearch within the region
     vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, X1, Y1, X2, Y2, searchVariation)
@@ -345,7 +340,7 @@ FindImageAndClick(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT",
         pBitmap := from_window(WinExist(winTitle))
         Path = %imagePath%%imageName%.png
         pNeedle := GetNeedle(Path)
-        ;bboxAndPause(X1, Y1, X2, Y2)
+
         ; ImageSearch within the region
         vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, X1, Y1, X2, Y2, searchVariation)
         Gdip_DisposeImage(pBitmap)
@@ -512,7 +507,7 @@ return
 ; Stop Script
 StopScript:
     CreateStatusMessage("Stopping script...",,,, false)
-ExitApp
+    ExitApp
 return
 
 ShowStatusMessages:
@@ -548,11 +543,6 @@ ToggleTestScript() {
         }
         CreateStatusMessage("Exiting GP Test Mode",,,, false)
     }
-}
-
-FriendAdded() {
-    global AddFriend
-    AddFriend++
 }
 
 ; Function to create or select the JSON file
@@ -674,41 +664,13 @@ from_window(ByRef image) {
 ~+F6::Pause
 ~+F7::ExitApp
 ~+F8::ToggleStatusMessages()
-~+F9::ToggleTestScript() ; hoytdj Add
+~+F9::ToggleTestScript()
 
 ToggleStatusMessages() {
     if(showStatus)
         showStatus := False
     else
         showStatus := True
-}
-
-bboxAndPause(X1, Y1, X2, Y2, doPause := False) {
-    BoxWidth := X2-X1
-    BoxHeight := Y2-Y1
-    ; Create a GUI
-    Gui, BoundingBox:+AlwaysOnTop +ToolWindow -Caption +E0x20
-    Gui, BoundingBox:Color, 123456
-    Gui, BoundingBox:+LastFound  ; Make the GUI window the last found window for use by the line below. (straght from documentation)
-    WinSet, TransColor, 123456 ; Makes that specific color transparent in the gui
-
-    ; Create the borders and show
-    Gui, BoundingBox:Add, Progress, x0 y0 w%BoxWidth% h2 BackgroundRed
-    Gui, BoundingBox:Add, Progress, x0 y0 w2 h%BoxHeight% BackgroundRed
-    Gui, BoundingBox:Add, Progress, x%BoxWidth% y0 w2 h%BoxHeight% BackgroundRed
-    Gui, BoundingBox:Add, Progress, x0 y%BoxHeight% w%BoxWidth% h2 BackgroundRed
-    Gui, BoundingBox:Show, x%X1% y%Y1% NoActivate
-    Sleep, 100
-
-    if (doPause) {
-        Pause
-    }
-
-    if GetKeyState("F4", "P") {
-        Pause
-    }
-
-    Gui, BoundingBox:Destroy
 }
 
 GetNeedle(Path) {
@@ -753,15 +715,35 @@ ReadFile(filename, numbers := false) {
     return values.MaxIndex() ? values : false
 }
 
-; ^e::
-; msgbox ss
-; pToken := Gdip_Startup()
-; Screenshot()
-; return
+Delay(n) {
+    global Delay
+    msTime := Delay * n
+    Sleep, msTime
+}
 
-; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-; ~~~ GP Test Mode Everying Below ~~~
-; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+DownloadFile(url, filename) {
+    url := url  ; Change to your hosted .txt URL "https://pastebin.com/raw/vYxsiqSs"
+    localPath = %A_ScriptDir%\..\%filename% ; Change to the folder you want to save the file
+    errored := false
+    try {
+        whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+        whr.Open("GET", url, true)
+        whr.Send()
+        whr.WaitForResponse()
+        contents := whr.ResponseText
+    } catch {
+        errored := true
+    }
+    if(!errored) {
+        FileDelete, %localPath%
+        FileAppend, %contents%, %localPath%
+    }
+    return !errored
+}
+
+; ~~~~~~~~~~~~~~~~~~~~
+; ~~~ GP Test Mode ~~~
+; ~~~~~~~~~~~~~~~~~~~~
 
 GPTestScript() {
     global triggerTestNeeded
@@ -1230,33 +1212,4 @@ GetTempDirectory() {
     if !FileExist(tempDir)
         FileCreateDir, %tempDir%
     return tempDir
-}
-
-; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-; ~~~ Copied from other Arturo scripts ~~~
-; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Delay(n) {
-    global Delay
-    msTime := Delay * n
-    Sleep, msTime
-}
-
-DownloadFile(url, filename) {
-    url := url  ; Change to your hosted .txt URL "https://pastebin.com/raw/vYxsiqSs"
-    localPath = %A_ScriptDir%\..\%filename% ; Change to the folder you want to save the file
-    errored := false
-    try {
-        whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
-        whr.Open("GET", url, true)
-        whr.Send()
-        whr.WaitForResponse()
-        contents := whr.ResponseText
-    } catch {
-        errored := true
-    }
-    if(!errored) {
-        FileDelete, %localPath%
-        FileAppend, %contents%, %localPath%
-    }
-    return !errored
 }
