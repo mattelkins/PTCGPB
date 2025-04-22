@@ -1415,17 +1415,10 @@ FoundTradeable(found3Dmnd := 0, found4Dmnd := 0, found1Star := 0, foundGimmighou
     ; Not dead.
     IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
 
+    ; Count tradeables
     foundTradeable := found3Dmnd + found4Dmnd + found1Star + foundGimmighoul
 
-    ; Determine if account should be kept
-    if (!s4tWP || !s4tWPSaveOnly || (foundTradeable >= s4tWPMinCards)) {
-        accountFile := saveAccount("Tradeable", accountFullPath, packDetailsFile)
-        keepAccount := true
-    } else {
-        keepAccount := false
-        return
-    }
-
+    ; Create account file name and Discord message content
     packDetailsFile := ""
     packDetailsMessage := ""
 
@@ -1448,6 +1441,15 @@ FoundTradeable(found3Dmnd := 0, found4Dmnd := 0, found1Star := 0, foundGimmighou
 
     packDetailsFile := RTrim(packDetailsFile, "_")
     packDetailsMessage := RTrim(packDetailsMessage, ", ")
+
+    ; Determine if account should be kept
+    if (!s4tWP || !s4tWPSaveOnly || (foundTradeable >= s4tWPMinCards)) {
+        accountFile := saveAccount("Tradeable", accountFullPath, packDetailsFile)
+        keepAccount := true
+    } else {
+        keepAccount := false
+        return
+    }
 
     screenShot := Screenshot("Tradeable", "Trades", screenShotFileName)
 
