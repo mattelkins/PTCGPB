@@ -1267,12 +1267,18 @@ CheckPack() {
     foundInvalid := foundShiny + foundCrown + foundImmersive
 
     if (foundInvalid) {
-        ; Pack is invalid...
+        ; Pack is invalid because it contains one or more shinies, immersives or crowns.
+
+        ; If invalid packs aren't being ignored...
+        foundInvalidGP := false
         if (!InvalidCheck) {
-            ; Check if the current pack could have been a god pack.
+            ; ...check if the current pack could have been a god pack.
             foundInvalidGP := FindGodPack(true)
-        } else {
-            ; If required, check what cards the current pack contains which make it invalid.
+        }
+
+        ; If pack isn't an invalid GP (because it contains normal cards)...
+        if (!foundInvalidGP) {
+            ; ...check if any of the pack invalidating cards should trigger the current account to be saved.
             if (ShinyCheck && foundShiny && !foundLabel)
                 foundLabel := "Shiny"
             if (ImmersiveCheck && foundImmersive && !foundLabel)
@@ -1280,10 +1286,9 @@ CheckPack() {
             if (CrownCheck && foundCrown && !foundLabel)
                 foundLabel := "Crown"
 
-            ; Report invalid cards found.
             if (foundLabel) {
+                ; Save account, show status message, send Discord message etc. and continue.
                 FoundStars(foundLabel)
-                restartGameInstance(foundLabel . " found. Continuing...", "GodPack")
             }
         }
 
@@ -1511,25 +1516,36 @@ FoundTradeable(found3Dmnd := 0, found4Dmnd := 0, found1Star := 0, foundGimmighou
 }
 
 FoundStars(star) {
-    global scriptName, DeadCheck, ocrLanguage, injectMethod, openPack
-
     ; Not dead.
     IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
 
     ; Keep account.
     keepAccount := true
 
-    screenShot := Screenshot(star)
+    CreateStatusMessage(star . " found!",,,, false)
+
     accountFile := saveAccount(star, accountFullPath)
+    screenShot := Screenshot(star)
+
+    statusMessage := star . " found"
+    if (username)
+        statusMessage .= " by " . username
+
+    if (star = "Crown" || star = "Immersive" || star = "Shiny") {
+        logMessage := statusMessage . " in instance: " . scriptName . " (" . packs . " packs, " . openPack . ")\nFile name: " . accountFile . "\nBacking up to the Accounts\\SpecificCards folder and continuing..."
+        LogToDiscord(logMessage, screenShot, true, (sendAccountXml ? accountFullPath : ""))
+        LogToFile(StrReplace(logMessage, "\n", " "), "GPlog.txt")
+
+        return
+    }
+
     friendCode := getFriendCode()
 
     ; Pull back screenshot of the friend code/name (good for inject method)
     Sleep, 8000
     fcScreenshot := Screenshot("FRIENDCODE")
 
-    if(star = "Crown" || star = "Immersive" || star = "Shiny")
-        RemoveFriends()
-    else {
+    if (star != "Crown" && star != "Immersive" && star != "Shiny") {
         ; If we're doing the inject method, try to OCR our Username
         try {
             if (injectMethod && IsFunc("ocr")) {
@@ -1548,18 +1564,12 @@ FoundStars(star) {
         }
     }
 
-    CreateStatusMessage(star . " found!",,,, false)
-
-    statusMessage := star . " found"
-    if (username)
-        statusMessage .= " by " . username
     if (friendCode)
         statusMessage .= " (" . friendCode . ")"
 
     logMessage := statusMessage . " in instance: " . scriptName . " (" . packs . " packs, " . openPack . ")\nFile name: " . accountFile . "\nBacking up to the Accounts\\SpecificCards folder and continuing..."
     LogToDiscord(logMessage, screenShot, true, (sendAccountXml ? accountFullPath : ""), fcScreenshot)
     LogToFile(StrReplace(logMessage, "\n", " "), "GPlog.txt")
-    if(star != "Crown" && star != "Immersive" && star != "Shiny")
         ChooseTag()
 }
 
@@ -1686,9 +1696,6 @@ FindGodPack(invalidPack := false) {
 
     if (invalidPack) {
         GodPackFound("Invalid")
-
-        RemoveFriends()
-        IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
     } else {
         GodPackFound("Valid")
     }
