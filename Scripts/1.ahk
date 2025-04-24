@@ -19,7 +19,7 @@ DllCall("AllocConsole")
 WinHide % "ahk_id " DllCall("GetConsoleWindow", "ptr")
 
 global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, scriptName, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, deleteMethod, packs, FriendID, friendIDs, Instances, username, friendCode, stopToggle, friended, runMain, Mains, showStatus, injectMethod, packMethod, loadDir, loadedAccount, nukeAccount, CheckShiningPackOnly, TrainerCheck, FullArtCheck, RainbowCheck, ShinyCheck, dateChange, foundGP, friendsAdded, minStars, PseudoGodPack, Palkia, Dialga, Mew, Pikachu, Charizard, Mewtwo, packArray, CrownCheck, ImmersiveCheck, InvalidCheck, slowMotion, screenShot, accountFile, invalid, starCount, keepAccount, minStarsA1Charizard, minStarsA1Mewtwo, minStarsA1Pikachu, minStarsA1a, minStarsA2Dialga, minStarsA2Palkia, minStarsA2a, minStarsA2b
-global tesseractPath, DeadCheck
+global tesseractPath, DeadCheck, skipAddingFriends
 global s4tEnabled, s4tSilent, s4t3Dmnd, s4t4Dmnd, s4t1Star, s4tGholdengo, s4tWP, s4tWPMinCards, s4tWPSaveOnly, s4tDiscordWebhookURL, s4tDiscordUserId, s4tSendAccountXml
 
 scriptName := StrReplace(A_ScriptName, ".ahk")
@@ -212,13 +212,17 @@ if(DeadCheck = 1){
     Reload
 }else{
     Loop {
+        IniWrite, 1, %A_ScriptDir%\..\HeartBeat.ini, HeartBeat, Instance%scriptName%
+
         Randmax := packArray.Length()
         Random, rand, 1, Randmax
         openPack := packArray[rand]
-        friended := false
-        IniWrite, 1, %A_ScriptDir%\..\HeartBeat.ini, HeartBeat, Instance%scriptName%
-        FormatTime, CurrentTime,, HHmm
 
+        friendsAdded := 0
+        friended := false
+        skipAddingFriends := (InStr(FriendID, "!") = 1)
+
+        FormatTime, CurrentTime,, HHmm
         StartTime := changeDate - 45 ; 12:55 AM2355
         EndTime := changeDate + 5 ; 1:01 AM
 
@@ -260,42 +264,48 @@ if(DeadCheck = 1){
         if(!injectMethod || !loadedAccount)
             DoTutorial()
 
-        ;    SquallTCGP 2025.03.12 -     Adding the delete method 5 Pack (Fast) to the wonder pick check.
+        ; SquallTCGP 2025.03.12 - Adding the delete method 5 Pack (Fast) to the wonder pick check.
         if(deleteMethod = "5 Pack" || deleteMethod = "5 Pack (Fast)" || packMethod)
             if(!loadedAccount)
                 wonderPicked := DoWonderPick()
 
-        friendsAdded := AddFriends()
+        ; Go home if adding friends is being skipped.
+        if (skipAddingFriends)
+            FindImageAndClick(20, 500, 55, 530, , "Home", 40, 516, 500)
+        else
+            friendsAdded := AddFriends()
+
         SelectPack("First")
         PackOpening()
 
-        if(packMethod) {
-            friendsAdded := AddFriends(true)
+        if (packMethod) {
+            if (!skipAddingFriends)
+                friendsAdded := AddFriends(true)
+            else
+                FindImageAndClick(20, 500, 55, 530, , "Home", 40, 516, 500)
+
             SelectPack()
         }
 
         PackOpening()
 
         if(!injectMethod || !loadedAccount)
-            HourglassOpening() ;deletemethod check in here at the start
+            HourglassOpening()
 
         if(wonderPicked) {
-
-            ; SquallTCGP 2025.03.12 - Added a check to not add friends if the delete method is 5 Pack (Fast). When using this method (5 Pack (Fast)),
-            ;                         it goes to the social menu and clicks the home button to exit (instead of opening all packs directly)
-            ;                         just to get around the checking for a level after opening a pack. This change is made based on the
-            ;                         5p-no delete community mod created by DietPepperPhD in the discord server.
-
-            if(deleteMethod != "5 Pack (Fast)") {
+            if(deleteMethod != "5 Pack (Fast)" && !skipAddingFriends) {
                 friendsAdded := AddFriends(true)
             } else {
-                FindImageAndClick(120, 500, 155, 530, , "Social", 143, 518, 500)
                 FindImageAndClick(20, 500, 55, 530, , "Home", 40, 516, 500)
             }
             SelectPack("HGPack")
             PackOpening()
             if(packMethod) {
-                friendsAdded := AddFriends(true)
+                if (!skipAddingFriends)
+                    friendsAdded := AddFriends(true)
+                else
+                    FindImageAndClick(20, 500, 55, 530, , "Home", 40, 516, 500)
+
                 SelectPack("HGPack")
                 PackOpening()
             }
@@ -1570,7 +1580,7 @@ FoundStars(star) {
     logMessage := statusMessage . " in instance: " . scriptName . " (" . packs . " packs, " . openPack . ")\nFile name: " . accountFile . "\nBacking up to the Accounts\\SpecificCards folder and continuing..."
     LogToDiscord(logMessage, screenShot, true, (sendAccountXml ? accountFullPath : ""), fcScreenshot)
     LogToFile(StrReplace(logMessage, "\n", " "), "GPlog.txt")
-        ChooseTag()
+    ChooseTag()
 }
 
 FindBorders(prefix) {
@@ -2729,7 +2739,11 @@ HourglassOpening(HG := false) {
         adbClick(203, 436) ; 203 436
 
         if(packMethod) {
-            AddFriends(true)
+            if (!skipAddingFriends)
+                AddFriends(true)
+            else
+                FindImageAndClick(20, 500, 55, 530, , "Home", 40, 516, 500)
+
             SelectPack("Tutorial")
         }
         else {
