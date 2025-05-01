@@ -268,11 +268,13 @@ SetAllTextColors(textColor) {
     GuiControl, +c%textColor%, autoLaunchMonitor
 
     GuiControl, +c%textColor%, Txt_MinStars
-    GuiControl, +c%textColor%, Txt_A2bMinStar
+    GuiControl, +c%textColor%, Txt_ShinyMinStars
     GuiControl, +c%textColor%, Txt_DeleteMethod
     GuiControl, +c%textColor%, packMethod
     GuiControl, +c%textColor%, nukeAccount
 
+    GuiControl, +c%textColor%, Solgaleo
+    GuiControl, +c%textColor%, Lunala
     GuiControl, +c%textColor%, Shining
     GuiControl, +c%textColor%, Arceus
     GuiControl, +c%textColor%, Palkia
@@ -286,7 +288,7 @@ SetAllTextColors(textColor) {
     GuiControl, +c%textColor%, TrainerCheck
     GuiControl, +c%textColor%, RainbowCheck
     GuiControl, +c%textColor%, PseudoGodPack
-    GuiControl, +c%textColor%, CheckShiningPackOnly
+    GuiControl, +c%textColor%, CheckShinyPackOnly
     GuiControl, +c%textColor%, InvalidCheck
     GuiControl, +c%textColor%, CrownCheck
     GuiControl, +c%textColor%, ShinyCheck
@@ -484,7 +486,7 @@ SetInputBackgrounds(bgColor, textColor) {
     GuiControl, +Background%bgColor% +c%textColor%, folderPath
     GuiControl, +Background%bgColor% +c%textColor%, instanceLaunchDelay
     GuiControl, +Background%bgColor% +c%textColor%, minStars
-    GuiControl, +Background%bgColor% +c%textColor%, minStarsA2b
+    GuiControl, +Background%bgColor% +c%textColor%, minStarsShiny
     GuiControl, +Background%bgColor% +c%textColor%, discordUserId
     GuiControl, +Background%bgColor% +c%textColor%, discordWebhookURL
     GuiControl, +Background%bgColor% +c%textColor%, heartBeatName
@@ -642,8 +644,8 @@ HideAllSections() {
     ; God Pack Settings
     GuiControl, Hide, Txt_MinStars
     GuiControl, Hide, minStars
-    GuiControl, Hide, Txt_A2bMinStar
-    GuiControl, Hide, minStarsA2b
+    GuiControl, Hide, Txt_ShinyMinStars
+    GuiControl, Hide, minStarsShiny
     GuiControl, Hide, Txt_DeleteMethod
     GuiControl, Hide, deleteMethod
     GuiControl, Hide, packMethod
@@ -652,6 +654,8 @@ HideAllSections() {
 
     ; Pack Selection
     GuiControl, Hide, PackSettingsSubHeading2
+    GuiControl, Hide, Solgaleo
+    GuiControl, Hide, Lunala
     GuiControl, Hide, Shining
     GuiControl, Hide, Arceus
     GuiControl, Hide, Palkia
@@ -672,7 +676,7 @@ HideAllSections() {
     GuiControl, Hide, Txt_vector
     GuiControl, Hide, Txt_Save
     GuiControl, Hide, InvalidCheck
-    GuiControl, Hide, CheckShiningPackOnly
+    GuiControl, Hide, CheckShinyPackOnly
     GuiControl, Hide, CrownCheck
     GuiControl, Hide, ImmersiveCheck
     GuiControl, Hide, Pack_Divider3
@@ -983,8 +987,8 @@ ShowPackSettingsSection() {
     GuiControl, Show, Txt_MinStars
     GuiControl, Show, minStars
 
-    GuiControl, Show, Txt_A2bMinStar
-    GuiControl, Show, minStarsA2b
+    GuiControl, Show, Txt_ShinyMinStars
+    GuiControl, Show, minStarsShiny
 
     GuiControl, Show, Txt_DeleteMethod
     GuiControl, Show, deleteMethod
@@ -1007,18 +1011,22 @@ ShowPackSettingsSection() {
 
     ; Show Pack Selection controls in a 3-column layout
     ; Column 1
+    GuiControl, Show, Solgaleo
+    GuiControl, Show, Lunala
     GuiControl, Show, Shining
-    GuiControl, Show, Dialga
-    GuiControl, Show, Mewtwo
 
     ; Column 2
     GuiControl, Show, Arceus
-    GuiControl, Show, Pikachu
-    GuiControl, Show, Mew
+    GuiControl, Show, Dialga
+    GuiControl, Show, Palkia
 
     ; Column 3
-    GuiControl, Show, Palkia
+    GuiControl, Show, Mewtwo
     GuiControl, Show, Charizard
+    GuiControl, Show, Pikachu
+
+    ; Column 4
+    GuiControl, Show, Mew
 
     ; Show subsection separator
     GuiControl, Show, Pack_Divider2
@@ -1045,29 +1053,31 @@ ShowPackSettingsSection() {
 
     ; Bottom options
     GuiControl, Show, InvalidCheck
-    GuiControl, Show, CheckShiningPackOnly
+    GuiControl, Show, CheckShinyPackOnly
 
     ; Apply proper styling based on the theme
     if (isDarkTheme) {
         ; God Pack Settings styling
         GuiControl, +c%sectionColor%, Txt_MinStars
-        GuiControl, +c%DARK_TEXT%, Txt_A2bMinStar
+        GuiControl, +c%DARK_TEXT%, Txt_ShinyMinStars
         GuiControl, +c%DARK_TEXT%, Txt_DeleteMethod
         GuiControl, +c%DARK_TEXT%, packMethod
         if (!InStr(deleteMethod, "Inject")) {
             GuiControl, +c%DARK_TEXT%, nukeAccount
         }
         GuiControl, +Background%DARK_INPUT_BG% +c%DARK_INPUT_TEXT%, minStars
-        GuiControl, +Background%DARK_INPUT_BG% +c%DARK_INPUT_TEXT%, minStarsA2b
+        GuiControl, +Background%DARK_INPUT_BG% +c%DARK_INPUT_TEXT%, minStarsShiny
 
         ; Pack Selection styling
-        GuiControl, +c%sectionColor%, Shining
+        GuiControl, +c%sectionColor%, Solgaleo
+        GuiControl, +c%DARK_TEXT%, Lunala
+        GuiControl, +c%DARK_TEXT%, Shining
         GuiControl, +c%DARK_TEXT%, Arceus
-        GuiControl, +c%DARK_TEXT%, Palkia
         GuiControl, +c%DARK_TEXT%, Dialga
-        GuiControl, +c%DARK_TEXT%, Pikachu
-        GuiControl, +c%DARK_TEXT%, Charizard
+        GuiControl, +c%DARK_TEXT%, Palkia
         GuiControl, +c%DARK_TEXT%, Mewtwo
+        GuiControl, +c%DARK_TEXT%, Charizard
+        GuiControl, +c%DARK_TEXT%, Pikachu
         GuiControl, +c%DARK_TEXT%, Mew
 
         ; Card Detection styling
@@ -1080,27 +1090,29 @@ ShowPackSettingsSection() {
         GuiControl, +c%DARK_TEXT%, ShinyCheck
         GuiControl, +c%DARK_TEXT%, ImmersiveCheck
         GuiControl, +c%DARK_TEXT%, InvalidCheck
-        GuiControl, +c%DARK_TEXT%, CheckShiningPackOnly
+        GuiControl, +c%DARK_TEXT%, CheckShinyPackOnly
     } else {
         ; God Pack Settings styling
         GuiControl, +c%sectionColor%, Txt_MinStars
-        GuiControl, +c%LIGHT_TEXT%, Txt_A2bMinStar
+        GuiControl, +c%LIGHT_TEXT%, Txt_ShinyMinStars
         GuiControl, +c%LIGHT_TEXT%, Txt_DeleteMethod
         GuiControl, +c%LIGHT_TEXT%, packMethod
         if (!InStr(deleteMethod, "Inject")) {
             GuiControl, +c%LIGHT_TEXT%, nukeAccount
         }
         GuiControl, +Background%LIGHT_INPUT_BG% +c%LIGHT_INPUT_TEXT%, minStars
-        GuiControl, +Background%LIGHT_INPUT_BG% +c%LIGHT_INPUT_TEXT%, minStarsA2b
+        GuiControl, +Background%LIGHT_INPUT_BG% +c%LIGHT_INPUT_TEXT%, minStarsShiny
 
         ; Pack Selection styling
-        GuiControl, +c%sectionColor%, Shining
+        GuiControl, +c%sectionColor%, Solgaleo
+        GuiControl, +c%LIGHT_TEXT%, Lunala
+        GuiControl, +c%LIGHT_TEXT%, Shining
         GuiControl, +c%LIGHT_TEXT%, Arceus
-        GuiControl, +c%LIGHT_TEXT%, Palkia
         GuiControl, +c%LIGHT_TEXT%, Dialga
-        GuiControl, +c%LIGHT_TEXT%, Pikachu
-        GuiControl, +c%LIGHT_TEXT%, Charizard
+        GuiControl, +c%LIGHT_TEXT%, Palkia
         GuiControl, +c%LIGHT_TEXT%, Mewtwo
+        GuiControl, +c%LIGHT_TEXT%, Charizard
+        GuiControl, +c%LIGHT_TEXT%, Pikachu
         GuiControl, +c%LIGHT_TEXT%, Mew
 
         ; Card Detection styling
@@ -1113,7 +1125,7 @@ ShowPackSettingsSection() {
         GuiControl, +c%LIGHT_TEXT%, ShinyCheck
         GuiControl, +c%LIGHT_TEXT%, ImmersiveCheck
         GuiControl, +c%LIGHT_TEXT%, InvalidCheck
-        GuiControl, +c%LIGHT_TEXT%, CheckShiningPackOnly
+        GuiControl, +c%LIGHT_TEXT%, CheckShinyPackOnly
     }
 
     ; Update section headers with appropriate colors
@@ -1502,7 +1514,7 @@ LoadSettingsFromIni() {
         IniRead, heartBeatName, Settings.ini, UserSettings, heartBeatName, ""
         IniRead, nukeAccount, Settings.ini, UserSettings, nukeAccount, 0
         IniRead, packMethod, Settings.ini, UserSettings, packMethod, 0
-        IniRead, CheckShiningPackOnly, Settings.ini, UserSettings, CheckShiningPackOnly, 0
+        IniRead, CheckShinyPackOnly, Settings.ini, UserSettings, CheckShinyPackOnly, 0
         IniRead, TrainerCheck, Settings.ini, UserSettings, TrainerCheck, 0
         IniRead, FullArtCheck, Settings.ini, UserSettings, FullArtCheck, 0
         IniRead, RainbowCheck, Settings.ini, UserSettings, RainbowCheck, 0
@@ -1512,14 +1524,17 @@ LoadSettingsFromIni() {
         IniRead, InvalidCheck, Settings.ini, UserSettings, InvalidCheck, 0
         IniRead, PseudoGodPack, Settings.ini, UserSettings, PseudoGodPack, 0
         IniRead, minStars, Settings.ini, UserSettings, minStars, 0
-        IniRead, Palkia, Settings.ini, UserSettings, Palkia, 0
-        IniRead, Dialga, Settings.ini, UserSettings, Dialga, 0
+        IniRead, minStarsShiny, Settings.ini, UserSettings, minStarsShiny, 0
+        IniRead, Solgaleo, Settings.ini, UserSettings, Solgaleo, 1
+        IniRead, Lunala, Settings.ini, UserSettings, Lunala, 1
+        IniRead, Shining, Settings.ini, UserSettings, Shining, 0
         IniRead, Arceus, Settings.ini, UserSettings, Arceus, 0
-        IniRead, Shining, Settings.ini, UserSettings, Shining, 1
-        IniRead, Mew, Settings.ini, UserSettings, Mew, 0
-        IniRead, Pikachu, Settings.ini, UserSettings, Pikachu, 0
-        IniRead, Charizard, Settings.ini, UserSettings, Charizard, 0
+        IniRead, Dialga, Settings.ini, UserSettings, Dialga, 0
+        IniRead, Palkia, Settings.ini, UserSettings, Palkia, 0
         IniRead, Mewtwo, Settings.ini, UserSettings, Mewtwo, 0
+        IniRead, Charizard, Settings.ini, UserSettings, Charizard, 0
+        IniRead, Pikachu, Settings.ini, UserSettings, Pikachu, 0
+        IniRead, Mew, Settings.ini, UserSettings, Mew, 0
         IniRead, slowMotion, Settings.ini, UserSettings, slowMotion, 0
         IniRead, ocrLanguage, Settings.ini, UserSettings, ocrLanguage, en
         IniRead, clientLanguage, Settings.ini, UserSettings, clientLanguage, en
@@ -1543,14 +1558,17 @@ LoadSettingsFromIni() {
         IniRead, s4tSendAccountXml, Settings.ini, UserSettings, s4tSendAccountXml, 1
 
         ; Advanced settings
-        IniRead, minStarsA1Charizard, Settings.ini, UserSettings, minStarsA1Charizard, 0
+        IniRead, minStarsShiny, Settings.ini, UserSettings, minStarsShiny, 0
         IniRead, minStarsA1Mewtwo, Settings.ini, UserSettings, minStarsA1Mewtwo, 0
+        IniRead, minStarsA1Charizard, Settings.ini, UserSettings, minStarsA1Charizard, 0
         IniRead, minStarsA1Pikachu, Settings.ini, UserSettings, minStarsA1Pikachu, 0
         IniRead, minStarsA1a, Settings.ini, UserSettings, minStarsA1a, 0
         IniRead, minStarsA2Dialga, Settings.ini, UserSettings, minStarsA2Dialga, 0
         IniRead, minStarsA2Palkia, Settings.ini, UserSettings, minStarsA2Palkia, 0
         IniRead, minStarsA2a, Settings.ini, UserSettings, minStarsA2a, 0
         IniRead, minStarsA2b, Settings.ini, UserSettings, minStarsA2b, 0
+        IniRead, minStarsA3Solgaleo, Settings.ini, UserSettings, minStarsA3Solgaleo, 0
+        IniRead, minStarsA3Lunala, Settings.ini, UserSettings, minStarsA3Lunala, 0
         IniRead, heartBeatDelay, Settings.ini, UserSettings, heartBeatDelay, 30
         IniRead, sendAccountXml, Settings.ini, UserSettings, sendAccountXml, 0
 
@@ -1889,8 +1907,8 @@ SetNormalFont()
 Gui, Add, Text, y+20 Hidden vTxt_MinStars, Min. 2 Stars:
 Gui, Add, Edit, vminStars w55 x260 y+-17 h25 Center Hidden, %minStars%
 
-Gui, Add, Text, x170 y+17 Hidden vTxt_A2bMinStar, 2* for SR:
-Gui, Add, Edit, vminStarsA2b w55 x260 y+-17 h25 Center Hidden, %minStarsA2b%
+Gui, Add, Text, x170 y+17 Hidden vTxt_ShinyMinStars, Min. 2 Stars`nfor Shiny Packs:
+Gui, Add, Edit, vminStarsShiny w55 x260 y+-25 h25 Center Hidden, %minStarsShiny%
 
 Gui, Add, Text, x170 y+17 Hidden vTxt_DeleteMethod, Method:
 if (deleteMethod = "5 Pack")
@@ -1905,7 +1923,7 @@ else if (deleteMethod = "5 Pack (Fast)")
 Gui, Add, DropDownList, vdeleteMethod gdeleteSettings choose%defaultDelete% x260 y+-17 w95 Hidden, 5 Pack|3 Pack|Inject|5 Pack (Fast)
 
 Gui, Add, Checkbox, % (packMethod ? "Checked" : "") " vpackMethod x170 y+17 Hidden", 1 Pack Method
-Gui, Add, Checkbox, % (nukeAccount ? "Checked" : "") " vnukeAccount x170 y+20 Hidden", Menu Delete
+Gui, Add, Checkbox, % (nukeAccount ? "Checked" : "") " vnukeAccount x170 y+10 Hidden", Menu Delete
 
 ; Add divider for God Pack Settings section
 AddSectionDivider(170, "+20", 290, "Pack_Divider1")
@@ -1917,21 +1935,25 @@ Gui, Add, Text, y+20 Hidden vPackSettingsSubHeading2, Pack Selection
 SetNormalFont()
 ; 3-Column Layout for Pack Selection
 ; Column 1
-Gui, Add, Checkbox, % (Shining ? "Checked" : "") " vShining y+15 Hidden", Shining
-Gui, Add, Checkbox, % (Dialga ? "Checked" : "") " vDialga y+10 Hidden", Dialga
-Gui, Add, Checkbox, % (Mewtwo ? "Checked" : "") " vMewtwo y+10 Hidden", Mewtwo
+Gui, Add, Checkbox, % (Solgaleo ? "Checked" : "") " vSolgaleo y+15 Hidden", Solgaleo
+Gui, Add, Checkbox, % (Lunala ? "Checked" : "") " vLunala y+10 Hidden", Lunala
+Gui, Add, Checkbox, % (Shining ? "Checked" : "") " vShining y+10 Hidden", Shining
 
 ; Column 2
-Gui, Add, Checkbox, % (Arceus ? "Checked" : "") " vArceus x260 y+-61 Hidden", Arceus
-Gui, Add, Checkbox, % (Pikachu ? "Checked" : "") " vPikachu y+10 Hidden", Pikachu
-Gui, Add, Checkbox, % (Mew ? "Checked" : "") " vMew y+10 Hidden", Mew
+Gui, Add, Checkbox, % (Arceus ? "Checked" : "") " vArceus x245 y+-61 Hidden", Arceus
+Gui, Add, Checkbox, % (Dialga ? "Checked" : "") " vDialga y+10 Hidden", Dialga
+Gui, Add, Checkbox, % (Palkia ? "Checked" : "") " vPalkia y+10 Hidden", Palkia
 
 ; Column 3
-Gui, Add, Checkbox, % (Palkia ? "Checked" : "") " vPalkia x350 y+-61 Hidden", Palkia
+Gui, Add, Checkbox, % (Mewtwo ? "Checked" : "") " vMewtwo x315 y+-61 Hidden", Mewtwo
 Gui, Add, Checkbox, % (Charizard ? "Checked" : "") " vCharizard y+10 Hidden", Charizard
+Gui, Add, Checkbox, % (Pikachu ? "Checked" : "") " vPikachu y+10 Hidden", Pikachu
+
+; Column 4
+Gui, Add, Checkbox, % (Mew ? "Checked" : "") " vMew x395 y+-61 Hidden", Mew
 
 ; Add divider for Pack Selection section
-AddSectionDivider(170, "+41", 290, "Pack_Divider2")
+AddSectionDivider(170, "+65", 290, "Pack_Divider2")
 
 ; === Card Detection Subsection ===
 SetHeaderFont()
@@ -1950,7 +1972,7 @@ Gui, Add, Checkbox, % (ShinyCheck ? "Checked" : "") " vShinyCheck y+10 Hidden", 
 Gui, Add, Checkbox, % (ImmersiveCheck ? "Checked" : "") " vImmersiveCheck y+10 Hidden", Save Immersives
 
 ; Bottom options
-Gui, Add, Checkbox, % (CheckShiningPackOnly ? "Checked" : "") " vCheckShiningPackOnly x170 y+44 Hidden", Only Shining Boost
+Gui, Add, Checkbox, % (CheckShinyPackOnly ? "Checked" : "") " vCheckShinyPackOnly x170 y+44 Hidden", Only Shiny Packs
 Gui, Add, Checkbox, % (InvalidCheck ? "Checked" : "") " vInvalidCheck x320 y+-14 Hidden", Ignore Invalid Packs
 
 ; Add divider for Card Detection section
@@ -2548,7 +2570,7 @@ SaveReload:
     IniWrite, %heartBeatName%, Settings.ini, UserSettings, heartBeatName
     IniWrite, %nukeAccount%, Settings.ini, UserSettings, nukeAccount
     IniWrite, %packMethod%, Settings.ini, UserSettings, packMethod
-    IniWrite, %CheckShiningPackOnly%, Settings.ini, UserSettings, CheckShiningPackOnly
+    IniWrite, %CheckShinyPackOnly%, Settings.ini, UserSettings, CheckShinyPackOnly
     IniWrite, %TrainerCheck%, Settings.ini, UserSettings, TrainerCheck
     IniWrite, %FullArtCheck%, Settings.ini, UserSettings, FullArtCheck
     IniWrite, %RainbowCheck%, Settings.ini, UserSettings, RainbowCheck
@@ -2558,16 +2580,18 @@ SaveReload:
     IniWrite, %ImmersiveCheck%, Settings.ini, UserSettings, ImmersiveCheck
     IniWrite, %PseudoGodPack%, Settings.ini, UserSettings, PseudoGodPack
     IniWrite, %minStars%, Settings.ini, UserSettings, minStars
-    IniWrite, %Palkia%, Settings.ini, UserSettings, Palkia
-    IniWrite, %Dialga%, Settings.ini, UserSettings, Dialga
-    IniWrite, %Arceus%, Settings.ini, UserSettings, Arceus
+    IniWrite, %minStarsShiny%, Settings.ini, UserSettings, minStarsShiny
+    IniWrite, %Solgaleo%, Settings.ini, UserSettings, Solgaleo
+    IniWrite, %Lunala%, Settings.ini, UserSettings, Lunala
     IniWrite, %Shining%, Settings.ini, UserSettings, Shining
-    IniWrite, %Mew%, Settings.ini, UserSettings, Mew
-    IniWrite, %Pikachu%, Settings.ini, UserSettings, Pikachu
-    IniWrite, %Charizard%, Settings.ini, UserSettings, Charizard
+    IniWrite, %Arceus%, Settings.ini, UserSettings, Arceus
+    IniWrite, %Dialga%, Settings.ini, UserSettings, Dialga
+    IniWrite, %Palkia%, Settings.ini, UserSettings, Palkia
     IniWrite, %Mewtwo%, Settings.ini, UserSettings, Mewtwo
+    IniWrite, %Charizard%, Settings.ini, UserSettings, Charizard
+    IniWrite, %Pikachu%, Settings.ini, UserSettings, Pikachu
+    IniWrite, %Mew%, Settings.ini, UserSettings, Mew
     IniWrite, %slowMotion%, Settings.ini, UserSettings, slowMotion
-
     IniWrite, %ocrLanguage%, Settings.ini, UserSettings, ocrLanguage
     IniWrite, %clientLanguage%, Settings.ini, UserSettings, clientLanguage
     IniWrite, %mainIdsURL%, Settings.ini, UserSettings, mainIdsURL
@@ -2575,22 +2599,16 @@ SaveReload:
     IniWrite, %autoLaunchMonitor%, Settings.ini, UserSettings, autoLaunchMonitor
     IniWrite, %instanceLaunchDelay%, Settings.ini, UserSettings, instanceLaunchDelay
 
-    minStarsA1Charizard := minStars
-    minStarsA1Mewtwo := minStars
-    minStarsA1Pikachu := minStars
-    minStarsA1a := minStars
-    minStarsA2Dialga := minStars
-    minStarsA2Palkia := minStars
-    minStarsA2a := minStars
-
-    IniWrite, %minStarsA1Charizard%, Settings.ini, UserSettings, minStarsA1Charizard
-    IniWrite, %minStarsA1Mewtwo%, Settings.ini, UserSettings, minStarsA1Mewtwo
-    IniWrite, %minStarsA1Pikachu%, Settings.ini, UserSettings, minStarsA1Pikachu
-    IniWrite, %minStarsA1a%, Settings.ini, UserSettings, minStarsA1a
-    IniWrite, %minStarsA2Dialga%, Settings.ini, UserSettings, minStarsA2Dialga
-    IniWrite, %minStarsA2Palkia%, Settings.ini, UserSettings, minStarsA2Palkia
-    IniWrite, %minStarsA2a%, Settings.ini, UserSettings, minStarsA2a
-    IniWrite, %minStarsA2b%, Settings.ini, UserSettings, minStarsA2b
+    IniWrite, %minStars%, Settings.ini, UserSettings, minStarsA1Mewtwo
+    IniWrite, %minStars%, Settings.ini, UserSettings, minStarsA1Charizard
+    IniWrite, %minStars%, Settings.ini, UserSettings, minStarsA1Pikachu
+    IniWrite, %minStars%, Settings.ini, UserSettings, minStarsA1a
+    IniWrite, %minStars%, Settings.ini, UserSettings, minStarsA2Dialga
+    IniWrite, %minStars%, Settings.ini, UserSettings, minStarsA2Palkia
+    IniWrite, %minStars%, Settings.ini, UserSettings, minStarsA2a
+    IniWrite, %minStarsShiny%, Settings.ini, UserSettings, minStarsA2b
+    IniWrite, %minStarsShiny%, Settings.ini, UserSettings, minStarsA3Solgaleo
+    IniWrite, %minStarsShiny%, Settings.ini, UserSettings, minStarsA3Lunala
 
     IniWrite, %heartBeatDelay%, Settings.ini, UserSettings, heartBeatDelay
     IniWrite, %sendAccountXml%, Settings.ini, UserSettings, sendAccountXml
@@ -2649,7 +2667,7 @@ StartBot:
     IniWrite, %heartBeatName%, Settings.ini, UserSettings, heartBeatName
     IniWrite, %nukeAccount%, Settings.ini, UserSettings, nukeAccount
     IniWrite, %packMethod%, Settings.ini, UserSettings, packMethod
-    IniWrite, %CheckShiningPackOnly%, Settings.ini, UserSettings, CheckShiningPackOnly
+    IniWrite, %CheckShinyPackOnly%, Settings.ini, UserSettings, CheckShinyPackOnly
     IniWrite, %TrainerCheck%, Settings.ini, UserSettings, TrainerCheck
     IniWrite, %FullArtCheck%, Settings.ini, UserSettings, FullArtCheck
     IniWrite, %RainbowCheck%, Settings.ini, UserSettings, RainbowCheck
@@ -2659,16 +2677,17 @@ StartBot:
     IniWrite, %ImmersiveCheck%, Settings.ini, UserSettings, ImmersiveCheck
     IniWrite, %PseudoGodPack%, Settings.ini, UserSettings, PseudoGodPack
     IniWrite, %minStars%, Settings.ini, UserSettings, minStars
-    IniWrite, %Palkia%, Settings.ini, UserSettings, Palkia
-    IniWrite, %Dialga%, Settings.ini, UserSettings, Dialga
-    IniWrite, %Arceus%, Settings.ini, UserSettings, Arceus
+    IniWrite, %Solgaleo%, Settings.ini, UserSettings, Solgaleo
+    IniWrite, %Lunala%, Settings.ini, UserSettings, Lunala
     IniWrite, %Shining%, Settings.ini, UserSettings, Shining
-    IniWrite, %Mew%, Settings.ini, UserSettings, Mew
-    IniWrite, %Pikachu%, Settings.ini, UserSettings, Pikachu
-    IniWrite, %Charizard%, Settings.ini, UserSettings, Charizard
+    IniWrite, %Arceus%, Settings.ini, UserSettings, Arceus
+    IniWrite, %Dialga%, Settings.ini, UserSettings, Dialga
+    IniWrite, %Palkia%, Settings.ini, UserSettings, Palkia
     IniWrite, %Mewtwo%, Settings.ini, UserSettings, Mewtwo
+    IniWrite, %Charizard%, Settings.ini, UserSettings, Charizard
+    IniWrite, %Pikachu%, Settings.ini, UserSettings, Pikachu
+    IniWrite, %Mew%, Settings.ini, UserSettings, Mew
     IniWrite, %slowMotion%, Settings.ini, UserSettings, slowMotion
-
     IniWrite, %ocrLanguage%, Settings.ini, UserSettings, ocrLanguage
     IniWrite, %clientLanguage%, Settings.ini, UserSettings, clientLanguage
     IniWrite, %mainIdsURL%, Settings.ini, UserSettings, mainIdsURL
@@ -2676,22 +2695,16 @@ StartBot:
     IniWrite, %autoLaunchMonitor%, Settings.ini, UserSettings, autoLaunchMonitor
     IniWrite, %instanceLaunchDelay%, Settings.ini, UserSettings, instanceLaunchDelay
 
-    minStarsA1Charizard := minStars
-    minStarsA1Mewtwo := minStars
-    minStarsA1Pikachu := minStars
-    minStarsA1a := minStars
-    minStarsA2Dialga := minStars
-    minStarsA2Palkia := minStars
-    minStarsA2a := minStars
-
-    IniWrite, %minStarsA1Charizard%, Settings.ini, UserSettings, minStarsA1Charizard
-    IniWrite, %minStarsA1Mewtwo%, Settings.ini, UserSettings, minStarsA1Mewtwo
-    IniWrite, %minStarsA1Pikachu%, Settings.ini, UserSettings, minStarsA1Pikachu
-    IniWrite, %minStarsA1a%, Settings.ini, UserSettings, minStarsA1a
-    IniWrite, %minStarsA2Dialga%, Settings.ini, UserSettings, minStarsA2Dialga
-    IniWrite, %minStarsA2Palkia%, Settings.ini, UserSettings, minStarsA2Palkia
-    IniWrite, %minStarsA2a%, Settings.ini, UserSettings, minStarsA2a
-    IniWrite, %minStarsA2b%, Settings.ini, UserSettings, minStarsA2b
+    IniWrite, %minStars%, Settings.ini, UserSettings, minStarsA1Mewtwo
+    IniWrite, %minStars%, Settings.ini, UserSettings, minStarsA1Charizard
+    IniWrite, %minStars%, Settings.ini, UserSettings, minStarsA1Pikachu
+    IniWrite, %minStars%, Settings.ini, UserSettings, minStarsA1a
+    IniWrite, %minStars%, Settings.ini, UserSettings, minStarsA2Dialga
+    IniWrite, %minStars%, Settings.ini, UserSettings, minStarsA2Palkia
+    IniWrite, %minStars%, Settings.ini, UserSettings, minStarsA2a
+    IniWrite, %minStarsShiny%, Settings.ini, UserSettings, minStarsA2b
+    IniWrite, %minStarsShiny%, Settings.ini, UserSettings, minStarsA3Solgaleo
+    IniWrite, %minStarsShiny%, Settings.ini, UserSettings, minStarsA3Lunala
 
     IniWrite, %heartBeatDelay%, Settings.ini, UserSettings, heartBeatDelay
     IniWrite, %sendAccountXml%, Settings.ini, UserSettings, sendAccountXml
@@ -2814,22 +2827,26 @@ SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
 
     Selected := []
     selectMsg := "\nOpening: "
+    if (Solgaleo)
+        Selected.Push("Solgaleo")
+    if (Lunala)
+        Selected.Push("Lunala")
     if (Shining)
         Selected.Push("Shining")
     if (Arceus)
         Selected.Push("Arceus")
-    if (Palkia)
-        Selected.Push("Palkia")
     if (Dialga)
         Selected.Push("Dialga")
-    if (Mew)
-        Selected.Push("Mew")
-    if (Pikachu)
-        Selected.Push("Pikachu")
-    if (Charizard)
-        Selected.Push("Charizard")
+    if (Palkia)
+        Selected.Push("Palkia")
     if (Mewtwo)
         Selected.Push("Mewtwo")
+    if (Charizard)
+        Selected.Push("Charizard")
+    if (Pikachu)
+        Selected.Push("Pikachu")
+    if (Mew)
+        Selected.Push("Mew")
 
     for index, value in Selected {
         if (index = Selected.MaxIndex())

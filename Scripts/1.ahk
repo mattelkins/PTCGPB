@@ -18,7 +18,9 @@ CoordMode, Pixel, Screen
 DllCall("AllocConsole")
 WinHide % "ahk_id " DllCall("GetConsoleWindow", "ptr")
 
-global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, scriptName, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, deleteMethod, packs, FriendID, friendIDs, Instances, username, friendCode, stopToggle, friended, runMain, Mains, showStatus, injectMethod, packMethod, loadDir, loadedAccount, nukeAccount, CheckShiningPackOnly, TrainerCheck, FullArtCheck, RainbowCheck, ShinyCheck, dateChange, foundGP, friendsAdded, minStars, PseudoGodPack, Palkia, Dialga, Mew, Pikachu, Charizard, Mewtwo, packArray, CrownCheck, ImmersiveCheck, InvalidCheck, slowMotion, screenShot, accountFile, invalid, starCount, keepAccount, minStarsA1Charizard, minStarsA1Mewtwo, minStarsA1Pikachu, minStarsA1a, minStarsA2Dialga, minStarsA2Palkia, minStarsA2a, minStarsA2b
+global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, scriptName, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, deleteMethod, packs, FriendID, friendIDs, Instances, username, friendCode, stopToggle, friended, runMain, Mains, showStatus, injectMethod, packMethod, loadDir, loadedAccount, nukeAccount, CheckShinyPackOnly, TrainerCheck, FullArtCheck, RainbowCheck, ShinyCheck, dateChange, foundGP, friendsAdded, PseudoGodPack, packArray, CrownCheck, ImmersiveCheck, InvalidCheck, slowMotion, screenShot, accountFile, invalid, starCount, keepAccount
+global Mewtwo, Charizard, Pikachu, Mew, Dialga, Palkia, Arceus, Shining, Solgaleo, Lunala
+global shinyPacks, minStars, minStarsShiny, minStarsA1Mewtwo, minStarsA1Charizard, minStarsA1Pikachu, minStarsA1a, minStarsA2Dialga, minStarsA2Palkia, minStarsA2a, minStarsA2b, minStarsA3Solgaleo, minStarsA3Lunala
 global tesseractPath, DeadCheck, skipAddingFriends
 global s4tEnabled, s4tSilent, s4t3Dmnd, s4t4Dmnd, s4t1Star, s4tGholdengo, s4tWP, s4tWPMinCards, s4tWPSaveOnly, s4tDiscordWebhookURL, s4tDiscordUserId, s4tSendAccountXml
 
@@ -46,7 +48,7 @@ IniRead, runMain, %A_ScriptDir%\..\Settings.ini, UserSettings, runMain, 1
 IniRead, Mains, %A_ScriptDir%\..\Settings.ini, UserSettings, Mains, 1
 IniRead, nukeAccount, %A_ScriptDir%\..\Settings.ini, UserSettings, nukeAccount, 0
 IniRead, packMethod, %A_ScriptDir%\..\Settings.ini, UserSettings, packMethod, 0
-IniRead, CheckShiningPackOnly, %A_ScriptDir%\..\Settings.ini, UserSettings, CheckShiningPackOnly, 0
+IniRead, CheckShinyPackOnly, %A_ScriptDir%\..\Settings.ini, UserSettings, CheckShinyPackOnly, 0
 IniRead, TrainerCheck, %A_ScriptDir%\..\Settings.ini, UserSettings, TrainerCheck, 0
 IniRead, FullArtCheck, %A_ScriptDir%\..\Settings.ini, UserSettings, FullArtCheck, 0
 IniRead, RainbowCheck, %A_ScriptDir%\..\Settings.ini, UserSettings, RainbowCheck, 0
@@ -56,27 +58,32 @@ IniRead, ImmersiveCheck, %A_ScriptDir%\..\Settings.ini, UserSettings, ImmersiveC
 IniRead, InvalidCheck, %A_ScriptDir%\..\Settings.ini, UserSettings, InvalidCheck, 0
 IniRead, PseudoGodPack, %A_ScriptDir%\..\Settings.ini, UserSettings, PseudoGodPack, 0
 IniRead, minStars, %A_ScriptDir%\..\Settings.ini, UserSettings, minStars, 0
-IniRead, Palkia, %A_ScriptDir%\..\Settings.ini, UserSettings, Palkia, 0
-IniRead, Dialga, %A_ScriptDir%\..\Settings.ini, UserSettings, Dialga, 0
+IniRead, minStarsShiny, %A_ScriptDir%\..\Settings.ini, UserSettings, minStarsShiny, 0
+IniRead, Solgaleo, %A_ScriptDir%\..\Settings.ini, UserSettings, Solgaleo, 1
+IniRead, Lunala, %A_ScriptDir%\..\Settings.ini, UserSettings, Lunala, 1
+IniRead, Shining, %A_ScriptDir%\..\Settings.ini, UserSettings, Shining, 0
 IniRead, Arceus, %A_ScriptDir%\..\Settings.ini, UserSettings, Arceus, 0
-IniRead, Shining, %A_ScriptDir%\..\Settings.ini, UserSettings, Shining, 1
-IniRead, Mew, %A_ScriptDir%\..\Settings.ini, UserSettings, Mew, 0
-IniRead, Pikachu, %A_ScriptDir%\..\Settings.ini, UserSettings, Pikachu, 0
-IniRead, Charizard, %A_ScriptDir%\..\Settings.ini, UserSettings, Charizard, 0
+IniRead, Dialga, %A_ScriptDir%\..\Settings.ini, UserSettings, Dialga, 0
+IniRead, Palkia, %A_ScriptDir%\..\Settings.ini, UserSettings, Palkia, 0
 IniRead, Mewtwo, %A_ScriptDir%\..\Settings.ini, UserSettings, Mewtwo, 0
+IniRead, Charizard, %A_ScriptDir%\..\Settings.ini, UserSettings, Charizard, 0
+IniRead, Pikachu, %A_ScriptDir%\..\Settings.ini, UserSettings, Pikachu, 0
+IniRead, Mew, %A_ScriptDir%\..\Settings.ini, UserSettings, Mew, 0
 IniRead, slowMotion, %A_ScriptDir%\..\Settings.ini, UserSettings, slowMotion, 0
 IniRead, DeadCheck, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck, 0
 IniRead, ocrLanguage, %A_ScriptDir%\..\Settings.ini, UserSettings, ocrLanguage, en
 IniRead, tesseractPath, %A_ScriptDir%\..\Settings.ini, UserSettings, tesseractPath, C:\Program Files\Tesseract-OCR\tesseract.exe
 
-IniRead, minStarsA1Charizard, %A_ScriptDir%\..\Settings.ini, UserSettings, minStarsA1Charizard, 0
 IniRead, minStarsA1Mewtwo, %A_ScriptDir%\..\Settings.ini, UserSettings, minStarsA1Mewtwo, 0
+IniRead, minStarsA1Charizard, %A_ScriptDir%\..\Settings.ini, UserSettings, minStarsA1Charizard, 0
 IniRead, minStarsA1Pikachu, %A_ScriptDir%\..\Settings.ini, UserSettings, minStarsA1Pikachu, 0
 IniRead, minStarsA1a, %A_ScriptDir%\..\Settings.ini, UserSettings, minStarsA1a, 0
 IniRead, minStarsA2Dialga, %A_ScriptDir%\..\Settings.ini, UserSettings, minStarsA2Dialga, 0
 IniRead, minStarsA2Palkia, %A_ScriptDir%\..\Settings.ini, UserSettings, minStarsA2Palkia, 0
 IniRead, minStarsA2a, %A_ScriptDir%\..\Settings.ini, UserSettings, minStarsA2a, 0
 IniRead, minStarsA2b, %A_ScriptDir%\..\Settings.ini, UserSettings, minStarsA2b, 0
+IniRead, minStarsA3Solgaleo, %A_ScriptDir%\..\Settings.ini, UserSettings, minStarsA3Solgaleo, 0
+IniRead, minStarsA3Lunala, %A_ScriptDir%\..\Settings.ini, UserSettings, minStarsA3Lunala, 0
 
 IniRead, s4tEnabled, %A_ScriptDir%\..\Settings.ini, UserSettings, s4tEnabled, 0
 IniRead, s4tSilent, %A_ScriptDir%\..\Settings.ini, UserSettings, s4tSilent, 1
@@ -91,7 +98,8 @@ IniRead, s4tDiscordWebhookURL, %A_ScriptDir%\..\Settings.ini, UserSettings, s4tD
 IniRead, s4tDiscordUserId, %A_ScriptDir%\..\Settings.ini, UserSettings, s4tDiscordUserId
 IniRead, s4tSendAccountXml, %A_ScriptDir%\..\Settings.ini, UserSettings, s4tSendAccountXml, 1
 
-pokemonList := ["Palkia", "Dialga", "Mew", "Pikachu", "Charizard", "Mewtwo", "Arceus", "Shining"]
+pokemonList := ["Mewtwo", "Charizard", "Pikachu", "Mew", "Dialga", "Palkia", "Arceus", "Shining", "Solgaleo", "Lunala"]
+shinyPacks := {"Shining": 1, "Solgaleo": 1, "Lunala": 1}
 
 packArray := []  ; Initialize an empty array
 
@@ -205,7 +213,7 @@ adbSwipeX2 := Round(267 / 277 * 535)
 adbSwipeY := Round((327 - 44) / 489 * 960)
 global adbSwipeParams := adbSwipeX1 . " " . adbSwipeY . " " . adbSwipeX2 . " " . adbSwipeY . " " . swipeSpeed
 
-if (DeadCheck = 1){
+if (DeadCheck = 1) {
     friended:= true
     menuDeleteStart()
     IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
@@ -596,7 +604,7 @@ AddFriends(renew := false, getFC := false) {
                         break
                     }
                     else if (FindOrLoseImage(165, 250, 190, 275, , "Accepted", 0, failSafeTime)) {
-                        if (renew){
+                        if (renew) {
                             FindImageAndClick(135, 355, 160, 385, , "Remove", 193, 258, 500)
                             FindImageAndClick(165, 250, 190, 275, , "Send", 200, 372, 500)
                             if (!friended)
@@ -656,7 +664,7 @@ AddFriends(renew := false, getFC := false) {
                             break
                         }
                         else if (FindOrLoseImage(165, 250, 190, 275, , "Accepted", 0, failSafeTime)) {
-                            if (renew){
+                            if (renew) {
                                 FindImageAndClick(135, 355, 160, 385, , "Remove", 193, 258, 500)
                                 FindImageAndClick(165, 250, 190, 275, , "Send", 200, 372, 500)
                                 Delay(2)
@@ -1028,7 +1036,7 @@ LevelUp() {
     Delay(1)
 }
 
-resetWindows(){
+resetWindows() {
     global Columns, winTitle, SelectedMonitorIndex, scaleParam
     CreateStatusMessage("Arranging window positions and sizes",,,, false)
     RetryCount := 0
@@ -1066,7 +1074,7 @@ resetWindows(){
     return true
 }
 
-restartGameInstance(reason, RL := true){
+restartGameInstance(reason, RL := true) {
     AppendToJsonFile(packs)
 
     if (Debug)
@@ -1320,7 +1328,7 @@ CheckPack() {
     }
 
     ; Check for 2-star cards.
-    if (!CheckShiningPackOnly || openPack = "Shining") {
+    if (!CheckShinyPackOnly || shinyPacks.HasKey(openPack)) {
         foundTrainer := false
         foundRainbow := false
         foundFullArt := false
@@ -1677,22 +1685,26 @@ FindGodPack(invalidPack := false) {
 
     ; Count stars if required.
     packMinStars := minStars
-    if (openPack = "Shining") {
+    if (openPack = "Solgaleo") {
+        packMinStars := minStarsA3Solgaleo
+    } else if (openPack = "Lunala") {
+        packMinStars := minStarsA3Lunala
+    } else if (openPack = "Shining") {
         packMinStars := minStarsA2b
     } else if (openPack = "Arceus") {
         packMinStars := minStarsA2a
-    } else if (openPack = "Palkia") {
-        packMinStars := minStarsA2Palkia
     } else if (openPack = "Dialga") {
         packMinStars := minStarsA2Dialga
-    } else if (openPack = "Mew") {
-        packMinStars := minStarsA1a
-    } else if (openPack = "Pikachu") {
-        packMinStars := minStarsA1Pikachu
-    } else if (openPack = "Charizard") {
-        packMinStars := minStarsA1Charizard
+    } else if (openPack = "Palkia") {
+        packMinStars := minStarsA2Palkia
     } else if (openPack = "Mewtwo") {
         packMinStars := minStarsA1Mewtwo
+    } else if (openPack = "Charizard") {
+        packMinStars := minStarsA1Charizard
+    } else if (openPack = "Pikachu") {
+        packMinStars := minStarsA1Pikachu
+    } else if (openPack = "Mew") {
+        packMinStars := minStarsA1a
     }
 
     if (!invalidPack && packMinStars > 0) {
@@ -2389,7 +2401,7 @@ DoTutorial() {
     Loop {
         adbSwipe(adbSwipeParams)
         Sleep, 10
-        if (FindOrLoseImage(225, 273, 235, 290, , "Pack", 1, failSafeTime)){
+        if (FindOrLoseImage(225, 273, 235, 290, , "Pack", 1, failSafeTime)) {
             if (setSpeed > 1) {
                 if (setSpeed = 3)
                         FindImageAndClick(182, 170, 194, 190, , "Three", 187, 180) ; click 3x
@@ -2414,7 +2426,7 @@ DoTutorial() {
     Loop {
         adbSwipe("266 770 266 355 60")
         Sleep, 10
-        if (FindOrLoseImage(120, 70, 150, 95, , "SwipeUp", 0, failSafeTime)){
+        if (FindOrLoseImage(120, 70, 150, 95, , "SwipeUp", 0, failSafeTime)) {
             if (setSpeed > 1) {
                 if (setSpeed = 3)
                         FindImageAndClick(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
@@ -2484,7 +2496,7 @@ DoTutorial() {
     Loop {
         adbSwipe(adbSwipeParams)
         Sleep, 10
-        if (FindOrLoseImage(225, 273, 235, 290, , "Pack", 1, failSafeTime)){
+        if (FindOrLoseImage(225, 273, 235, 290, , "Pack", 1, failSafeTime)) {
         if (setSpeed > 1) {
             if (setSpeed = 3)
                         FindImageAndClick(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
@@ -2581,37 +2593,45 @@ DoTutorial() {
 
 SelectPack(HG := false) {
     global openPack, packArray
-    packy := 196
-    if (openPack = "Shining") {
-        packx := 145
-    } else if (openPack = "Arceus") {
-        packx := 200
+    packy := 225
+    if (openPack = "Solgaleo") {
+        packx := 140
+    } else if (openPack = "Lunala") {
+        packx := 215
     } else {
-        packx := 80
+        packx := 60
     }
     FindImageAndClick(233, 400, 264, 428, , "Points", packx, packy)
-    if (openPack = "Pikachu" || openPack = "Mewtwo" || openPack = "Charizard" || openPack = "Mew") {
+    if (openPack = "Mewtwo" || openPack = "Charizard" || openPack = "Pikachu" || openPack = "Mew" || openPack = "Dialga" || openPack = "Palkia" || openPack = "Arceus") {
         FindImageAndClick(115, 140, 160, 155, , "SelectExpansion", 245, 475)
-        packy := 442
-        if (openPack = "Pikachu" || openPack = "Mewtwo" || openPack = "Charizard"){
-            Sleep, 500
+
+        if (openPack = "Mewtwo" || openPack = "Charizard" || openPack = "Pikachu" || openPack = "Mew") {
+            ; Swipe down
             adbSwipe("266 770 266 355 160")
             Sleep, 500
+
+            packy := 470
+            if (openPack = "Charizard") {
+                packx := 160
+            } else if (openPack = "Mewtwo") {
+                packx := 200
+            } else if (openPack = "Pikachu") {
+                packx := 243
+            } else if (openPack = "Mew") {
+                packx := 73
+            }
+        } else {
+            packy := 410
+            if (openPack = "Arceus") {
+                packx := 73
+            } else if (openPack = "Dialga") {
+                packx := 183
+            } else if (openPack = "Palkia") {
+                packx := 222
+            }
         }
-        if (openPack = "Pikachu"){
-            packx := 125
-        } else if (openPack = "Mewtwo"){
-            packx := 85
-        } else if (openPack = "Charizard"){
-            packx := 45
-        } else if (openPack = "Mew"){
-            packx := 205
-        }
+
         FindImageAndClick(233, 400, 264, 428, , "Points", packx, packy)
-    } else if (openPack = "Palkia") {
-        Sleep, 500
-        adbClick(245, 245) ;temp
-        Sleep, 500
     }
     if (HG = "Tutorial") {
         FindImageAndClick(236, 198, 266, 226, , "Hourglass2", 180, 436, 500) ;stop at hourglasses tutorial 2 180 to 203?
@@ -2679,7 +2699,7 @@ PackOpening() {
     Loop {
         adbSwipe(adbSwipeParams)
         Sleep, 10
-        if (FindOrLoseImage(225, 273, 235, 290, , "Pack", 1, failSafeTime)){
+        if (FindOrLoseImage(225, 273, 235, 290, , "Pack", 1, failSafeTime)) {
         if (setSpeed > 1) {
             if (setSpeed = 3)
                     FindImageAndClick(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
@@ -2804,7 +2824,7 @@ HourglassOpening(HG := false) {
     Loop {
         adbSwipe(adbSwipeParams)
         Sleep, 10
-        if (FindOrLoseImage(225, 273, 235, 290, , "Pack", 1, failSafeTime)){
+        if (FindOrLoseImage(225, 273, 235, 290, , "Pack", 1, failSafeTime)) {
         if (setSpeed > 1) {
             if (setSpeed = 3)
                     FindImageAndClick(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
