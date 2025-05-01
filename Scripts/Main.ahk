@@ -400,7 +400,7 @@ FindImageAndClick(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT",
     return confirmed
 }
 
-resetWindows(){
+resetWindows() {
     global Columns, winTitle, SelectedMonitorIndex, scaleParam
     CreateStatusMessage("Arranging window positions and sizes")
     RetryCount := 0
@@ -434,7 +434,7 @@ resetWindows(){
     return true
 }
 
-restartGameInstance(reason, RL := true){
+restartGameInstance(reason, RL := true) {
     global Delay, scriptName, adbShell, adbPath, adbPort
     initializeAdbShell()
 
