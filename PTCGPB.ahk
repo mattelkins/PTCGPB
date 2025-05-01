@@ -1752,7 +1752,7 @@ Gui, Add, Text, x170 y100 vFriendIDHeading Hidden, Friend ID Settings
 
 SetInputFont()
 Gui, Add, Text, x170 y+20 vFriendIDLabel, Your Friend ID:
-if(FriendID = "ERROR" || FriendID = "") {
+if (FriendID = "ERROR" || FriendID = "") {
     Gui, Add, Edit, vFriendID w290 y+10 h25 Hidden
 } else {
     Gui, Add, Edit, vFriendID w290 y+10 h25 Hidden, %FriendID%
@@ -1988,9 +1988,9 @@ SetHeaderFont()
 Gui, Add, Text, x170 y+20 Hidden vS4TDiscordSettingsSubHeading, S4T Discord Settings
 
 SetNormalFont()
-if(StrLen(s4tDiscordUserId) < 3)
+if (StrLen(s4tDiscordUserId) < 3)
     s4tDiscordUserId =
-if(StrLen(s4tDiscordWebhookURL) < 3)
+if (StrLen(s4tDiscordWebhookURL) < 3)
     s4tDiscordWebhookURL =
 
 Gui, Add, Text, y+20 Hidden vTxt_S4T_DiscordID, Discord ID:
@@ -2005,9 +2005,9 @@ SetSectionFont()
 Gui, Add, Text, x170 y100 Hidden vDiscordSettingsHeading, Discord Settings
 
 SetNormalFont()
-if(StrLen(discordUserID) < 3)
+if (StrLen(discordUserID) < 3)
     discordUserID =
-if(StrLen(discordWebhookURL) < 3)
+if (StrLen(discordWebhookURL) < 3)
     discordWebhookURL =
 
 Gui, Add, Text, y+20 Hidden vTxt_DiscordID, Discord ID:
@@ -2028,9 +2028,9 @@ Gui, Add, Text, y+20 Hidden vHeartbeatSettingsSubHeading, Heartbeat Settings
 SetNormalFont()
 Gui, Add, Checkbox, % (heartBeat ? "Checked" : "") " vheartBeat gdiscordSettings y+20 Hidden", Discord Heartbeat
 
-if(StrLen(heartBeatName) < 3)
+if (StrLen(heartBeatName) < 3)
     heartBeatName =
-if(StrLen(heartBeatWebhookURL) < 3)
+if (StrLen(heartBeatWebhookURL) < 3)
     heartBeatWebhookURL =
 
 Gui, Add, Text, vhbName y+20 Hidden, Name:
@@ -2045,9 +2045,9 @@ SetHeaderFont()
 Gui, Add, Text, x170 y100 Hidden vDownloadSettingsHeading, Heartbeat Settings
 
 SetNormalFont()
-if(StrLen(mainIdsURL) < 3)
+if (StrLen(mainIdsURL) < 3)
     mainIdsURL =
-if(StrLen(vipIdsURL) < 3)
+if (StrLen(vipIdsURL) < 3)
     vipIdsURL =
 
 Gui, Add, Text, y+20 Hidden vTxt_MainIdsURL, ids.txt API:
@@ -2445,7 +2445,7 @@ deleteSettings:
     Gui, Submit, NoHide
     global isDarkTheme, DARK_TEXT, LIGHT_TEXT
 
-    if(InStr(deleteMethod, "Inject")) {
+    if (InStr(deleteMethod, "Inject")) {
         GuiControl, Hide, nukeAccount
         nukeAccount = false
     }
@@ -2510,7 +2510,7 @@ LaunchAllMumu:
     IniWrite, %instanceLaunchDelay%, Settings.ini, UserSettings, instanceLaunchDelay
 
     launchAllFile := "LaunchAllMumu.ahk"
-    if(FileExist(launchAllFile)) {
+    if (FileExist(launchAllFile)) {
         Run, %launchAllFile%
     }
 return
@@ -2767,7 +2767,7 @@ StartBot:
             SourceFile := "Scripts\1.ahk" ; Path to the source .ahk file
             TargetFolder := "Scripts\" ; Path to the target folder
             TargetFile := TargetFolder . A_Index . ".ahk" ; Generate target file path
-            if(Instances > 1) {
+            if (Instances > 1) {
                 FileDelete, %TargetFile%
                 FileCopy, %SourceFile%, %TargetFile%, 1 ; Copy source file to target
             }
@@ -2792,9 +2792,9 @@ StartBot:
         Run, %Command%
     }
 
-    if(autoLaunchMonitor) {
+    if (autoLaunchMonitor) {
         monitorFile := "Monitor.ahk"
-        if(FileExist(monitorFile)) {
+        if (FileExist(monitorFile)) {
             Run, %monitorFile%
         }
     }
@@ -2805,38 +2805,38 @@ SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
 
     typeMsg := "\nType: " . deleteMethod
     injectMethod := false
-    if(InStr(deleteMethod, "Inject"))
+    if (InStr(deleteMethod, "Inject"))
         injectMethod := true
-    if(packMethod)
+    if (packMethod)
         typeMsg .= " (1P Method)"
-    if(nukeAccount && !injectMethod)
+    if (nukeAccount && !injectMethod)
         typeMsg .= " (Menu Delete)"
 
     Selected := []
     selectMsg := "\nOpening: "
-    if(Shining)
+    if (Shining)
         Selected.Push("Shining")
-    if(Arceus)
+    if (Arceus)
         Selected.Push("Arceus")
-    if(Palkia)
+    if (Palkia)
         Selected.Push("Palkia")
-    if(Dialga)
+    if (Dialga)
         Selected.Push("Dialga")
-    if(Mew)
+    if (Mew)
         Selected.Push("Mew")
-    if(Pikachu)
+    if (Pikachu)
         Selected.Push("Pikachu")
-    if(Charizard)
+    if (Charizard)
         Selected.Push("Charizard")
-    if(Mewtwo)
+    if (Mewtwo)
         Selected.Push("Mewtwo")
 
     for index, value in Selected {
-        if(index = Selected.MaxIndex())
+        if (index = Selected.MaxIndex())
             commaSeparate := ""
         else
             commaSeparate := ", "
-        if(value)
+        if (value)
             selectMsg .= value . commaSeparate
         else
             selectMsg .= value . commaSeparate
@@ -2846,7 +2846,7 @@ SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
         Sleep, 30000
 
         ; Every 5 minutes, pull down the main ID list
-        if(mainIdsURL != "" && Mod(A_Index, 10) = 0) {
+        if (mainIdsURL != "" && Mod(A_Index, 10) = 0) {
             DownloadFile(mainIdsURL, "ids.txt")
         }
 
@@ -2861,15 +2861,15 @@ SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
         ; Display pack status at the bottom of the first reroll instance
         DisplayPackStatus(packStatus, ((runMain ? Mains * scaleParam : 0) + 5), 490)
 
-        if(heartBeat)
-            if((A_Index = 1 || (Mod(A_Index, (heartBeatDelay // 0.5)) = 0))) {
+        if (heartBeat)
+            if ((A_Index = 1 || (Mod(A_Index, (heartBeatDelay // 0.5)) = 0))) {
                 onlineAHK := ""
                 offlineAHK := ""
                 Online := []
 
                 Loop %Instances% {
                     IniRead, value, HeartBeat.ini, HeartBeat, Instance%A_Index%
-                    if(value)
+                    if (value)
                         Online.push(1)
                     else
                         Online.Push(0)
@@ -2877,19 +2877,19 @@ SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
                 }
 
                 for index, value in Online {
-                    if(index = Online.MaxIndex())
+                    if (index = Online.MaxIndex())
                         commaSeparate := ""
                     else
                         commaSeparate := ", "
-                    if(value)
+                    if (value)
                         onlineAHK .= A_Index . commaSeparate
                     else
                         offlineAHK .= A_Index . commaSeparate
                 }
 
-                if(runMain) {
+                if (runMain) {
                     IniRead, value, HeartBeat.ini, HeartBeat, Main
-                    if(value) {
+                    if (value) {
                         if (onlineAHK)
                             onlineAHK := "Main, " . onlineAHK
                         else
@@ -2904,11 +2904,11 @@ SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
                     IniWrite, 0, HeartBeat.ini, HeartBeat, Main
                 }
 
-                if(offlineAHK = "")
+                if (offlineAHK = "")
                     offlineAHK := "Offline: none"
                 else
                     offlineAHK := "Offline: " . RTrim(offlineAHK, ", ")
-                if(onlineAHK = "")
+                if (onlineAHK = "")
                     onlineAHK := "Online: none"
                 else
                     onlineAHK := "Online: " . RTrim(onlineAHK, ", ")
@@ -2954,7 +2954,7 @@ DisplayPackStatus(Message, X := 0, Y := 80) {
         else {
             ; Create a new GUI with light theme styling
             OwnerWND := WinExist(1)
-            if(!OwnerWND)
+            if (!OwnerWND)
                 Gui, %GuiName%:New, +ToolWindow -Caption +LastFound
             else
                 Gui, %GuiName%:New, +Owner%OwnerWND% +ToolWindow -Caption +LastFound
@@ -3101,7 +3101,7 @@ SumVariablesInJsonFile() {
     }
 
     ; Write the total sum to a file called "total.json"
-    if(sum > 0) {
+    if (sum > 0) {
         totalFile := A_ScriptDir . "\json\total.json"
         totalContent := "{""total_sum"": " sum "}"
         FileDelete, %totalFile%

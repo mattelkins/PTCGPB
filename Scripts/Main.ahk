@@ -112,7 +112,7 @@ CreateStatusMessage("Initializing bot...",,,, false)
 restartGameInstance("Initializing bot...", false)
 pToken := Gdip_Startup()
 
-if(heartBeat)
+if (heartBeat)
     IniWrite, 1, %A_ScriptDir%\..\HeartBeat.ini, HeartBeat, Main
 FindImageAndClick(120, 500, 155, 530, , "Social", 143, 518, 1000, 150)
 firstRun := true
@@ -153,13 +153,13 @@ Loop {
         Continue
     }
 
-    if(heartBeat)
+    if (heartBeat)
         IniWrite, 1, %A_ScriptDir%\..\HeartBeat.ini, HeartBeat, Main
     Sleep, %Delay%
     FindImageAndClick(120, 500, 155, 530, , "Social", 143, 518, 1000, 30)
     FindImageAndClick(226, 100, 270, 135, , "Add", 38, 460, 500)
     FindImageAndClick(170, 450, 195, 480, , "Approve", 228, 464)
-    if(firstRun) {
+    if (firstRun) {
         Sleep, 1000
         adbClick(205, 510)
         Sleep, 1000
@@ -169,35 +169,35 @@ Loop {
     done := false
     Loop 3 {
         Sleep, %Delay%
-        if(FindOrLoseImage(225, 195, 250, 215, , "Pending", 0)) {
+        if (FindOrLoseImage(225, 195, 250, 215, , "Pending", 0)) {
             failSafe := A_TickCount
             failSafeTime := 0
             Loop {
                 Sleep, %Delay%
                 clickButton := FindOrLoseImage(75, 340, 195, 530, 80, "Button", 0, failSafeTime) ;looking for ok button in case an invite is withdrawn
-                if(FindOrLoseImage(99Leftx, 110, 99Rightx, 127, , 99Path, 0, failSafeTime)) {
+                if (FindOrLoseImage(99Leftx, 110, 99Rightx, 127, , 99Path, 0, failSafeTime)) {
                     done := true
                     break
-                } else if(FindOrLoseImage(80, 170, 120, 195, , "player", 0, failSafeTime)) {
+                } else if (FindOrLoseImage(80, 170, 120, 195, , "player", 0, failSafeTime)) {
                     if (GPTest)
                         break
                     Sleep, %Delay%
                     adbClick(210, 210)
                     Sleep, 1000
-                } else if(FindOrLoseImage(225, 195, 250, 220, , "Pending", 0, failSafeTime)) {
+                } else if (FindOrLoseImage(225, 195, 250, 220, , "Pending", 0, failSafeTime)) {
                     if (GPTest)
                         break
                     adbClick(245, 210)
-                } else if(FindOrLoseImage(186, 496, 206, 518, , "Accept", 0, failSafeTime)) {
+                } else if (FindOrLoseImage(186, 496, 206, 518, , "Accept", 0, failSafeTime)) {
                     done := true
                     break
-                } else if(clickButton) {
+                } else if (clickButton) {
                     StringSplit, pos, clickButton, `,  ; Split at ", "
                     if (scaleParam = 287) {
                         pos2 += 5
                     }
                     Sleep, 1000
-                    if(FindImageAndClick(190, 195, 215, 220, , "DeleteFriend", pos1, pos2, 4000)) {
+                    if (FindImageAndClick(190, 195, 215, 220, , "DeleteFriend", pos1, pos2, 4000)) {
                         Sleep, %Delay%
                         adbClick(210, 210)
                     }
@@ -208,7 +208,7 @@ Loop {
                 CreateStatusMessage("Failsafe " . failSafeTime . "/180 seconds")
             }
         }
-        if(done || fullList|| GPTest)
+        if (done || fullList|| GPTest)
             break
     }
 }
@@ -216,7 +216,7 @@ return
 
 FindOrLoseImage(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", EL := 1, safeTime := 0) {
     global winTitle, Variation, failSafe
-    if(searchVariation = "")
+    if (searchVariation = "")
         searchVariation := Variation
     imagePath := A_ScriptDir . "\" . defaultLanguage . "\"
     confirmed := false
@@ -247,13 +247,13 @@ FindOrLoseImage(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", E
     ; ImageSearch within the region
     vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, X1, Y1, X2, Y2, searchVariation)
     Gdip_DisposeImage(pBitmap)
-    if(EL = 0)
+    if (EL = 0)
         GDEL := 1
     else
         GDEL := 0
     if (!confirmed && vRet = GDEL && GDEL = 1) {
         confirmed := vPosXY
-    } else if(!confirmed && vRet = GDEL && GDEL = 0) {
+    } else if (!confirmed && vRet = GDEL && GDEL = 0) {
         confirmed := true
     }
     pBitmap := from_window(WinExist(winTitle))
@@ -266,9 +266,9 @@ FindOrLoseImage(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", E
         LogToFile("Stuck at home while looking for " . imageName . "...")
         restartGameInstance("Stuck at " . imageName . "...")
     }
-    if(imageName = "Country" || imageName = "Social")
+    if (imageName = "Country" || imageName = "Social")
         FSTime := 90
-    else if(imageName = "Button")
+    else if (imageName = "Button")
         FSTime := 240
     else
         FSTime := 180
@@ -282,7 +282,7 @@ FindOrLoseImage(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", E
 
 FindImageAndClick(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", clickx := 0, clicky := 0, sleepTime := "", skip := false, safeTime := 0) {
     global winTitle, Variation, failSafe, confirmed
-    if(searchVariation = "")
+    if (searchVariation = "")
         searchVariation := Variation
     if (sleepTime = "") {
         global Delay
@@ -290,7 +290,7 @@ FindImageAndClick(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT",
     }
     imagePath := A_ScriptDir . "\" defaultLanguage "\"
     click := false
-    if(clickx > 0 and clicky > 0)
+    if (clickx > 0 and clicky > 0)
         click := true
     x := 0
     y := 0
@@ -317,7 +317,7 @@ FindImageAndClick(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT",
         }
     }
 
-    if(click) {
+    if (click) {
         adbClick(clickx, clicky)
         clickTime := A_TickCount
     }
@@ -325,9 +325,9 @@ FindImageAndClick(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT",
 
     Loop { ; Main loop
         Sleep, 10
-        if(click) {
+        if (click) {
             ElapsedClickTime := A_TickCount - clickTime
-            if(ElapsedClickTime > sleepTime) {
+            if (ElapsedClickTime > sleepTime) {
                 adbClick(clickx, clicky)
                 clickTime := A_TickCount
             }
@@ -347,7 +347,7 @@ FindImageAndClick(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT",
         if (!confirmed && vRet = 1) {
             confirmed := vPosXY
         } else {
-            if(skip < 45) {
+            if (skip < 45) {
                 ElapsedTime := (A_TickCount - StartSkipTime) // 1000
                 FSTime := 45
                 if (ElapsedTime >= FSTime || safeTime >= FSTime) {
@@ -384,7 +384,7 @@ FindImageAndClick(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT",
             restartGameInstance("At the home page while looking for " . imageName . "...")
         }
 
-        if(skip) {
+        if (skip) {
             ElapsedTime := (A_TickCount - StartSkipTime) // 1000
             if (ElapsedTime >= skip) {
                 return false
@@ -449,7 +449,7 @@ restartGameInstance(reason, RL := true){
     adbShell.StdIn.WriteLine("am start -n jp.pokemon.pokemontcgp/com.unity3d.player.UnityPlayerActivity")
 
     Sleep, 3000
-    if(RL) {
+    if (RL) {
         LogToFile("Restarted game for instance " . scriptName . ". Reason: " reason, "Restart.txt")
         Reload
     }
@@ -524,7 +524,7 @@ return
 
 ToggleTestScript() {
     global GPTest, triggerTestNeeded, testStartTime, firstRun
-    if(!GPTest) {
+    if (!GPTest) {
         GPTest := true
         triggerTestNeeded := true
         testStartTime := A_TickCount
@@ -667,7 +667,7 @@ from_window(ByRef image) {
 ~+F9::ToggleTestScript()
 
 ToggleStatusMessages() {
-    if(showStatus)
+    if (showStatus)
         showStatus := False
     else
         showStatus := True
@@ -734,7 +734,7 @@ DownloadFile(url, filename) {
     } catch {
         errored := true
     }
-    if(!errored) {
+    if (!errored) {
         FileDelete, %localPath%
         FileAppend, %contents%, %localPath%
     }
@@ -759,7 +759,7 @@ RemoveNonVipFriends() {
     ; Get us to the Social screen. Won't be super resilient but should be more consistent for most cases.
     Loop {
         adbClick(143, 518)
-        if(FindOrLoseImage(120, 500, 155, 530, , "Social", 0, failSafeTime))
+        if (FindOrLoseImage(120, 500, 155, 530, , "Social", 0, failSafeTime))
             break
         Delay(5)
         failSafeTime := (A_TickCount - failSafe) // 1000
