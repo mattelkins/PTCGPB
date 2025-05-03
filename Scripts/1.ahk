@@ -2664,8 +2664,8 @@ SelectPack(HG := false) {
         FindImageAndClick(115, 140, 160, 155, , "SelectExpansion", 245, 475)
 
         if (openPack = "Mewtwo" || openPack = "Charizard" || openPack = "Pikachu" || openPack = "Mew") {
-            ; Swipe down
-            adbSwipe("266 770 266 355 160")
+            ; Swipe up
+            adbSwipe("266 450 266 165 " . swipeSpeed)
             Sleep, 500
 
             packy := 470
