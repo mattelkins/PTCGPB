@@ -18,10 +18,10 @@ CoordMode, Pixel, Screen
 DllCall("AllocConsole")
 WinHide % "ahk_id " DllCall("GetConsoleWindow", "ptr")
 
-global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, scriptName, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, deleteMethod, packs, FriendID, friendIDs, Instances, username, friendCode, stopToggle, friended, runMain, Mains, showStatus, injectMethod, packMethod, loadDir, loadedAccount, nukeAccount, CheckShinyPackOnly, TrainerCheck, FullArtCheck, RainbowCheck, ShinyCheck, dateChange, foundGP, friendsAdded, PseudoGodPack, packArray, CrownCheck, ImmersiveCheck, InvalidCheck, slowMotion, screenShot, accountFile, invalid, starCount, keepAccount
+global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, scriptName, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, deleteMethod, packs, FriendID, friendIDs, Instances, username, friendCode, stopToggle, friended, runMain, Mains, showStatus, injectMethod, packMethod, loadedAccount, nukeAccount, CheckShinyPackOnly, TrainerCheck, FullArtCheck, RainbowCheck, ShinyCheck, dateChange, foundGP, friendsAdded, PseudoGodPack, packArray, CrownCheck, ImmersiveCheck, InvalidCheck, slowMotion, screenShot, accountFile, invalid, starCount, keepAccount
 global Mewtwo, Charizard, Pikachu, Mew, Dialga, Palkia, Arceus, Shining, Solgaleo, Lunala
 global shinyPacks, minStars, minStarsShiny, minStarsA1Mewtwo, minStarsA1Charizard, minStarsA1Pikachu, minStarsA1a, minStarsA2Dialga, minStarsA2Palkia, minStarsA2a, minStarsA2b, minStarsA3Solgaleo, minStarsA3Lunala
-global tesseractPath, DeadCheck, skipAddingFriends
+global tesseractPath, DeadCheck, skipAddingFriends, avgtotalSeconds
 global s4tEnabled, s4tSilent, s4t3Dmnd, s4t4Dmnd, s4t1Star, s4tGholdengo, s4tWP, s4tWPMinCards, s4tWPSaveOnly, s4tDiscordWebhookURL, s4tDiscordUserId, s4tSendAccountXml
 
 scriptName := StrReplace(A_ScriptName, ".ahk")
@@ -230,27 +230,38 @@ if (DeadCheck = 1) {
         friended := false
         skipAddingFriends := (InStr(FriendID, "!") = 1)
 
-        FormatTime, CurrentTime,, HHmm
-        StartTime := changeDate - 45 ; 12:55 AM2355
-        EndTime := changeDate + 5 ; 1:01 AM
-
-        ; Adjust for crossing midnight
-        if (StartTime < 0)
-            StartTime += 2400
-        if (EndTime >= 2400)
-            EndTime -= 2400
-
-        Random, randomTime, 3, 7
-
-        while(((CurrentTime - StartTime >= 0) && (CurrentTime - StartTime <= randomTime)) || ((EndTime - CurrentTime >= 0) && (EndTime - CurrentTime <= randomTime)))
-        {
-            CreateStatusMessage("I need a break... Sleeping until " . changeDate + randomTime,,,, false)
-            FormatTime, CurrentTime,, HHmm ; Update the current time after sleep
-            Sleep, 5000
-            dateChange := true
+        changeDate := getChangeDateTime()
+        if (avgtotalSeconds > 0 ) {
+            StartTime := changeDate
+            StartTime += -(1.5*avgtotalSeconds), Seconds
+            EndTime := changeDate
+            EndTime += (1.5*avgtotalSeconds), Seconds
+        } else {
+            StartTime := changeDate
+            StartTime += -10, minutes
+            EndTime := changeDate
+            EndTime += 5, minutes
         }
-        if (dateChange)
-            createAccountList(scriptName)
+
+        StartCurrentTimeDiff := A_Now
+        EnvSub, StartCurrentTimeDiff, %StartTime%, Seconds
+        EndCurrentTimeDiff := A_Now
+        EnvSub, EndCurrentTimeDiff, %EndTime%, Seconds
+
+        dateChange := false
+        while (StartCurrentTimeDiff > 0 && EndCurrentTimeDiff < 0) {
+            CreateStatusMessage("I need a break... Sleeping until " . EndTime ,,,, false)
+            dateChange := true
+            Sleep, 5000
+
+            StartCurrentTimeDiff := A_Now
+            EnvSub, StartCurrentTimeDiff, %StartTime%, Seconds
+            EndCurrentTimeDiff := A_Now
+            EnvSub, EndCurrentTimeDiff, %EndTime%, Seconds
+        }
+
+        createAccountList(scriptName)
+
         FindImageAndClick(65, 195, 100, 215, , "Platin", 18, 109, 2000) ; click mod settings
         if (setSpeed = 3)
             FindImageAndClick(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
@@ -301,13 +312,13 @@ if (DeadCheck = 1) {
             HourglassOpening()
 
         if (wonderPicked) {
-            if (deleteMethod != "5 Pack (Fast)" && !skipAddingFriends) {
+            if (deleteMethod != "5 Pack (Fast)" && !injectMethod && !skipAddingFriends) {
                 friendsAdded := AddFriends(true)
+                SelectPack("HGPack")
+                PackOpening()
             } else {
-                FindImageAndClick(20, 500, 55, 530, , "Home", 40, 516, 500)
+                HourglassOpening(true)
             }
-            SelectPack("HGPack")
-            PackOpening()
             if (packMethod) {
                 if (!skipAddingFriends)
                     friendsAdded := AddFriends(true)
@@ -328,9 +339,6 @@ if (DeadCheck = 1) {
             CreateStatusMessage("Unfriending...",,,, false)
             RemoveFriends()
         }
-
-        if (injectMethod)
-            loadedAccount := loadAccount()
 
         if (!loadedAccount)
             if (deleteMethod = "5 Pack" || packMethod)
@@ -383,6 +391,9 @@ if (DeadCheck = 1) {
 
             CreateStatusMessage("New Run",,,, false)
         }
+
+        if (injectMethod)
+            loadedAccount := loadAccount()
     }
 }
 return
@@ -712,10 +723,11 @@ EraseInput(num := 0, total := 0) {
     failSafeTime := 0
     Loop {
         FindImageAndClick(0, 475, 25, 495, , "OK2", 138, 454)
-        Loop 20 {
-            adbInputEvent("67")
-            Sleep, 10
-        }
+        adbClick(50, 500)
+        Sleep, 10
+        adbClick(50, 500)
+        Sleep, 10
+        adbInputEvent("67")
         if (FindOrLoseImage(15, 500, 68, 520, , "Erase", 0, failSafeTime))
             break
     }
@@ -1779,22 +1791,11 @@ GodPackFound(validity) {
 }
 
 loadAccount() {
-    global loadDir
     CreateStatusMessage("Loading account...",,,, false)
-    currentDate := A_Now
-    year := SubStr(currentDate, 1, 4)
-    month := SubStr(currentDate, 5, 2)
-    day := SubStr(currentDate, 7, 2)
 
-    daysSinceBase := (year - 1900) * 365 + Floor((year - 1900) / 4)
-    daysSinceBase += MonthToDays(year, month)
-    daysSinceBase += day
+    saveDir := A_ScriptDir "\..\Accounts\Saved\" . winTitle
 
-    remainder := Mod(daysSinceBase, 3)
-
-    saveDir := A_ScriptDir "\..\Accounts\Saved\" . remainder . "\" . winTitle
-
-    outputTxt := saveDir . "\list.txt"
+    outputTxt := saveDir . "\list_current.txt"
 
     if FileExist(outputTxt) {
         FileRead, fileContent, %outputTxt%  ; Read entire file
@@ -1804,22 +1805,22 @@ loadAccount() {
             cycle := 0
             Loop {
                 CreateStatusMessage("Making sure XML is > 24 hours old: " . cycle . " attempts")
-                loadDir := saveDir . "\" . fileLines[1]  ; Store the first line
-                test := fileExist(loadDir)
+                loadFile := saveDir . "\" . fileLines[1]  ; Store the first line
+                test := fileExist(loadFile)
 
-                if (!InStr(loadDir, "xml"))
+                if (!InStr(loadFile, "xml"))
                     return false
-                newContent := ""
-                Loop, % fileLines.MaxIndex() - 1  ; Start from the second line
-                    newContent .= fileLines[A_Index + 1] "`r`n"
+                newListContent := ""
+                Loop, % fileLines.MaxIndex() - 1  ; remove first line TODO improve
+                    newListContent .= fileLines[A_Index + 1] "`r`n"
 
-                FileDelete, %outputTxt%  ; Delete old file
-                FileAppend, %newContent%, %outputTxt%  ; Write back without the first line
+                FileDelete, %outputTxt%  ; Delete old file TODO improve
+                FileAppend, %newListContent%, %outputTxt%  ; Write back without the first line
 
-                FileGetTime, fileTime, %loadDir%, M  ; Get last modified time
-                timeDiff := A_Now - fileTime
-
-                if (timeDiff > 86400)
+                FileGetTime, accountFileTime, %loadFile%, M  ; Get last modified time of account file
+                accountModifiedTimeDiff := A_Now
+                EnvSub, accountModifiedTimeDiff, %accountFileTime%, Hours
+                if (accountModifiedTimeDiff >= 24)
                     break
                 cycle++
                 Delay(1)
@@ -1829,7 +1830,7 @@ loadAccount() {
 
     adbShell.StdIn.WriteLine("am force-stop jp.pokemon.pokemontcgp")
 
-    RunWait, % adbPath . " -s 127.0.0.1:" . adbPort . " push " . loadDir . " /sdcard/deviceAccount.xml",, Hide
+    RunWait, % adbPath . " -s 127.0.0.1:" . adbPort . " push " . loadFile . " /sdcard/deviceAccount.xml",, Hide
 
     Sleep, 500
 
@@ -1841,27 +1842,16 @@ loadAccount() {
     waitadb()
     Sleep, 1000
 
-    FileSetTime,, %loadDir%
+    FileSetTime,, %loadFile%
 
-    return loadDir
+    return loadFile
 }
 
 saveAccount(file := "Valid", ByRef filePath := "", packDetails := "") {
-    currentDate := A_Now
-    year := SubStr(currentDate, 1, 4)
-    month := SubStr(currentDate, 5, 2)
-    day := SubStr(currentDate, 7, 2)
-
-    daysSinceBase := (year - 1900) * 365 + Floor((year - 1900) / 4)
-    daysSinceBase += MonthToDays(year, month)
-    daysSinceBase += day
-
-    remainder := Mod(daysSinceBase, 3)
-
     filePath := ""
 
     if (file = "All") {
-        saveDir := A_ScriptDir "\..\Accounts\Saved\" . remainder . "\" . winTitle
+        saveDir := A_ScriptDir "\..\Accounts\Saved\" . winTitle
         filePath := saveDir . "\" . A_Now . "_" . winTitle . ".xml"
     } else if (file = "Valid" || file = "Invalid") {
         saveDir := A_ScriptDir "\..\Accounts\GodPacks\"
@@ -2601,7 +2591,50 @@ SelectPack(HG := false) {
     } else {
         packx := 60
     }
-    FindImageAndClick(233, 400, 264, 428, , "Points", packx, packy)
+
+    if (HG = "First") {
+        failSafe := A_TickCount
+        failSafeTime := 0
+        Loop {
+            adbClick(packx, packy)
+            Delay(1)
+            if (FindOrLoseImage(233, 400, 264, 428, , "Points", 0, failSafeTime)) {
+                break
+            }
+            else if (!renew && !getFC) {
+                clickButton := FindOrLoseImage(75, 340, 195, 530, 80, "Button", 0)
+                if (clickButton) {
+                    StringSplit, pos, clickButton, `,  ; Split at ", "
+                    if (scaleParam = 287) {
+                        pos2 += 5
+                    }
+                    adbClick(pos1, pos2)
+                }
+            }
+            else if (FindOrLoseImage(175, 165, 255, 235, , "Hourglass3", 0)) {
+                ;TODO hourglass tutorial still broken after injection
+                Delay(3)
+                adbClick(146, 441) ; 146 440
+                Delay(3)
+                adbClick(146, 441)
+                Delay(3)
+                adbClick(146, 441)
+                Delay(3)
+
+                FindImageAndClick(98, 184, 151, 224, , "Hourglass1", 168, 438, 500, 5) ;stop at hourglasses tutorial 2
+                Delay(1)
+
+                adbClick(203, 436) ; 203 436
+                FindImageAndClick(236, 198, 266, 226, , "Hourglass2", 180, 436, 500) ;stop at hourglasses tutorial 2 180 to 203?
+            }
+
+            failSafeTime := (A_TickCount - failSafe) // 1000
+            CreateStatusMessage("Waiting for Points`n(" . failSafeTime . "/90 seconds)")
+        }
+    } else {
+        FindImageAndClick(233, 400, 264, 428, , "Points", packx, packy)
+    }
+
     if (openPack = "Mewtwo" || openPack = "Charizard" || openPack = "Pikachu" || openPack = "Mew" || openPack = "Dialga" || openPack = "Palkia" || openPack = "Arceus") {
         FindImageAndClick(115, 140, 160, 155, , "SelectExpansion", 245, 475)
 
@@ -2660,17 +2693,17 @@ SelectPack(HG := false) {
             CreateStatusMessage("Waiting for HourglassPack4`n(" . failSafeTime . "/45 seconds)")
         }
     }
-    ;if (HG != "Tutorial")
-        failSafe := A_TickCount
-        failSafeTime := 0
-        Loop {
-            if (FindImageAndClick(233, 486, 272, 519, , "Skip2", 130, 430, , 2)) ;click on next until skip button appears
-                break
-            Delay(1)
-            adbClick(200, 451)
-            failSafeTime := (A_TickCount - failSafe) // 1000
-            CreateStatusMessage("Waiting for Skip2`n(" . failSafeTime . "/45 seconds)")
-        }
+
+    failSafe := A_TickCount
+    failSafeTime := 0
+    Loop {
+        if (FindImageAndClick(233, 486, 272, 519, , "Skip2", 130, 430, , 2)) ;click on next until skip button appears
+            break
+        Delay(1)
+        adbClick(200, 451)
+        failSafeTime := (A_TickCount - failSafe) // 1000
+        CreateStatusMessage("Waiting for Skip2`n(" . failSafeTime . "/45 seconds)")
+    }
 }
 
 PackOpening() {
@@ -2718,8 +2751,6 @@ PackOpening() {
 
     CheckPack()
 
-    FindImageAndClick(233, 486, 272, 519, , "Skip", 146, 494) ;click on next until skip button appears
-
     failSafe := A_TickCount
     failSafeTime := 0
     Loop {
@@ -2734,6 +2765,8 @@ PackOpening() {
             break
         } else if (FindOrLoseImage(178, 193, 251, 282, , "Hourglass", 0, failSafeTime)) {
             break
+        } else {
+            adbClick(146, 494)
         }
         failSafeTime := (A_TickCount - failSafe) // 1000
         CreateStatusMessage("Waiting for Home`n(" . failSafeTime . "/45 seconds)")
@@ -2897,33 +2930,32 @@ getFriendCode() {
 }
 
 createAccountList(instance) {
-    currentDate := A_Now
-    year := SubStr(currentDate, 1, 4)
-    month := SubStr(currentDate, 5, 2)
-    day := SubStr(currentDate, 7, 2)
-
-    daysSinceBase := (year - 1900) * 365 + Floor((year - 1900) / 4)
-    daysSinceBase += MonthToDays(year, month)
-    daysSinceBase += day
-
-    remainder := Mod(daysSinceBase, 3)
-
-    saveDir := A_ScriptDir "\..\Accounts\Saved\" . remainder . "\" . instance
+    saveDir := A_ScriptDir "\..\Accounts\Saved\" . instance
     outputTxt := saveDir . "\list.txt"
+    outputTxt_current := saveDir . "\list_current.txt"
 
     if FileExist(outputTxt) {
-        FileGetTime, fileTime, %outputTxt%, M  ; Get last modified time
-        timeDiff := A_Now - fileTime  ; Calculate time difference
-        if (timeDiff > 86400)  ; 24 hours in seconds (60 * 60 * 24)
+        fileModifiedTimeDiff := A_Now
+        FileGetTime, fileModifiedTime, %outputTxt%, M  ; Get last modified time
+        EnvSub, fileModifiedTimeDiff, %fileModifiedTime%, Hours
+        if (fileModifiedTimeDiff >= 1) {
+            ; file modified 1 hours ago or more
             FileDelete, %outputTxt%
+            FileDelete, %outputTxt_current%
+        }
     }
     if (!FileExist(outputTxt)) {
+        if (FileExist(outputTxt_current))
+            FileDelete, %outputTxt_current%
+
         Loop, %saveDir%\*.xml {
             xml := saveDir . "\" . A_LoopFileName
-            FileGetTime, fileTime, %xml%, M
-            timeDiff := A_Now - fileTime  ; Calculate time difference
-            if (timeDiff > 86400) {  ; 24 hours in seconds (60 * 60 * 24)
-                FileAppend, % A_LoopFileName "`n", %outputTxt%  ; Append file path to output.txt\
+            fileModifiedTimeDiff := A_Now
+            FileGetTime, fileModifiedTime, %xml%, M
+            EnvSub, fileModifiedTimeDiff, %fileModifiedTime%, Hours
+            if (fileModifiedTimeDiff >= 24) {  ; 24 hours
+                FileAppend, % A_LoopFileName "`n", %outputTxt%  ; Append file path to list.txt\
+                FileAppend, % A_LoopFileName "`n", %outputTxt_current%  ; Append file path to list_current.txt\
             }
         }
     }
@@ -3018,51 +3050,22 @@ DoWonderPick() {
 }
 
 getChangeDateTime() {
-    ; Get system timezone bias and determine local time for 1 AM EST
+    offset := A_Now
+    currenttimeutc := A_NowUTC
+    EnvSub, offset, %currenttimeutc%, Hours   ;offset from local timezone to UTC
 
-    ; Retrieve timezone information from Windows registry
-    RegRead, TimeBias, HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\TimeZoneInformation, Bias
-    RegRead, DltBias, HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\TimeZoneInformation, ActiveTimeBias
+    resetTime := SubStr(A_Now, 1, 8) "060000" ;today at 6am [utc] zero seconds is the reset time at UTC
+    resetTime += offset, Hours                ;reset time in local timezone
 
-    ; Convert registry values to integers
-    Bias := TimeBias + 0
-    DltBias := DltBias + 0
+    ;find the closest reset time
+    currentTime := A_Now
+    timeToReset := resetTime
+    EnvSub, timeToReset, %currentTime%, Hours
+    if (timeToReset > 12) {
+        resetTime += -1, Days
+    } else if (timeToReset < -12) {
+        resetTime += 1, Days
+    }
 
-    ; Determine if Daylight Saving Time (DST) is active
-    IsDST := (Bias != DltBias) ? 1 : 0
-
-    ; EST is UTC-5 (300 minutes offset)
-    EST_Offset := 300
-
-    ; Use the correct local offset (DST or Standard)
-    Local_Offset := (IsDST) ? DltBias : Bias
-
-    ; Convert 1 AM EST to UTC (UTC = EST + 5 hours)
-    UTC_Time := 1 + EST_Offset / 60  ; 06:00 UTC
-
-    ; Convert UTC to local time
-    Local_Time := UTC_Time - (Local_Offset / 60)
-
-    ; Round to ensure we get whole numbers
-    Local_Time := Floor(Local_Time)
-
-    ; Handle 24-hour wrap-around
-    If (Local_Time < 0)
-        Local_Time += 24
-    Else If (Local_Time >= 24)
-        Local_Time -= 24
-
-    ; Format output as HHMM
-    FormattedTime := (Local_Time < 10 ? "0" : "") . Local_Time . "00"
-
-    Return FormattedTime
+    return resetTime
 }
-
-
-/*
-^e::
-    msgbox ss
-    pToken := Gdip_Startup()
-    Screenshot()
-return
-*/
