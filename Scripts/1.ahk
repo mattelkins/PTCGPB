@@ -216,11 +216,15 @@ global adbSwipeParams := adbSwipeX1 . " " . adbSwipeY . " " . adbSwipeX2 . " " .
 if (DeadCheck = 1) {
     friended:= true
     menuDeleteStart()
+    deleteUserPrefs()
     IniWrite, 0, %A_ScriptDir%\%scriptName%.ini, UserSettings, DeadCheck
     Reload
 } else {
     Loop {
         IniWrite, 1, %A_ScriptDir%\..\HeartBeat.ini, HeartBeat, Instance%scriptName%
+
+        ; Clean up after previous run.
+        deleteUserPrefs()
 
         Randmax := packArray.Length()
         Random, rand, 1, Randmax
@@ -1903,6 +1907,27 @@ saveAccount(file := "Valid", ByRef filePath := "", packDetails := "") {
     }
 
     return xmlFile
+}
+
+deleteUserPrefs() {
+    static UserPreferencesPath := "/data/data/jp.pokemon.pokemontcgp/files/UserPreferences/v1/"
+    static UserPreferences := ["BattleUserPrefs"
+        ,"FeedUserPrefs"
+        ,"FilterConditionUserPrefs"
+        ,"HomeBattleMenuUserPrefs"
+        ,"MissionUserPrefs"
+        ,"NotificationUserPrefs"
+        ,"PackUserPrefs"
+        ,"PvPBattleResumeUserPrefs"
+        ,"RankMatchPvEResumeUserPrefs"
+        ,"RankMatchUserPrefs"
+        ,"SoloBattleResumeUserPrefs"
+        ,"SortConditionUserPrefs"]
+
+    Loop, % UserPreferences.MaxIndex() {
+        adbShell.StdIn.WriteLine("rm -f " . UserPreferencesPath . UserPreferences[A_Index])
+        Sleep, 200
+    }
 }
 
 ControlClick(X, Y) {
