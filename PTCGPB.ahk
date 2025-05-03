@@ -1425,7 +1425,7 @@ HandleKeyboardShortcut(sectionIndex) {
 
         ; Set section title
         friendlyName := GetFriendlyName(sectionName)
-        GuiControl,, ActiveSection, Current Section: %friendlyName%
+        GuiControl,, ActiveSection, %friendlyName%
 
         ; Update section color
         sectionColor := isDarkTheme ? DARK_SECTION_COLORS[sectionName] : LIGHT_SECTION_COLORS[sectionName]
@@ -2144,7 +2144,7 @@ UpdateTabButtonColors()
 ApplyTheme()  ; Ensure everything is colored properly on startup
 
 ; Update the section title to indicate welcome screen
-GuiControl,, ActiveSection, Welcome to PTCGP Bot - Select a section from the sidebar
+GuiControl,, ActiveSection, Welcome
 
 ; Update keyboard shortcuts for sections (updated to new structure)
 ^1::HandleKeyboardShortcut(1)    ; Reroll Settings
@@ -2255,7 +2255,7 @@ ToggleSection:
 
     ; Set section title with section-specific color
     friendlyName := GetFriendlyName(SectionName)
-    GuiControl,, ActiveSection, Current Section: %friendlyName%
+    GuiControl,, ActiveSection, %friendlyName%
 
     ; Get section color
     sectionColor := isDarkTheme ? DARK_SECTION_COLORS[SectionName] : LIGHT_SECTION_COLORS[SectionName]
